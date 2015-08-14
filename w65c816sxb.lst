@@ -1,0 +1,457 @@
+  Thu Aug 13 2015 14:13                                                                                                    Page 1
+
+
+                                               ***************************************
+                                               **      WDC 65C816 Macro Assembler   **
+                                               **                                   **
+                                               **     Version 3.49.1- Feb  6 2006    **
+                                               ***************************************
+
+     1                        ;==============================================================================
+     2                        ; __        ____  ____   ____ ___  _  __  ______  ______
+     3                        ; \ \      / / /_| ___| / ___( _ )/ |/ /_/ ___\ \/ / __ )
+     4                        ;  \ \ /\ / / '_ \___ \| |   / _ \| | '_ \___ \\  /|  _ \
+     5                        ;   \ V  V /| (_) |__) | |__| (_) | | (_) |__) /  \| |_) |
+     6                        ;    \_/\_/  \___/____/ \____\___/|_|\___/____/_/\_\____/
+     7                        ;
+     8                        ; Basic Vector Handling for the W65C816SXB Development Board
+     9                        ;------------------------------------------------------------------------------
+    10                        ; Copyright (C)2015 HandCoded Software Ltd.
+    11                        ; All rights reserved.
+    12                        ;
+    13                        ; This work is made available under the terms of the Creative Commons
+    14                        ; Attribution-NonCommercial-ShareAlike 4.0 International license. Open the
+    15                        ; following URL to see the details.
+    16                        ;
+    17                        ; http://creativecommons.org/licenses/by-nc-sa/4.0/
+    18                        ;
+    19                        ;==============================================================================
+    20                        ; Notes:
+    21                        ;
+    22                        ;
+    23                        ;------------------------------------------------------------------------------
+    24                        
+    25                                        pw      132
+    26                                        inclist on
+    27                        
+    28                                        chip    65816
+    29                                        longi   off
+    30                                        longa   off
+    31                        
+    32                                        include "w65c816.inc"
+     1                        ;==============================================================================
+     2                        ; __        ____  ____   ____ ___  _  __   
+     3                        ; \ \      / / /_| ___| / ___( _ )/ |/ /_  
+     4                        ;  \ \ /\ / / '_ \___ \| |   / _ \| | '_ \ 
+     5                        ;   \ V  V /| (_) |__) | |__| (_) | | (_) |
+     6                        ;    \_/\_/  \___/____/ \____\___/|_|\___/ 
+     7                        ;
+     8                        ; Western Design Center W65C816 device definitions                                          
+     9                        ;------------------------------------------------------------------------------
+    10                        
+    11                        
+    12                        ;==============================================================================
+    13                        ; Status Register Bits
+    14                        ;------------------------------------------------------------------------------
+    15                        
+    16             00000007   N_FLAG          equ     7
+    17             00000006   V_FLAG          equ     6
+    18             00000005   M_FLAG          equ     5
+    19             00000004   X_FLAG          equ     4
+    20             00000004   B_FLAG          equ     4
+  Thu Aug 13 2015 14:13                                                                                                    Page 2
+
+
+    21             00000003   D_FLAG          equ     3
+    22             00000002   I_FLAG          equ     2
+    23             00000001   Z_FLAG          equ     1
+    24             00000000   C_FLAG          equ     0
+    25                        
+    26                        ;==============================================================================
+    27                        ; Macros
+    28                        ;------------------------------------------------------------------------------
+    29                        
+    30                        ; Puts the processor in emulation mode. A, X and Y become 8-bits and the stack
+    31                        ; is fixed at $0100-$01ff. 
+    32                        
+    33                        emulate         macro
+    34                                        sec
+    35                                        xce
+    36                                        endm
+    37                        
+    38                        ; Puts the processor in native mode. The size of the memory and index register
+    39                        ; operations is not controlled by the M & X bits in the status register.
+    40                        
+    41                        native          macro
+    42                                        clc
+    43                                        xce
+    44                                        endm
+    45                        
+    46                        ; Resets the M bit making the accumator and memory accesses 16-bits wide.
+    47                         
+    48                        long_a          macro
+    49                                        rep     #(1<<M_FLAG)
+    50                                        longa   on
+    51                                        endm
+    52                        
+    53                        ; Resets the X bit making the index registers 16-bits wide
+    54                        
+    55                        long_i          macro
+    56                                        rep     #(1<<X_FLAG)
+    57                                        longi   on
+    58                                        endm
+    59                        
+    60                        ; Resets the M and X bits making the accumator, memory accesses and index
+    61                        ; registers 16-bits wide.
+    62                                        
+    63                        long_ai         macro
+    64                                        rep     #(1<<M_FLAG)|(1<<X_FLAG)
+    65                                        longa   on
+    66                                        longi   on
+    67                                        endm
+    68                        
+    69                        ; Sets the M bit making the accumator and memory accesses 16-bits wide.
+    70                        
+    71                        short_a         macro
+    72                                        sep     #(1<<M_FLAG)
+    73                                        longa   off
+    74                                        endm
+    75                        
+    76                        short_i         macro
+    77                                        sep     #(1<<X_FLAG)
+    78                                        longi   off
+  Thu Aug 13 2015 14:13                                                                                                    Page 3
+
+
+    79                                        endm
+    80                                        
+    81                        short_ai        macro
+    82                                        rep     #(1<<M_FLAG)|(1<<X_FLAG)
+    83                                        longa   off
+    84                                        longi   off
+    85                                        endm
+    33                                        include "w65c816sxb.inc"
+     1                        ;==============================================================================
+     2                        ; __        ____  ____   ____ ___  _  __  ______  ______
+     3                        ; \ \      / / /_| ___| / ___( _ )/ |/ /_/ ___\ \/ / __ )
+     4                        ;  \ \ /\ / / '_ \___ \| |   / _ \| | '_ \___ \\  /|  _ \
+     5                        ;   \ V  V /| (_) |__) | |__| (_) | | (_) |__) /  \| |_) |
+     6                        ;    \_/\_/  \___/____/ \____\___/|_|\___/____/_/\_\____/
+     7                        ;
+     8                        ; Western Design Center W65C816SXB Development Board Hardware Definitions
+     9                        ;------------------------------------------------------------------------------
+    10                        ; Copyright (C)2015 HandCoded Software Ltd.
+    11                        ; All rights reserved.
+    12                        ;
+    13                        ; This work is made available under the terms of the Creative Commons
+    14                        ; Attribution-NonCommercial-ShareAlike 4.0 International license. Open the
+    15                        ; following URL to see the details.
+    16                        ;
+    17                        ; http://creativecommons.org/licenses/by-nc-sa/4.0/
+    18                        ;
+    19                        ;==============================================================================
+    20                        ; Notes:
+    21                        ;
+    22                        ; All of the current stock of W65C51 ACIAs have a silicon bug that causes the
+    23                        ; 'Transmit Data Register Empty' (TDRE) bit in the status register to be stuck
+    24                        ; high making it impossible to tell when the transmitter is ready for the next
+    25                        ; data byte.
+    26                        ;
+    27                        ;------------------------------------------------------------------------------
+    28                        
+    29             007A1200   OSC_FREQ        equ     8000000                 ; SXB runs at 8MHz
+    30                        
+    31                        ;==============================================================================
+    32                        ; W65C51 ACIA
+    33                        ;------------------------------------------------------------------------------
+    34                        
+    35             00007F80   ACIA_RXD        equ     $7f80
+    36             00007F80   ACIA_TXD        equ     $7f80
+    37             00007F81   ACIA_SR         equ     $7f81
+    38             00007F82   ACIA_CMD        equ     $7f82
+    39             00007F83   ACIA_CTL        equ     $7f83
+    40                        
+    41                        ;==============================================================================
+    42                        ; W65C21 PIA
+    43                        ;------------------------------------------------------------------------------
+    44                        
+    45             00007FA0   PIA_PIA         equ     $7fa0
+    46             00007FA0   PIA_DDRA        equ     $7fa0
+    47             00007FA1   PIA_CRA         equ     $7fa1
+    48             00007FA2   PIA_PIB         equ     $7fa2
+    49             00007FA2   PIA_DDRB        equ     $7fa2
+    50             00007FA3   PIA_CRB         equ     $7fa3
+  Thu Aug 13 2015 14:13                                                                                                    Page 4
+
+
+    51                        
+    52                        ;==============================================================================
+    53                        ; W65C22 VIA
+    54                        ;------------------------------------------------------------------------------
+    55                        
+    56             00007FC0   VIA1_ORB        equ     $7fc0
+    57             00007FC0   VIA1_IRB        equ     $7fc0
+    58             00007FC1   VIA1_ORA        equ     $7fc1
+    59             00007FC1   VIA1_IRA        equ     $7fc1
+    60             00007FC2   VIA1_DDRB       equ     $7fc2
+    61             00007FC3   VIA1_DDRA       equ     $7fc3
+    62             00007FC4   VIA1_T1CL       equ     $7fc4
+    63             00007FC5   VIA1_T1CH       equ     $7fc5
+    64             00007FC6   VIA1_T1LL       equ     $7fc6
+    65             00007FC7   VIA1_T1LH       equ     $7fc7
+    66             00007FC8   VIA1_T2CL       equ     $7fc8
+    67             00007FC9   VIA1_T2CH       equ     $7fc9
+    68             00007FCA   VIA1_SR         equ     $7fca
+    69             00007FCB   VIA1_ACR        equ     $7fcb
+    70             00007FCC   VIA1_PCR        equ     $7fcc
+    71             00007FCD   VIA1_IFR        equ     $7fcd
+    72             00007FCE   VIA1_IER        equ     $7fce
+    73             00007FCF   VIA1_ORAN       equ     $7fcf
+    74             00007FCF   VIA1_IRAN       equ     $7fcf
+    75                        
+    76                        ;------------------------------------------------------------------------------
+    77                        
+    78             00007FE0   VIA2_ORB        equ     $7fe0
+    79             00007FE0   VIA2_IRB        equ     $7fe0
+    80             00007FE1   VIA2_ORA        equ     $7fe1
+    81             00007FE1   VIA2_IRA        equ     $7fe1
+    82             00007FE2   VIA2_DDRB       equ     $7fe2
+    83             00007FE3   VIA2_DDRA       equ     $7fe3
+    84             00007FE4   VIA2_T1CL       equ     $7fe4
+    85             00007FE5   VIA2_T1CH       equ     $7fe5
+    86             00007FE6   VIA2_T1LL       equ     $7fe6
+    87             00007FE7   VIA2_T1LH       equ     $7fe7
+    88             00007FE8   VIA2_T2CL       equ     $7fe8
+    89             00007FE9   VIA2_T2CH       equ     $7fe9
+    90             00007FEA   VIA2_SR         equ     $7fea
+    91             00007FEB   VIA2_ACR        equ     $7feb
+    92             00007FEC   VIA2_PCR        equ     $7fec
+    93             00007FED   VIA2_IFR        equ     $7fed
+    94             00007FEE   VIA2_IER        equ     $7fee
+    95             00007FEF   VIA2_ORAN       equ     $7fef
+    96             00007FEF   VIA2_IRAN       equ     $7fef
+    34                        
+    35                        ;==============================================================================
+    36                        ; Power On Reset
+    37                        ;------------------------------------------------------------------------------
+    38                        
+    39                                        code
+    40                                        extern  Start
+    41                        RESET:
+    42 00:0000: 78                           sei                             ; Stop interrupts
+    43 00:0001: A2 FF                        ldx     #$ff
+    44 00:0003: 9A                           txs
+    45                        
+  Thu Aug 13 2015 14:13                                                                                                    Page 5
+
+
+    46 00:0004: A9 1F                        lda     #%00011111              ; 8 bits, 1 stop bit, 19200 baud
+    47 00:0006: 8D 83 7F                     sta     ACIA_CTL
+    48 00:0009: A9 09                        lda     #%00001001              ; No parity, no interrupt
+    49 00:000B: 8D 82 7F                     sta     ACIA_CMD
+    50 00:000E: AD 80 7F                     lda     ACIA_RXD                ; Clear receive buffer
+    51 00:0011: AD 80 7F                     lda     ACIA_RXD
+    52                        
+    53                                        native
++   53 00:0014: 18                           clc
++   53 00:0015: FB                           xce
+    54 00:0016: 4C xx xx                     jmp     Start                   ; Jump to the application start
+    55                        
+    56                        ;==============================================================================
+    57                        ; Interrupt Handlers
+    58                        ;------------------------------------------------------------------------------
+    59                        
+    60                        ; Handle IRQ and BRK interrupts in emulation mode.
+    61                        
+    62                        IRQBRK:
+    63 00:0019: 80 FE                        bra     $                       ; Loop forever
+    64                        
+    65                        ; Handle NMI interrupts in emulation mode.
+    66                        
+    67                        NMIRQ:
+    68 00:001B: 80 FE                        bra     $                       ; Loop forever
+    69                        
+    70                        ;------------------------------------------------------------------------------
+    71                        
+    72                        ; Handle IRQ interrupts in native mode.
+    73                        
+    74                        IRQ:
+    75 00:001D: 80 FE                        bra     $                       ; Loop forever
+    76                        
+    77                        ; Handle IRQ interrupts in native mode.
+    78                        
+    79                        BRK:
+    80 00:001F: 80 FE                        bra     $                       ; Loop forever
+    81                        
+    82                        ; Handle IRQ interrupts in native mode.
+    83                        
+    84                        NMI:
+    85 00:0021: 80 FE                        bra     $                       ; Loop forever
+    86                        
+    87                        ;------------------------------------------------------------------------------
+    88                        
+    89                        ; COP and ABORT interrupts are not handled.
+    90                        
+    91                        COP:
+    92 00:0023: 80 FE                        bra     $                       ; Loop forever
+    93                        
+    94                        ABORT:
+    95 00:0025: 80 FE                        bra     $                       ; Loop forever
+    96                        
+    97                        ;==============================================================================
+    98                        ; Buffered UART Interface
+    99                        ;------------------------------------------------------------------------------
+   100                        
+   101                        ; Adds the character in A to the transmit buffer. If the buffer is full then
+  Thu Aug 13 2015 14:13                                                                                                    Page 6
+
+
+   102                        ; wait for it to drain.
+   103                        
+   104                                        public  UartTx
+   105                        UartTx:
+   106                                        if      0
+   107                                        phx
+   108                                        php
+   109                                        short_ai
+   110                                        ldx     #$00                    ; Make data port all input
+   111                                        stx     VIA2_DDRA
+   112                                        sta     VIA2_ORA                ; Save the output character
+   113                                        lda     #%01
+   114                        TxWait:         bit     VIA2_IRB                ; Is there space for more data
+   115                                        bne     TxWait
+   116                        
+   117                                        lda     VIA2_IRB                ; Strobe WR
+   118                                        and     #$fb
+   119                                        tax
+   120                                        ora     #$04
+   121                                        sta     VIA2_ORB
+   122                                        lda     #$ff                    ; Make data port all output
+   123                                        sta     VIA2_DDRA
+   124                                        nop
+   125                                        nop
+   126                                        stx     VIA2_ORB                ; End strobe
+   127                                        lda     VIA2_IRA
+   128                                        ldx     #$00                    ; Make data port all output
+   129                                        stx     VIA2_DDRA
+   130                                        plp
+   131                                        plx
+   132                                        rts
+   133                                        endif
+   134                        
+   135 00:0027: 48                           pha
+   136 00:0028: 08                           php
+   137                                        short_a
++  137 00:0029: E2 20                        sep     #(1<<M_FLAG)
++  137                                        longa   off
+   138 00:002B: 8D 80 7F                     sta     ACIA_TXD
+   139 00:002E: 20 xx xx                     jsr     TxDelay
+   140 00:0031: 20 xx xx                     jsr     TxDelay
+   141 00:0034: 20 xx xx                     jsr     TxDelay
+   142 00:0037: 20 xx xx                     jsr     TxDelay
+   143 00:003A: 20 xx xx                     jsr     TxDelay
+   144 00:003D: 28                           plp
+   145 00:003E: 68                           pla
+   146 00:003F: 60                           rts
+   147                        
+   148 00:0040: A9 00        TxDelay:        lda     #0
+   149 00:0042: 1A                           inc     a
+   150 00:0043: D0 xx                        bne     $-1
+   151 00:0045: 60                           rts
+   152                        
+   153                        ; Fetch the next character from the RX buffer waiting for some to arrive if the
+   154                        ; buffer is empty.
+   155                        
+   156                                        public  UartRx
+   157                        UartRx:
+  Thu Aug 13 2015 14:13                                                                                                    Page 7
+
+
+   158                                        if      0
+   159                                        phx
+   160                                        php
+   161                                        short_ai
+   162                                        lda     #$02                    ; Wait until data in buffer
+   163                        RxWait :        bit     VIA2_IRB
+   164                                        bne     RxWait
+   165                        
+   166                                        lda     VIA2_IRB                ; Strobe /RD low
+   167                                        ora     #$08
+   168                                        tax
+   169                                        and     #$f7
+   170                                        sta     VIA2_ORB
+   171                                        nop                             ; Wait for data to be available
+   172                                        nop
+   173                                        nop
+   174                                        nop
+   175                                        lda     VIA2_IRA                ; Read it
+   176                                        stx     VIA2_ORB                ; And end the strobe
+   177                                        plp
+   178                                        plx
+   179                                        rts                             ; Done
+   180                                        endif
+   181                        
+   182 00:0046: 08                           php
+   183                                        short_a
++  183 00:0047: E2 20                        sep     #(1<<M_FLAG)
++  183                                        longa   off
+   184 00:0049: AD 81 7F                     lda     ACIA_SR
+   185 00:004C: 10 xx                        bpl     $-3
+   186 00:004E: AD 80 7F                     lda     ACIA_RXD
+   187 00:0051: 28                           plp
+   188 00:0052: 60                           rts
+   189                        
+   190                        ;==============================================================================
+   191                        ; Reset Vectors
+   192                        ;------------------------------------------------------------------------------
+   193                        
+   194                        ShadowVectors   section offset $7ee0
+   195                        
+   196 00:7EE0:                              ds      4               ; Reserved
+   197 00:7EE4: xx xx                        dw      COP             ; $FFE4 - COP(816)
+   198 00:7EE6: xx xx                        dw      BRK             ; $FFE6 - BRK(816)
+   199 00:7EE8: xx xx                        dw      ABORT           ; $FFE8 - ABORT(816)
+   200 00:7EEA: xx xx                        dw      NMI             ; $FFEA - NMI(816)
+   201 00:7EEC:                              ds      2               ; Reserved
+   202 00:7EEE: xx xx                        dw      IRQ             ; $FFEE - IRQ(816)
+   203                        
+   204 00:7EF0:                              ds      4
+   205 00:7EF4: xx xx                        dw      COP             ; $FFF4 - COP(C02)
+   206 00:7EF6:                              ds      2               ; $Reserved
+   207 00:7EF8: xx xx                        dw      ABORT           ; $FFF8 - ABORT(C02)
+   208 00:7EFA: xx xx                        dw      NMIRQ           ; $FFFA - NMI(C02)
+   209 00:7EFC: xx xx                        dw      RESET           ; $FFFC - RESET(C02)
+   210 00:7EFE: xx xx                        dw      IRQBRK          ; $FFFE - IRQBRK(C02)
+   211                        
+   212 00:7F00:                              ends
+   213                        
+  Thu Aug 13 2015 14:13                                                                                                    Page 8
+
+
+   214                        ;------------------------------------------------------------------------------
+   215                        
+   216                        Vectors         section offset $ffe0
+   217                        
+   218 00:FFE0:                              ds      4               ; Reserved
+   219 00:FFE4: xx xx                        dw      COP             ; $FFE4 - COP(816)
+   220 00:FFE6: xx xx                        dw      BRK             ; $FFE6 - BRK(816)
+   221 00:FFE8: xx xx                        dw      ABORT           ; $FFE8 - ABORT(816)
+   222 00:FFEA: xx xx                        dw      NMI             ; $FFEA - NMI(816)
+   223 00:FFEC:                              ds      2               ; Reserved
+   224 00:FFEE: xx xx                        dw      IRQ             ; $FFEE - IRQ(816)
+   225                        
+   226 00:FFF0:                              ds      4
+   227 00:FFF4: xx xx                        dw      COP             ; $FFF4 - COP(C02)
+   228 00:FFF6:                              ds      2               ; $Reserved
+   229 00:FFF8: xx xx                        dw      ABORT           ; $FFF8 - ABORT(C02)
+   230 00:FFFA: xx xx                        dw      NMIRQ           ; $FFFA - NMI(C02)
+   231 00:FFFC: xx xx                        dw      RESET           ; $FFFC - RESET(C02)
+   232 00:FFFE: xx xx                        dw      IRQBRK          ; $FFFE - IRQBRK(C02)
+   233                        
+   234 01:0000:                              ends
+   235                        
+   236                                        end
+
+
+      Lines assembled: 423
+      Errors: 0
