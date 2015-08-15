@@ -1,4 +1,4 @@
-  Thu Aug 13 2015 14:13                                                                                                    Page 1
+  Sat Aug 15 2015 21:29                                                                                                    Page 1
 
 
                                                ***************************************
@@ -59,7 +59,7 @@
     18             00000005   M_FLAG          equ     5
     19             00000004   X_FLAG          equ     4
     20             00000004   B_FLAG          equ     4
-  Thu Aug 13 2015 14:13                                                                                                    Page 2
+  Sat Aug 15 2015 21:29                                                                                                    Page 2
 
 
     21             00000003   D_FLAG          equ     3
@@ -120,13 +120,13 @@
     76                        short_i         macro
     77                                        sep     #(1<<X_FLAG)
     78                                        longi   off
-  Thu Aug 13 2015 14:13                                                                                                    Page 3
+  Sat Aug 15 2015 21:29                                                                                                    Page 3
 
 
     79                                        endm
     80                                        
     81                        short_ai        macro
-    82                                        rep     #(1<<M_FLAG)|(1<<X_FLAG)
+    82                                        sep     #(1<<M_FLAG)|(1<<X_FLAG)
     83                                        longa   off
     84                                        longi   off
     85                                        endm
@@ -181,7 +181,7 @@
     48             00007FA2   PIA_PIB         equ     $7fa2
     49             00007FA2   PIA_DDRB        equ     $7fa2
     50             00007FA3   PIA_CRB         equ     $7fa3
-  Thu Aug 13 2015 14:13                                                                                                    Page 4
+  Sat Aug 15 2015 21:29                                                                                                    Page 4
 
 
     51                        
@@ -231,227 +231,285 @@
     95             00007FEF   VIA2_ORAN       equ     $7fef
     96             00007FEF   VIA2_IRAN       equ     $7fef
     34                        
-    35                        ;==============================================================================
-    36                        ; Power On Reset
-    37                        ;------------------------------------------------------------------------------
-    38                        
-    39                                        code
-    40                                        extern  Start
-    41                        RESET:
-    42 00:0000: 78                           sei                             ; Stop interrupts
-    43 00:0001: A2 FF                        ldx     #$ff
-    44 00:0003: 9A                           txs
-    45                        
-  Thu Aug 13 2015 14:13                                                                                                    Page 5
+    35             00000000   USE_FIFO        equ     0
+    36                        
+    37                        ;==============================================================================
+    38                        ; Power On Reset
+    39                        ;------------------------------------------------------------------------------
+    40                        
+    41                                        code
+    42                                        extern  Start
+    43                        RESET:
+    44 00:0000: AD EE 7F     		lda	VIA2_IER
+    45 00:0003: 8D EE 7F     		sta	VIA2_IER
+  Sat Aug 15 2015 21:29                                                                                                    Page 5
 
 
-    46 00:0004: A9 1F                        lda     #%00011111              ; 8 bits, 1 stop bit, 19200 baud
-    47 00:0006: 8D 83 7F                     sta     ACIA_CTL
-    48 00:0009: A9 09                        lda     #%00001001              ; No parity, no interrupt
-    49 00:000B: 8D 82 7F                     sta     ACIA_CMD
-    50 00:000E: AD 80 7F                     lda     ACIA_RXD                ; Clear receive buffer
-    51 00:0011: AD 80 7F                     lda     ACIA_RXD
-    52                        
-    53                                        native
-+   53 00:0014: 18                           clc
-+   53 00:0015: FB                           xce
-    54 00:0016: 4C xx xx                     jmp     Start                   ; Jump to the application start
-    55                        
-    56                        ;==============================================================================
-    57                        ; Interrupt Handlers
-    58                        ;------------------------------------------------------------------------------
+    46 00:0006: 78                           sei                             ; Stop interrupts
+    47 00:0007: A2 FF                        ldx     #$ff
+    48 00:0009: 9A                           txs
+    49                        
+    50                                        if      USE_FIFO
+    51                                        lda     #$1c
+    52                                        sta     VIA2_DDRB
+    53                                        lda     #$18
+    54                                        sta     VIA2_ORB
+    55                                        else
+    56 00:000A: 9C 82 7F                     stz     ACIA_CMD
+    57 00:000D: 9C 83 7F                     stz     ACIA_CTL
+    58 00:0010: 9C 81 7F                     stz     ACIA_SR
     59                        
-    60                        ; Handle IRQ and BRK interrupts in emulation mode.
-    61                        
-    62                        IRQBRK:
-    63 00:0019: 80 FE                        bra     $                       ; Loop forever
-    64                        
-    65                        ; Handle NMI interrupts in emulation mode.
+    60 00:0013: A9 1F                        lda     #%00011111              ; 8 bits, 1 stop bit, 19200 baud
+    61 00:0015: 8D 83 7F                     sta     ACIA_CTL
+    62 00:0018: A9 09                        lda     #%00001001              ; No parity, no interrupt
+    63 00:001A: 8D 82 7F                     sta     ACIA_CMD
+    64 00:001D: AD 80 7F                     lda     ACIA_RXD                ; Clear receive buffer
+    65                                        endif
     66                        
-    67                        NMIRQ:
-    68 00:001B: 80 FE                        bra     $                       ; Loop forever
+    67                                        native
++   67 00:0020: 18                           clc
++   67 00:0021: FB                           xce
+    68 00:0022: 4C xx xx                     jmp     Start                   ; Jump to the application start
     69                        
-    70                        ;------------------------------------------------------------------------------
-    71                        
-    72                        ; Handle IRQ interrupts in native mode.
+    70                        ;==============================================================================
+    71                        ; Interrupt Handlers
+    72                        ;------------------------------------------------------------------------------
     73                        
-    74                        IRQ:
-    75 00:001D: 80 FE                        bra     $                       ; Loop forever
-    76                        
-    77                        ; Handle IRQ interrupts in native mode.
+    74                        ; Handle IRQ and BRK interrupts in emulation mode.
+    75                        
+    76                        IRQBRK:
+    77 00:0025: 80 FE                        bra     $                       ; Loop forever
     78                        
-    79                        BRK:
-    80 00:001F: 80 FE                        bra     $                       ; Loop forever
-    81                        
-    82                        ; Handle IRQ interrupts in native mode.
+    79                        ; Handle NMI interrupts in emulation mode.
+    80                        
+    81                        NMIRQ:
+    82 00:0027: 80 FE                        bra     $                       ; Loop forever
     83                        
-    84                        NMI:
-    85 00:0021: 80 FE                        bra     $                       ; Loop forever
-    86                        
-    87                        ;------------------------------------------------------------------------------
-    88                        
-    89                        ; COP and ABORT interrupts are not handled.
+    84                        ;------------------------------------------------------------------------------
+    85                        
+    86                        ; Handle IRQ interrupts in native mode.
+    87                        
+    88                        IRQ:
+    89 00:0029: 80 FE                        bra     $                       ; Loop forever
     90                        
-    91                        COP:
-    92 00:0023: 80 FE                        bra     $                       ; Loop forever
-    93                        
-    94                        ABORT:
-    95 00:0025: 80 FE                        bra     $                       ; Loop forever
-    96                        
-    97                        ;==============================================================================
-    98                        ; Buffered UART Interface
-    99                        ;------------------------------------------------------------------------------
+    91                        ; Handle IRQ interrupts in native mode.
+    92                        
+    93                        BRK:
+    94 00:002B: 80 FE                        bra     $                       ; Loop forever
+    95                        
+    96                        ; Handle IRQ interrupts in native mode.
+    97                        
+    98                        NMI:
+    99 00:002D: 80 FE                        bra     $                       ; Loop forever
    100                        
-   101                        ; Adds the character in A to the transmit buffer. If the buffer is full then
-  Thu Aug 13 2015 14:13                                                                                                    Page 6
+   101                        ;------------------------------------------------------------------------------
+  Sat Aug 15 2015 21:29                                                                                                    Page 6
 
 
-   102                        ; wait for it to drain.
-   103                        
-   104                                        public  UartTx
-   105                        UartTx:
-   106                                        if      0
-   107                                        phx
-   108                                        php
-   109                                        short_ai
-   110                                        ldx     #$00                    ; Make data port all input
-   111                                        stx     VIA2_DDRA
-   112                                        sta     VIA2_ORA                ; Save the output character
-   113                                        lda     #%01
-   114                        TxWait:         bit     VIA2_IRB                ; Is there space for more data
-   115                                        bne     TxWait
-   116                        
-   117                                        lda     VIA2_IRB                ; Strobe WR
-   118                                        and     #$fb
-   119                                        tax
-   120                                        ora     #$04
-   121                                        sta     VIA2_ORB
-   122                                        lda     #$ff                    ; Make data port all output
-   123                                        sta     VIA2_DDRA
-   124                                        nop
-   125                                        nop
-   126                                        stx     VIA2_ORB                ; End strobe
-   127                                        lda     VIA2_IRA
-   128                                        ldx     #$00                    ; Make data port all output
-   129                                        stx     VIA2_DDRA
-   130                                        plp
-   131                                        plx
-   132                                        rts
-   133                                        endif
-   134                        
-   135 00:0027: 48                           pha
-   136 00:0028: 08                           php
-   137                                        short_a
-+  137 00:0029: E2 20                        sep     #(1<<M_FLAG)
-+  137                                        longa   off
-   138 00:002B: 8D 80 7F                     sta     ACIA_TXD
-   139 00:002E: 20 xx xx                     jsr     TxDelay
-   140 00:0031: 20 xx xx                     jsr     TxDelay
-   141 00:0034: 20 xx xx                     jsr     TxDelay
-   142 00:0037: 20 xx xx                     jsr     TxDelay
-   143 00:003A: 20 xx xx                     jsr     TxDelay
-   144 00:003D: 28                           plp
-   145 00:003E: 68                           pla
-   146 00:003F: 60                           rts
+   102                        
+   103                        ; COP and ABORT interrupts are not handled.
+   104                        
+   105                        COP:
+   106 00:002F: 80 FE                        bra     $                       ; Loop forever
+   107                        
+   108                        ABORT:
+   109 00:0031: 80 FE                        bra     $                       ; Loop forever
+   110                        
+   111                        ;==============================================================================
+   112                        ; Buffered UART Interface
+   113                        ;------------------------------------------------------------------------------
+   114                        
+   115                        ; Adds the character in A to the transmit buffer. If the buffer is full then
+   116                        ; wait for it to drain.
+   117                        
+   118                                        public  UartTx
+   119                        UartTx:
+   120                                        if      USE_FIFO
+   121                                        phx
+   122                                        php
+   123                                        short_ai
+   124                                        ldx     #$00                    ; Make data port all input
+   125                                        stx     VIA2_DDRA
+   126                                        sta     VIA2_ORA                ; Save the output character
+   127                                        lda     #%01
+   128                        TxWait:         bit     VIA2_IRB                ; Is there space for more data
+   129                                        bne     TxWait
+   130                        
+   131                                        lda     VIA2_IRB                ; Strobe WR
+   132                                        and     #$fb
+   133                                        tax
+   134                                        ora     #$04
+   135                                        sta     VIA2_ORB
+   136                                        lda     #$ff                    ; Make data port all output
+   137                                        sta     VIA2_DDRA
+   138                                        nop
+   139                                        nop
+   140                                        stx     VIA2_ORB                ; End strobe
+   141                                        lda     VIA2_IRA
+   142                                        ldx     #$00                    ; Make data port all output
+   143                                        stx     VIA2_DDRA
+   144                                        plp
+   145                                        plx
+   146                                        rts
    147                        
-   148 00:0040: A9 00        TxDelay:        lda     #0
-   149 00:0042: 1A                           inc     a
-   150 00:0043: D0 xx                        bne     $-1
-   151 00:0045: 60                           rts
-   152                        
-   153                        ; Fetch the next character from the RX buffer waiting for some to arrive if the
-   154                        ; buffer is empty.
-   155                        
-   156                                        public  UartRx
-   157                        UartRx:
-  Thu Aug 13 2015 14:13                                                                                                    Page 7
+   148                                        else
+   149                        
+   150 00:0033: 48                           pha
+   151 00:0034: 08                           php
+   152                                        short_a
++  152 00:0035: E2 20                        sep     #(1<<M_FLAG)
++  152                                        longa   off
+   153 00:0037: 8D 80 7F                     sta     ACIA_TXD
+   154 00:003A: 20 xx xx                     jsr     TxDelay
+   155 00:003D: 20 xx xx                     jsr     TxDelay
+   156 00:0040: 20 xx xx                     jsr     TxDelay
+   157 00:0043: 20 xx xx                     jsr     TxDelay
+  Sat Aug 15 2015 21:29                                                                                                    Page 7
 
 
-   158                                        if      0
-   159                                        phx
-   160                                        php
-   161                                        short_ai
-   162                                        lda     #$02                    ; Wait until data in buffer
-   163                        RxWait :        bit     VIA2_IRB
-   164                                        bne     RxWait
+   158 00:0046: 20 xx xx                     jsr     TxDelay
+   159 00:0049: 20 xx xx                     jsr     TxDelay
+   160                        ;                jsr     TxDelay
+   161                        ;                jsr     TxDelay
+   162 00:004C: 28                           plp
+   163 00:004D: 68                           pla
+   164 00:004E: 60                           rts
    165                        
-   166                                        lda     VIA2_IRB                ; Strobe /RD low
-   167                                        ora     #$08
-   168                                        tax
-   169                                        and     #$f7
-   170                                        sta     VIA2_ORB
-   171                                        nop                             ; Wait for data to be available
-   172                                        nop
-   173                                        nop
-   174                                        nop
-   175                                        lda     VIA2_IRA                ; Read it
-   176                                        stx     VIA2_ORB                ; And end the strobe
-   177                                        plp
-   178                                        plx
-   179                                        rts                             ; Done
-   180                                        endif
-   181                        
-   182 00:0046: 08                           php
-   183                                        short_a
-+  183 00:0047: E2 20                        sep     #(1<<M_FLAG)
-+  183                                        longa   off
-   184 00:0049: AD 81 7F                     lda     ACIA_SR
-   185 00:004C: 10 xx                        bpl     $-3
-   186 00:004E: AD 80 7F                     lda     ACIA_RXD
-   187 00:0051: 28                           plp
-   188 00:0052: 60                           rts
-   189                        
-   190                        ;==============================================================================
-   191                        ; Reset Vectors
-   192                        ;------------------------------------------------------------------------------
-   193                        
-   194                        ShadowVectors   section offset $7ee0
-   195                        
-   196 00:7EE0:                              ds      4               ; Reserved
-   197 00:7EE4: xx xx                        dw      COP             ; $FFE4 - COP(816)
-   198 00:7EE6: xx xx                        dw      BRK             ; $FFE6 - BRK(816)
-   199 00:7EE8: xx xx                        dw      ABORT           ; $FFE8 - ABORT(816)
-   200 00:7EEA: xx xx                        dw      NMI             ; $FFEA - NMI(816)
-   201 00:7EEC:                              ds      2               ; Reserved
-   202 00:7EEE: xx xx                        dw      IRQ             ; $FFEE - IRQ(816)
-   203                        
-   204 00:7EF0:                              ds      4
-   205 00:7EF4: xx xx                        dw      COP             ; $FFF4 - COP(C02)
-   206 00:7EF6:                              ds      2               ; $Reserved
-   207 00:7EF8: xx xx                        dw      ABORT           ; $FFF8 - ABORT(C02)
-   208 00:7EFA: xx xx                        dw      NMIRQ           ; $FFFA - NMI(C02)
-   209 00:7EFC: xx xx                        dw      RESET           ; $FFFC - RESET(C02)
-   210 00:7EFE: xx xx                        dw      IRQBRK          ; $FFFE - IRQBRK(C02)
-   211                        
-   212 00:7F00:                              ends
-   213                        
-  Thu Aug 13 2015 14:13                                                                                                    Page 8
+   166 00:004F: A9 00        TxDelay:        lda     #0
+   167 00:0051: 1A                           inc     a
+   168 00:0052: D0 xx                        bne     $-1
+   169 00:0054: 60                           rts
+   170                                        endif
+   171                        
+   172                        ; Fetch the next character from the RX buffer waiting for some to arrive if the
+   173                        ; buffer is empty.
+   174                        
+   175                                        public  UartRx
+   176                        UartRx:
+   177                                        if      USE_FIFO
+   178                                        phx
+   179                                        php
+   180                                        short_ai
+   181                                        lda     #$02                    ; Wait until data in buffer
+   182                        RxWait:         bit     VIA2_IRB
+   183                                        bne     RxWait
+   184                        
+   185                                        lda     VIA2_IRB                ; Strobe /RD low
+   186                                        ora     #$08
+   187                                        tax
+   188                                        and     #$f7
+   189                                        sta     VIA2_ORB
+   190                                        nop                             ; Wait for data to be available
+   191                                        nop
+   192                                        nop
+   193                                        nop
+   194                                        lda     VIA2_IRA                ; Read it
+   195                                        stx     VIA2_ORB                ; And end the strobe
+   196                                        plp
+   197                                        plx
+   198                                        rts                             ; Done
+   199                        
+   200                                        else
+   201                        
+   202 00:0055: 08                           php
+   203                                        short_a
++  203 00:0056: E2 20                        sep     #(1<<M_FLAG)
++  203                                        longa   off
+   204                        RxWait:
+   205 00:0058: AD 81 7F                     lda     ACIA_SR
+   206 00:005B: 10 FB                        bpl     RxWait
+   207 00:005D: 29 08                        and     #$08
+   208 00:005F: F0 F7                        beq     RxWait
+   209 00:0061: AD 80 7F                     lda     ACIA_RXD
+   210                        ;                stz     ACIA_SR
+   211 00:0064: 28                           plp
+   212 00:0065: 60                           rts
+   213                                        endif
+  Sat Aug 15 2015 21:29                                                                                                    Page 8
 
 
-   214                        ;------------------------------------------------------------------------------
-   215                        
-   216                        Vectors         section offset $ffe0
-   217                        
-   218 00:FFE0:                              ds      4               ; Reserved
-   219 00:FFE4: xx xx                        dw      COP             ; $FFE4 - COP(816)
-   220 00:FFE6: xx xx                        dw      BRK             ; $FFE6 - BRK(816)
-   221 00:FFE8: xx xx                        dw      ABORT           ; $FFE8 - ABORT(816)
-   222 00:FFEA: xx xx                        dw      NMI             ; $FFEA - NMI(816)
-   223 00:FFEC:                              ds      2               ; Reserved
-   224 00:FFEE: xx xx                        dw      IRQ             ; $FFEE - IRQ(816)
-   225                        
-   226 00:FFF0:                              ds      4
-   227 00:FFF4: xx xx                        dw      COP             ; $FFF4 - COP(C02)
-   228 00:FFF6:                              ds      2               ; $Reserved
-   229 00:FFF8: xx xx                        dw      ABORT           ; $FFF8 - ABORT(C02)
-   230 00:FFFA: xx xx                        dw      NMIRQ           ; $FFFA - NMI(C02)
-   231 00:FFFC: xx xx                        dw      RESET           ; $FFFC - RESET(C02)
-   232 00:FFFE: xx xx                        dw      IRQBRK          ; $FFFE - IRQBRK(C02)
-   233                        
-   234 01:0000:                              ends
-   235                        
-   236                                        end
+   214                        
+   215                                        public  UartRxTest
+   216                        UartRxTest:
+   217                                        if      USE_FIFO
+   218                                        pha
+   219                                        php
+   220                                        short_a
+   221                                        lda     VIA2_IRB
+   222                                        plp
+   223                                        ror     a
+   224                                        ror     a
+   225                                        pla
+   226                                        rts
+   227                        
+   228                                        else
+   229                        
+   230 00:0066: 48                           pha                             ; Save callers A
+   231 00:0067: 08                           php
+   232                                        short_a
++  232 00:0068: E2 20                        sep     #(1<<M_FLAG)
++  232                                        longa   off
+   233 00:006A: AD 81 7F                     lda     ACIA_SR                 ; Read the status register
+   234 00:006D: 28                           plp
+   235 00:006E: 6A                           ror     a                       ; Shift RDRF bit into carry
+   236 00:006F: 6A                           ror     a
+   237 00:0070: 6A                           ror     a
+   238 00:0071: 6A                           ror     a
+   239 00:0072: 68                           pla                             ; Restore A
+   240 00:0073: 60                           rts                             ; Done
+   241                                        endif
+   242                        
+   243                        ;==============================================================================
+   244                        ; Reset Vectors
+   245                        ;------------------------------------------------------------------------------
+   246                        
+   247                        ShadowVectors   section offset $7ee0
+   248                        
+   249 00:7EE0:                              ds      4               ; Reserved
+   250 00:7EE4: xx xx                        dw      COP             ; $FFE4 - COP(816)
+   251 00:7EE6: xx xx                        dw      BRK             ; $FFE6 - BRK(816)
+   252 00:7EE8: xx xx                        dw      ABORT           ; $FFE8 - ABORT(816)
+   253 00:7EEA: xx xx                        dw      NMI             ; $FFEA - NMI(816)
+   254 00:7EEC:                              ds      2               ; Reserved
+   255 00:7EEE: xx xx                        dw      IRQ             ; $FFEE - IRQ(816)
+   256                        
+   257 00:7EF0:                              ds      4
+   258 00:7EF4: xx xx                        dw      COP             ; $FFF4 - COP(C02)
+   259 00:7EF6:                              ds      2               ; $Reserved
+   260 00:7EF8: xx xx                        dw      ABORT           ; $FFF8 - ABORT(C02)
+   261 00:7EFA: xx xx                        dw      NMIRQ           ; $FFFA - NMI(C02)
+   262 00:7EFC: xx xx                        dw      RESET           ; $FFFC - RESET(C02)
+   263 00:7EFE: xx xx                        dw      IRQBRK          ; $FFFE - IRQBRK(C02)
+   264                        
+   265 00:7F00:                              ends
+   266                        
+   267                        ;------------------------------------------------------------------------------
+   268                        
+   269                        Vectors         section offset $ffe0
+  Sat Aug 15 2015 21:29                                                                                                    Page 9
 
 
-      Lines assembled: 423
+   270                        
+   271 00:FFE0:                              ds      4               ; Reserved
+   272 00:FFE4: xx xx                        dw      COP             ; $FFE4 - COP(816)
+   273 00:FFE6: xx xx                        dw      BRK             ; $FFE6 - BRK(816)
+   274 00:FFE8: xx xx                        dw      ABORT           ; $FFE8 - ABORT(816)
+   275 00:FFEA: xx xx                        dw      NMI             ; $FFEA - NMI(816)
+   276 00:FFEC:                              ds      2               ; Reserved
+   277 00:FFEE: xx xx                        dw      IRQ             ; $FFEE - IRQ(816)
+   278                        
+   279 00:FFF0:                              ds      4
+   280 00:FFF4: xx xx                        dw      COP             ; $FFF4 - COP(C02)
+   281 00:FFF6:                              ds      2               ; $Reserved
+   282 00:FFF8: xx xx                        dw      ABORT           ; $FFF8 - ABORT(C02)
+   283 00:FFFA: xx xx                        dw      NMIRQ           ; $FFFA - NMI(C02)
+   284 00:FFFC: xx xx                        dw      RESET           ; $FFFC - RESET(C02)
+   285 00:FFFE: xx xx                        dw      IRQBRK          ; $FFFE - IRQBRK(C02)
+   286                        
+   287 01:0000:                              ends
+   288                        
+   289                                        end
+
+
+      Lines assembled: 478
       Errors: 0

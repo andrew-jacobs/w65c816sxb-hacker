@@ -38,10 +38,15 @@
 ; ASCII Character Codes
 ;------------------------------------------------------------------------------
 
+SOH             equ     $01
+EOT             equ     $04
+ACK             equ     $06
 BEL             equ     $07
 BS              equ     $08
 LF              equ     $0a
 CR              equ     $0d
+NAK             equ     $15
+CAN             equ     $18
 ESC             equ     $1b
 DEL             equ     $7f
 
@@ -57,7 +62,10 @@ BANK            ds      1
 ADDR_S          ds      3
 ADDR_E          ds      3
 
-TEMP		ds	1
+BLOCK           ds      1
+SUM             ds      1
+
+TEMP            ds      4
 
                 data
                 org     $200
@@ -72,10 +80,11 @@ BUFFER          ds      128
                 public  Start
                 extern  UartRx
                 extern  UartTx
+                extern  UartRxTest
 Start:
                 short_a                         ; Configure register sizes
                 long_i
-		jsr	UartCRLF
+                jsr     UartCRLF
                 ldx     #TITLE                  ; Display application title
                 jsr     UartStr
 
@@ -145,19 +154,19 @@ ProcessCommand:
 
                 jsr     SkipSpaces              ; Fetch command character
                 bcs     NewCommand              ; None, empty command
-		
+
 ;==============================================================================
 ; B - Select Memory Bank
 ;------------------------------------------------------------------------------
 
-		cmp	#'B'			; Select memory bank?
-		bne	NotMemoryBank
-		
-		ldx	#BANK			; Parse bank
-		jsr	GetByte
-		bcc	$+5
-		jmp	ShowError
-		jmp	NewCommand
+                cmp     #'B'                    ; Select memory bank?
+                bne     NotMemoryBank
+
+                ldx     #BANK                   ; Parse bank
+                jsr     GetByte
+                bcc     $+5
+                jmp     ShowError
+                jmp     NewCommand
 NotMemoryBank:
 
 ;==============================================================================
@@ -218,7 +227,7 @@ CharLoop:       lda     [ADDR_S],Y
                 sta     ADDR_S+0
                 bcc     $+4
                 inc     ADDR_S+1
-                
+
                 sec                             ; Exceeded the end address?
                 sbc     ADDR_E+0
                 lda     ADDR_S+1
@@ -234,26 +243,26 @@ NotMemoryDisplay:
 
                 cmp     #'R'                    ; ROM Bank?
                 bne     NotROMBank
-		
-		jsr	SkipSpaces
-		bcc	$+5
-BankFail:	jmp	ShowError
-		cmp	#'0'
-		bcc	BankFail
-		cmp	#'3'+3
-		bcs	BankFail
-		
-		sta	TEMP
-		lda	#0
-		ror	TEMP			; Bit 0 set
-		bcs	$+4
-		ora	#%00001100		; No, make CA2 (A15) low
-		ror	TEMP			; Bit 1 set
-		bcs	$+4
-		ora	#%11000000		; No, make CB2 (FAMS) low
-		sta	VIA2_PCR
-		
-		jmp	NewCommand
+
+                jsr     SkipSpaces
+                bcc     $+5
+BankFail:       jmp     ShowError
+                cmp     #'0'
+                bcc     BankFail
+                cmp     #'3'+3
+                bcs     BankFail
+
+                sta     TEMP
+                lda     #0
+                ror     TEMP                    ; Bit 0 set
+                bcs     $+4
+                ora     #%00001100              ; No, make CA2 (A15) low
+                ror     TEMP                    ; Bit 1 set
+                bcs     $+4
+                ora     #%11000000              ; No, make CB2 (FAMS) low
+                sta     VIA2_PCR
+
+                jmp     NewCommand
 NotROMBank:
 
 ;==============================================================================
@@ -261,9 +270,103 @@ NotROMBank:
 ;------------------------------------------------------------------------------
 
                 cmp     #'X'                    ; XModem upload?
-                bne     NotXModem
+                beq     $+5
+                jmp     NotXModem
 
-		jmp	NewCommand
+                ldx     #ADDR_S                 ; Parse start address
+                jsr     GetAddr
+                bcc     $+5
+                jmp     ShowError
+
+                bit     ADDR_S+1                ; Load into ROM area?
+                bpl     NotROMArea
+                lda     VIA2_PCR                ; Yes, check ROM selected
+                and     #%11001100
+                bne     NotROMArea
+                long_i                          ; Upload to ROM3 ROM Area
+                ldx     #NOT_SAFE
+                jsr     UartStr
+                jmp     NewCommand
+
+NotROMArea:
+                long_i                          ; Display waiting message
+                ldx     #WAITING
+                jsr     UartStr
+                jsr     UartCRLF
+                short_i
+                stz     BLOCK                   ; Reset the block number
+                inc     BLOCK
+
+TransferWait:
+                stz     TEMP+0                  ; Clear timeout counter
+                stz     TEMP+1
+		lda	#-20
+                sta     TEMP+2
+TransferPoll:
+                jsr     UartRxTest              ; Any data yet?
+                bcs     TransferScan
+                inc     TEMP+0
+                bne     TransferPoll
+                inc     TEMP+1
+                bne     TransferPoll
+                inc     TEMP+2
+                bne     TransferPoll
+                jsr     SendNAK                 ; Send a NAK
+                bra     TransferWait
+TransferScan:
+                jsr     UartRx                  ; Wait for SOH or EOT
+                cmp     #EOT
+                beq     TransferDone
+                cmp     #SOH
+                bne     TransferWait
+                jsr     UartRx                  ; Check the block number
+                cmp     BLOCK
+                bne     TransferError
+                jsr     UartRx                  ; Check inverted block
+                eor     #$ff
+                cmp     BLOCK
+                bne     TransferError
+
+                ldy     #0
+                sty     SUM                     ; Clear the check sum
+TransferBlock:  jsr     UartRx
+                sta     [ADDR_S],Y
+                clc                             ; Add to check sum
+                adc     SUM
+                sta     SUM
+                iny
+                cpy     #128
+                bne     TransferBlock
+                jsr     UartRx                  ; Check the check sum
+                cmp     SUM
+                bne     TransferError           ; Failed
+                clc
+                tya
+                adc     ADDR_S+0                ; Bump address one block
+                sta     ADDR_S+0
+                bcc     $+4
+                inc     ADDR_S+1
+
+                jsr     SendACK                 ; Acknowledge block
+                inc     BLOCK                   ; Bump block number
+                bra     TransferWait
+
+TransferError;
+                jsr     SendNAK                 ; Send a NAK
+                jmp     TransferWait            ; And try again
+
+TransferDone:
+                jsr     SendACK                 ; Acknowledge transmission
+                jmp     NewCommand              ; Done
+
+SendACK:
+                lda     #ACK
+                jmp     UartTx
+
+SendNAK:
+                lda     #NAK
+                jmp     UartTx
+
 NotXModem:
 
 ;==============================================================================
@@ -465,15 +568,21 @@ UartCR:         lda     #CR
                 jmp     UartTx
 
 ;==============================================================================
+; String Literals
 ;------------------------------------------------------------------------------
 
-TITLE           db      CR,LF,"SXB-Hacker [15.08]",0
+TITLE           db      CR,LF,"W65C816SXB-Hacker [15.08]",0
 
 ERROR           db      CR,LF,"Error - Type ? for help",0
 
-HELP            db	CR,LF,"B bb           - Set memory bank"
-		db      CR,LF,"M bbbb eeee    - Display memory in current bank"
-		db	CR,LF,"R 0-3          - Select ROM bank 0-3"
+NOT_SAFE        db      CR,LF,"WDC ROM Bank Selected",0
+
+WAITING         db      CR,LF,"Waiting for XMODEM transfer to start",0
+
+HELP            db      CR,LF,"B bb           - Set memory bank"
+                db      CR,LF,"M bbbb eeee    - Display memory in current bank"
+                db      CR,LF,"R 0-3          - Select ROM bank 0-3"
+                db      CR,LF,"U              - Perform ROM unlock sequence"
                 db      CR,LF,"X bbbb         - XMODEM upload to current bank"
                 db      0
 

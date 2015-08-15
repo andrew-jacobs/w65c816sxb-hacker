@@ -79,7 +79,7 @@ short_i         macro
                 endm
                 
 short_ai        macro
-                rep     #(1<<M_FLAG)|(1<<X_FLAG)
+                sep     #(1<<M_FLAG)|(1<<X_FLAG)
                 longa   off
                 longi   off
                 endm
