@@ -18,7 +18,7 @@ Reprogramming the ROM must be done very carefully. If you erase the WDC ROM
 image in bank 3 then your will not be able to use the WDC TIDE tools to
 recover your system.
 
-UART Connections
+## UART Connections
 
 The hacking tool uses the ACIA to communicate with your PC and download new
 ROM images. You will need a cheap USB Serial adapter (like one of the PL2303
@@ -31,25 +31,26 @@ You will need a terminal program like AlphaCom or Tera Term on your PC that
 supports XMODEM file transfers. Configure it to work at 19200 baud, 8 data
 bits, no parity and 1 stop bit.
 
-Using W65C816SXB-Hacker
+## Using W65C816SXB-Hacker
 
 Use the WDC debugger to download the hacking tool to the SXB board and start
 execution. The tool will respond with a message in the terminal software.
 
+```
 SXB-Hacker [15.08]
 .
-
+```
 The 'M' command allows you to display memory, for example 'M FFE0 FFFF' will
 display the vectors at the top of the memory
-
+```
 .M FFE0 FFFF
 00:FFE0 FF FF FF FF 1C 81 08 81 19 81 0C 81 24 81 16 81 |............$...|
 00:FFF0 1F 81 1F 81 10 81 1F 81 13 81 04 81 2B 81 00 81 |............+...|
-
+```
 Usinging the 'R' command you can pick another memory bank, like 0
-
+```
 .R 0
 .M FFE0 FFFF
 00:FFE0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF |................|
 00:FFF0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF |................|
-
+```
