@@ -10,7 +10,7 @@ on the FAMS and FA15 signal tracks. Once your SXB is running you can change
 the bank by configuring one or both of CA1 and CB1 as low outputs using the
 PCR register of VIA2.
 
-The two LEDs next to FAMS and FA15 test points (beside the Flash ROM socket)
+One or both of the LEDs next to FAMS and FA15 test points (beside the Flash ROM socket)
 will light up when one of the reprogramable banks is enabled. If both LEDs
 are off then the WDC firmware bank is enabled.
 
@@ -21,7 +21,7 @@ recover your system.
 ## UART Connections
 
 The hacking tool uses the ACIA to communicate with your PC and download new
-ROM images. You will need a cheap USB Serial adapter (like one of the PL2303
+ROM images. You will need a USB Serial adapter (like one of the cheap PL2303
 modules with jumper wires sold on eBay) to establish a connection. You must
 connect the TXD, RXD and GND lines between the SXB and the USB adapter. In
 addition you must place a jumper wire between RTS and CTS on the ACIA
@@ -47,7 +47,7 @@ display the vectors at the top of the memory
 00:FFE0 FF FF FF FF 1C 81 08 81 19 81 0C 81 24 81 16 81 |............$...|
 00:FFF0 1F 81 1F 81 10 81 1F 81 13 81 04 81 2B 81 00 81 |............+...|
 ```
-Usinging the 'R' command you can pick another memory bank, like 0
+Using the 'R' command you can pick another memory bank, like 0
 ```
 .R 0
 .M FFE0 FFFF
