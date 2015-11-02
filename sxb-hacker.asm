@@ -62,7 +62,8 @@ BANK            ds      1
 ADDR_S          ds      3
 ADDR_E          ds      3
 
-BLOCK           ds      1
+BLOCK           ds      1                       ; XMODEM block number
+RETRIES         ds      1                       ; Retry count
 SUM             ds      1
 
 TEMP            ds      4
@@ -242,17 +243,18 @@ NotMemoryDisplay:
 ;------------------------------------------------------------------------------
 
                 cmp     #'R'                    ; ROM Bank?
-                bne     NotROMBank
+                bne     NotROMBank              ; No
 
-                jsr     SkipSpaces
-                bcc     $+5
-BankFail:       jmp     ShowError
-                cmp     #'0'
+                jsr     SkipSpaces              ; Find first argument
+                bcc     $+5                     ; Success?
+BankFail:       jmp     ShowError               ; No
+
+                cmp     #'0'                    ; Check bank is 0..3
                 bcc     BankFail
-                cmp     #'3'+3
+                cmp     #'3'+1
                 bcs     BankFail
 
-                sta     TEMP
+                sta     TEMP                    ; Work out VIA settings
                 lda     #0
                 ror     TEMP                    ; Bit 0 set
                 bcs     $+4
@@ -260,17 +262,39 @@ BankFail:       jmp     ShowError
                 ror     TEMP                    ; Bit 1 set
                 bcs     $+4
                 ora     #%11000000              ; No, make CB2 (FAMS) low
-                sta     VIA2_PCR
+                sta     VIA2_PCR                ; Set ROM select lines
 
-                jmp     NewCommand
+                jmp     NewCommand              ; Done
 NotROMBank:
+
+;==============================================================================
+; U - Unlock Memory
+;------------------------------------------------------------------------------
+
+                cmp     #'U'                    ; Unlock memory?
+                bne     NotUnlock
+
+                short_a
+                lda     #$55                    ; Execute the unlock sequence
+                sta     $8000+$5555
+                lda     #$aa
+                sta     $8000+$2aaa
+                lda     #$a0
+                sta     $8000+$5555
+
+                long_i
+                ldx     #UNLOCKED               ; And announce it
+                jsr     UartStr
+                short_i
+                jmp     NewCommand              ; Done
+NotUnlock:
 
 ;==============================================================================
 ; X - XMODEM Upload
 ;------------------------------------------------------------------------------
 
                 cmp     #'X'                    ; XModem upload?
-                beq     $+5
+                beq     $+5                     ; Yes.
                 jmp     NotXModem
 
                 ldx     #ADDR_S                 ; Parse start address
@@ -297,10 +321,14 @@ NotROMArea:
                 stz     BLOCK                   ; Reset the block number
                 inc     BLOCK
 
+ResetRetries:
+                lda     #10                     ; Reset the retry counter
+                sta     RETRIES
+
 TransferWait:
                 stz     TEMP+0                  ; Clear timeout counter
                 stz     TEMP+1
-		lda	#-20
+                lda     #-20
                 sta     TEMP+2
 TransferPoll:
                 jsr     UartRxTest              ; Any data yet?
@@ -311,18 +339,32 @@ TransferPoll:
                 bne     TransferPoll
                 inc     TEMP+2
                 bne     TransferPoll
+                dec     RETRIES
+                beq     TimedOut
                 jsr     SendNAK                 ; Send a NAK
                 bra     TransferWait
+
+TimedOut:
+                long_i
+                ldx     #TIMEOUT
+                jsr     UartStr
+                short_i
+                jmp     NewCommand
+
+
 TransferScan:
                 jsr     UartRx                  ; Wait for SOH or EOT
+        sta <$40
                 cmp     #EOT
                 beq     TransferDone
                 cmp     #SOH
                 bne     TransferWait
                 jsr     UartRx                  ; Check the block number
+        sta <$41
                 cmp     BLOCK
                 bne     TransferError
                 jsr     UartRx                  ; Check inverted block
+        sta <$42
                 eor     #$ff
                 cmp     BLOCK
                 bne     TransferError
@@ -417,6 +459,7 @@ GetAddr:
                 jsr     SkipSpaces              ; Skip to first real characater
                 bcc     $+3
                 rts                             ; None found
+
                 jsr     IsHexDigit              ; Must have atleast one digit
                 bcc     AddrFail
                 jsr     AddDigit
@@ -435,9 +478,9 @@ GetAddr:
                 jsr     IsHexDigit
                 bcc     AddrDone
                 jsr     AddDigit
-AddrDone:       clc
+AddrDone:       clc                             ; Carry clear got an address
                 rts
-AddrFail:       sec
+AddrFail:       sec                             ; Carry set -- failed.
                 rts
 
 AddDigit:
@@ -527,7 +570,10 @@ IsPrintable:
                 bra     ClearCarry
 
 ;==============================================================================
+; Display Utilities
 ;------------------------------------------------------------------------------
+
+; Display the value in A as two hexadecimal digits.
 
 UartHex2:
                 pha                             ; Save the original byte
@@ -537,6 +583,9 @@ UartHex2:
                 lsr     a
                 jsr     UartHex                 ; Display
                 pla                             ; Recover data byte
+
+; Display the LSB of the value in A as a hexadecimal digit using decimal
+; arithmetic to do the conversion.
 
 UartHex:
                 and     #$0f                    ; Strip out lo nybble
@@ -551,20 +600,21 @@ UartHex:
 ; X (16-bits).
 
 UartStr:
-                lda     0,x
-                bne     $+3
+                lda     0,x                     ; Fetch the next character
+                bne     $+3                     ; Return it end of string
                 rts
-                jsr     UartTx
-                inx
-                bra     UartStr
+                jsr     UartTx                  ; Otherwise print it
+                inx                             ; Bump the pointer
+                bra     UartStr                 ; And repeat
 
 ; Display a CR/LF control character sequence.
 
 UartCRLF:
-                jsr     UartCR
-                lda     #LF
+                jsr     UartCR                  ; Transmit a CR
+                lda     #LF                     ; Followed by a LF
                 jmp     UartTx
-UartCR:         lda     #CR
+
+UartCR:         lda     #CR                     ; Transmit a CR
                 jmp     UartTx
 
 ;==============================================================================
@@ -575,9 +625,11 @@ TITLE           db      CR,LF,"W65C816SXB-Hacker [15.08]",0
 
 ERROR           db      CR,LF,"Error - Type ? for help",0
 
+UNLOCKED        db      CR,LF,"ROM area unlocked",0
 NOT_SAFE        db      CR,LF,"WDC ROM Bank Selected",0
 
 WAITING         db      CR,LF,"Waiting for XMODEM transfer to start",0
+TIMEOUT         db      CR,LF,"Timeout",0
 
 HELP            db      CR,LF,"B bb           - Set memory bank"
                 db      CR,LF,"M bbbb eeee    - Display memory in current bank"

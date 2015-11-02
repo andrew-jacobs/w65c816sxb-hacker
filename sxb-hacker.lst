@@ -1,4 +1,4 @@
-  Sat Aug 15 2015 21:25                                                                                                    Page 1
+  Mon Nov  2 2015 22:33                                                                                                    Page 1
 
 
                                                ***************************************
@@ -59,7 +59,7 @@
     16             00000007   N_FLAG          equ     7
     17             00000006   V_FLAG          equ     6
     18             00000005   M_FLAG          equ     5
-  Sat Aug 15 2015 21:25                                                                                                    Page 2
+  Mon Nov  2 2015 22:33                                                                                                    Page 2
 
 
     19             00000004   X_FLAG          equ     4
@@ -120,7 +120,7 @@
     74                                        endm
     75                        
     76                        short_i         macro
-  Sat Aug 15 2015 21:25                                                                                                    Page 3
+  Mon Nov  2 2015 22:33                                                                                                    Page 3
 
 
     77                                        sep     #(1<<X_FLAG)
@@ -181,7 +181,7 @@
     46             00007FA0   PIA_DDRA        equ     $7fa0
     47             00007FA1   PIA_CRA         equ     $7fa1
     48             00007FA2   PIA_PIB         equ     $7fa2
-  Sat Aug 15 2015 21:25                                                                                                    Page 4
+  Mon Nov  2 2015 22:33                                                                                                    Page 4
 
 
     49             00007FA2   PIA_DDRB        equ     $7fa2
@@ -242,7 +242,7 @@
     43             00000006   ACK             equ     $06
     44             00000007   BEL             equ     $07
     45             00000008   BS              equ     $08
-  Sat Aug 15 2015 21:25                                                                                                    Page 5
+  Mon Nov  2 2015 22:33                                                                                                    Page 5
 
 
     46             0000000A   LF              equ     $0a
@@ -264,658 +264,729 @@
     62 00:0002:              ADDR_S          ds      3
     63 00:0005:              ADDR_E          ds      3
     64                        
-    65 00:0008:              BLOCK           ds      1
-    66 00:0009:              SUM             ds      1
-    67                        
-    68 00:000A:              TEMP            ds      4
-    69                        
-    70                                        data
-    71                                        org     $200
-    72                        
-    73 00:0200:              BUFFER          ds      128
-    74                        
-    75                        ;==============================================================================
-    76                        ; Initialisation
-    77                        ;------------------------------------------------------------------------------
-    78                        
-    79                                        code
-    80                                        public  Start
-    81                                        extern  UartRx
-    82                                        extern  UartTx
-    83                                        extern  UartRxTest
-    84                        Start:
-    85                                        short_a                         ; Configure register sizes
-+   85 00:0000: E2 20                        sep     #(1<<M_FLAG)
-+   85                                        longa   off
-    86                                        long_i
-+   86 00:0002: C2 10                        rep     #(1<<X_FLAG)
-+   86                                        longi   on
-    87 00:0004: 20 xx xx                     jsr     UartCRLF
-    88 00:0007: A2 xx xx                     ldx     #TITLE                  ; Display application title
-    89 00:000A: 20 xx xx                     jsr     UartStr
-    90                        
-    91 00:000D: 64 xx                        stz     BANK                    ; Reset default bank
-    92                        
-    93                        ;==============================================================================
-    94                        ; Command Processor
-    95                        ;------------------------------------------------------------------------------
-    96                        
-    97                        NewCommand:
-    98 00:000F: 64 xx                        stz     BUFLEN                  ; Clear the buffer
-    99 00:0011: 20 xx xx                     jsr     UartCRLF                ; Move to a new line
-  Sat Aug 15 2015 21:25                                                                                                    Page 6
+    65 00:0008:              BLOCK           ds      1                       ; XMODEM block number
+    66 00:0009:              RETRIES         ds      1                       ; Retry count
+    67 00:000A:              SUM             ds      1
+    68                        
+    69 00:000B:              TEMP            ds      4
+    70                        
+    71                                        data
+    72                                        org     $200
+    73                        
+    74 00:0200:              BUFFER          ds      128
+    75                        
+    76                        ;==============================================================================
+    77                        ; Initialisation
+    78                        ;------------------------------------------------------------------------------
+    79                        
+    80                                        code
+    81                                        public  Start
+    82                                        extern  UartRx
+    83                                        extern  UartTx
+    84                                        extern  UartRxTest
+    85                        Start:
+    86                                        short_a                         ; Configure register sizes
++   86 00:0000: E2 20                        sep     #(1<<M_FLAG)
++   86                                        longa   off
+    87                                        long_i
++   87 00:0002: C2 10                        rep     #(1<<X_FLAG)
++   87                                        longi   on
+    88 00:0004: 20 xx xx                     jsr     UartCRLF
+    89 00:0007: A2 xx xx                     ldx     #TITLE                  ; Display application title
+    90 00:000A: 20 xx xx                     jsr     UartStr
+    91                        
+    92 00:000D: 64 xx                        stz     BANK                    ; Reset default bank
+    93                        
+    94                        ;==============================================================================
+    95                        ; Command Processor
+    96                        ;------------------------------------------------------------------------------
+    97                        
+    98                        NewCommand:
+    99 00:000F: 64 xx                        stz     BUFLEN                  ; Clear the buffer
+  Mon Nov  2 2015 22:33                                                                                                    Page 6
 
 
-   100                        
-   101 00:0014: A9 2E                        lda     #'.'                    ; Output the prompt
-   102 00:0016: 20 xx xx                     jsr     UartTx
-   103                        
-   104                                        short_i
-+  104 00:0019: E2 10                        sep     #(1<<X_FLAG)
-+  104                                        longi   off
-   105 00:001B: A2 00                        ldx     #0
-   106 00:001D: E4 xx        DisplayCmd:     cpx     BUFLEN                  ; Any saved characters
-   107 00:001F: F0 0E                        beq     ReadCommand
-   108 00:0021: BD 00 02                     lda     BUFFER,x                ; Yes, display them
-   109 00:0024: 20 xx xx                     jsr     UartTx
-   110 00:0027: E8                           inx
-   111 00:0028: 80 F3                        bra     DisplayCmd
-   112                        
-   113                        RingBell:
-   114 00:002A: A9 07                        lda     #BEL                    ; Make a beep
-   115 00:002C: 20 xx xx                     jsr     UartTx
-   116                        
-   117                        ReadCommand:
-   118 00:002F: 20 xx xx                     jsr     UartRx                  ; Wait for character
-   119                        
-   120 00:0032: C9 1B                        cmp     #ESC                    ; Cancel input?
-   121 00:0034: F0 D9                        beq     NewCommand              ; Yes, clear and restart
-   122 00:0036: C9 0D                        cmp     #CR                     ; End of command?
-   123 00:0038: F0 2F                        beq     ProcessCommand          ; Yes, start processing
-   124                        
-   125 00:003A: C9 08                        cmp     #BS                     ; Back space?
-   126 00:003C: F0 15                        beq     BackSpace
-   127 00:003E: C9 7F                        cmp     #DEL                    ; Delete?
-   128 00:0040: F0 11                        beq     BackSpace
-   129                        
-   130 00:0042: C9 20                        cmp     #' '                    ; Printable character
-   131 00:0044: 90 E4                        bcc     RingBell                ; No.
-   132 00:0046: C9 7F                        cmp     #DEL
-   133 00:0048: B0 E0                        bcs     RingBell                ; No.
-   134 00:004A: 9D 00 02                     sta     BUFFER,x                ; Save rhe character
-   135 00:004D: E8                           inx
-   136 00:004E: 20 xx xx                     jsr     UartTx                  ; Echo it and repeat
-   137 00:0051: 80 DC                        bra     ReadCommand
-   138                        
-   139                        BackSpace:
-   140 00:0053: E0 00                        cpx     #0                      ; Buffer empty?
-   141 00:0055: F0 D3                        beq     RingBell                ; Yes, beep and continue
-   142 00:0057: CA                           dex                             ; No, remove last character
-   143 00:0058: A9 08                        lda     #BS
-   144 00:005A: 20 xx xx                     jsr     UartTx
-   145 00:005D: A9 20                        lda     #' '
-   146 00:005F: 20 xx xx                     jsr     UartTx
-   147 00:0062: A9 08                        lda     #BS
-   148 00:0064: 20 xx xx                     jsr     UartTx
-   149 00:0067: 80 C6                        bra     ReadCommand             ; And retry
-   150                        
-   151                        ProcessCommand:
-   152 00:0069: 86 xx                        stx     BUFLEN                  ; Save final length
-   153 00:006B: A0 00                        ldy     #0                      ; Load index for start
-   154                        
-   155 00:006D: 20 xx xx                     jsr     SkipSpaces              ; Fetch command character
-  Sat Aug 15 2015 21:25                                                                                                    Page 7
+   100 00:0011: 20 xx xx                     jsr     UartCRLF                ; Move to a new line
+   101                        
+   102 00:0014: A9 2E                        lda     #'.'                    ; Output the prompt
+   103 00:0016: 20 xx xx                     jsr     UartTx
+   104                        
+   105                                        short_i
++  105 00:0019: E2 10                        sep     #(1<<X_FLAG)
++  105                                        longi   off
+   106 00:001B: A2 00                        ldx     #0
+   107 00:001D: E4 xx        DisplayCmd:     cpx     BUFLEN                  ; Any saved characters
+   108 00:001F: F0 0E                        beq     ReadCommand
+   109 00:0021: BD 00 02                     lda     BUFFER,x                ; Yes, display them
+   110 00:0024: 20 xx xx                     jsr     UartTx
+   111 00:0027: E8                           inx
+   112 00:0028: 80 F3                        bra     DisplayCmd
+   113                        
+   114                        RingBell:
+   115 00:002A: A9 07                        lda     #BEL                    ; Make a beep
+   116 00:002C: 20 xx xx                     jsr     UartTx
+   117                        
+   118                        ReadCommand:
+   119 00:002F: 20 xx xx                     jsr     UartRx                  ; Wait for character
+   120                        
+   121 00:0032: C9 1B                        cmp     #ESC                    ; Cancel input?
+   122 00:0034: F0 D9                        beq     NewCommand              ; Yes, clear and restart
+   123 00:0036: C9 0D                        cmp     #CR                     ; End of command?
+   124 00:0038: F0 2F                        beq     ProcessCommand          ; Yes, start processing
+   125                        
+   126 00:003A: C9 08                        cmp     #BS                     ; Back space?
+   127 00:003C: F0 15                        beq     BackSpace
+   128 00:003E: C9 7F                        cmp     #DEL                    ; Delete?
+   129 00:0040: F0 11                        beq     BackSpace
+   130                        
+   131 00:0042: C9 20                        cmp     #' '                    ; Printable character
+   132 00:0044: 90 E4                        bcc     RingBell                ; No.
+   133 00:0046: C9 7F                        cmp     #DEL
+   134 00:0048: B0 E0                        bcs     RingBell                ; No.
+   135 00:004A: 9D 00 02                     sta     BUFFER,x                ; Save rhe character
+   136 00:004D: E8                           inx
+   137 00:004E: 20 xx xx                     jsr     UartTx                  ; Echo it and repeat
+   138 00:0051: 80 DC                        bra     ReadCommand
+   139                        
+   140                        BackSpace:
+   141 00:0053: E0 00                        cpx     #0                      ; Buffer empty?
+   142 00:0055: F0 D3                        beq     RingBell                ; Yes, beep and continue
+   143 00:0057: CA                           dex                             ; No, remove last character
+   144 00:0058: A9 08                        lda     #BS
+   145 00:005A: 20 xx xx                     jsr     UartTx
+   146 00:005D: A9 20                        lda     #' '
+   147 00:005F: 20 xx xx                     jsr     UartTx
+   148 00:0062: A9 08                        lda     #BS
+   149 00:0064: 20 xx xx                     jsr     UartTx
+   150 00:0067: 80 C6                        bra     ReadCommand             ; And retry
+   151                        
+   152                        ProcessCommand:
+   153 00:0069: 86 xx                        stx     BUFLEN                  ; Save final length
+   154 00:006B: A0 00                        ldy     #0                      ; Load index for start
+   155                        
+  Mon Nov  2 2015 22:33                                                                                                    Page 7
 
 
-   156 00:0070: B0 9D                        bcs     NewCommand              ; None, empty command
-   157                        
-   158                        ;==============================================================================
-   159                        ; B - Select Memory Bank
-   160                        ;------------------------------------------------------------------------------
-   161                        
-   162 00:0072: C9 42                        cmp     #'B'                    ; Select memory bank?
-   163 00:0074: D0 0D                        bne     NotMemoryBank
-   164                        
-   165 00:0076: A2 xx                        ldx     #BANK                   ; Parse bank
-   166 00:0078: 20 xx xx                     jsr     GetByte
-   167 00:007B: 90 03                        bcc     $+5
-   168 00:007D: 4C xx xx                     jmp     ShowError
-   169 00:0080: 4C xx xx                     jmp     NewCommand
-   170                        NotMemoryBank:
-   171                        
-   172                        ;==============================================================================
-   173                        ; M - Display Memory
-   174                        ;------------------------------------------------------------------------------
-   175                        
-   176 00:0083: C9 4D                        cmp     #'M'                    ; Memory display?
-   177 00:0085: D0 74                        bne     NotMemoryDisplay
-   178                        
-   179 00:0087: A2 xx                        ldx     #ADDR_S                 ; Parse start address
-   180 00:0089: 20 xx xx                     jsr     GetAddr
-   181 00:008C: 90 03                        bcc     $+5
-   182 00:008E: 4C xx xx                     jmp     ShowError
-   183 00:0091: A2 xx                        ldx     #ADDR_E                 ; Parse end address
-   184 00:0093: 20 xx xx                     jsr     GetAddr
-   185 00:0096: 90 03                        bcc     $+5
-   186 00:0098: 4C xx xx                     jmp     ShowError
-   187                        
-   188                        DisplayMemory:
-   189 00:009B: 20 xx xx                     jsr     UartCRLF
-   190 00:009E: A5 xx                        lda     ADDR_S+2                ; Show memory address
-   191 00:00A0: 20 xx xx                     jsr     UartHex2
-   192 00:00A3: A9 3A                        lda     #':'
-   193 00:00A5: 20 xx xx                     jsr     UartTx
-   194 00:00A8: A5 xx                        lda     ADDR_S+1
-   195 00:00AA: 20 xx xx                     jsr     UartHex2
-   196 00:00AD: A5 xx                        lda     ADDR_S+0
-   197 00:00AF: 20 xx xx                     jsr     UartHex2
-   198                        
-   199 00:00B2: A0 00                        ldy     #0                      ; Show sixteen bytes of data
-   200 00:00B4: A9 20        ByteLoop:       lda     #' '
-   201 00:00B6: 20 xx xx                     jsr     UartTx
-   202 00:00B9: B7 xx                        lda     [ADDR_S],y
-   203 00:00BB: 20 xx xx                     jsr     UartHex2
-   204 00:00BE: C8                           iny
-   205 00:00BF: C0 10                        cpy     #16
-   206 00:00C1: D0 F1                        bne     ByteLoop
-   207                        
-   208 00:00C3: A9 20                        lda     #' '
-   209 00:00C5: 20 xx xx                     jsr     UartTx
-   210 00:00C8: A9 7C                        lda     #'|'
-   211 00:00CA: 20 xx xx                     jsr     UartTx
-   212 00:00CD: A0 00                        ldy     #0                      ; Show sixteen characters
-   213 00:00CF: B7 xx        CharLoop:       lda     [ADDR_S],Y
-  Sat Aug 15 2015 21:25                                                                                                    Page 8
+   156 00:006D: 20 xx xx                     jsr     SkipSpaces              ; Fetch command character
+   157 00:0070: B0 9D                        bcs     NewCommand              ; None, empty command
+   158                        
+   159                        ;==============================================================================
+   160                        ; B - Select Memory Bank
+   161                        ;------------------------------------------------------------------------------
+   162                        
+   163 00:0072: C9 42                        cmp     #'B'                    ; Select memory bank?
+   164 00:0074: D0 0D                        bne     NotMemoryBank
+   165                        
+   166 00:0076: A2 xx                        ldx     #BANK                   ; Parse bank
+   167 00:0078: 20 xx xx                     jsr     GetByte
+   168 00:007B: 90 03                        bcc     $+5
+   169 00:007D: 4C xx xx                     jmp     ShowError
+   170 00:0080: 4C xx xx                     jmp     NewCommand
+   171                        NotMemoryBank:
+   172                        
+   173                        ;==============================================================================
+   174                        ; M - Display Memory
+   175                        ;------------------------------------------------------------------------------
+   176                        
+   177 00:0083: C9 4D                        cmp     #'M'                    ; Memory display?
+   178 00:0085: D0 74                        bne     NotMemoryDisplay
+   179                        
+   180 00:0087: A2 xx                        ldx     #ADDR_S                 ; Parse start address
+   181 00:0089: 20 xx xx                     jsr     GetAddr
+   182 00:008C: 90 03                        bcc     $+5
+   183 00:008E: 4C xx xx                     jmp     ShowError
+   184 00:0091: A2 xx                        ldx     #ADDR_E                 ; Parse end address
+   185 00:0093: 20 xx xx                     jsr     GetAddr
+   186 00:0096: 90 03                        bcc     $+5
+   187 00:0098: 4C xx xx                     jmp     ShowError
+   188                        
+   189                        DisplayMemory:
+   190 00:009B: 20 xx xx                     jsr     UartCRLF
+   191 00:009E: A5 xx                        lda     ADDR_S+2                ; Show memory address
+   192 00:00A0: 20 xx xx                     jsr     UartHex2
+   193 00:00A3: A9 3A                        lda     #':'
+   194 00:00A5: 20 xx xx                     jsr     UartTx
+   195 00:00A8: A5 xx                        lda     ADDR_S+1
+   196 00:00AA: 20 xx xx                     jsr     UartHex2
+   197 00:00AD: A5 xx                        lda     ADDR_S+0
+   198 00:00AF: 20 xx xx                     jsr     UartHex2
+   199                        
+   200 00:00B2: A0 00                        ldy     #0                      ; Show sixteen bytes of data
+   201 00:00B4: A9 20        ByteLoop:       lda     #' '
+   202 00:00B6: 20 xx xx                     jsr     UartTx
+   203 00:00B9: B7 xx                        lda     [ADDR_S],y
+   204 00:00BB: 20 xx xx                     jsr     UartHex2
+   205 00:00BE: C8                           iny
+   206 00:00BF: C0 10                        cpy     #16
+   207 00:00C1: D0 F1                        bne     ByteLoop
+   208                        
+   209 00:00C3: A9 20                        lda     #' '
+   210 00:00C5: 20 xx xx                     jsr     UartTx
+   211 00:00C8: A9 7C                        lda     #'|'
+   212 00:00CA: 20 xx xx                     jsr     UartTx
+   213 00:00CD: A0 00                        ldy     #0                      ; Show sixteen characters
+  Mon Nov  2 2015 22:33                                                                                                    Page 8
 
 
-   214 00:00D1: 20 xx xx                     jsr     IsPrintable
-   215 00:00D4: B0 02                        bcs     $+4
-   216 00:00D6: A9 2E                        lda     #'.'
-   217 00:00D8: 20 xx xx                     jsr     UartTx
-   218 00:00DB: C8                           iny
-   219 00:00DC: C0 10                        cpy     #16
-   220 00:00DE: D0 EF                        bne     CharLoop
-   221 00:00E0: A9 7C                        lda     #'|'
-   222 00:00E2: 20 xx xx                     jsr     UartTx
-   223                        
-   224 00:00E5: 18                           clc                             ; Bump the display address
-   225 00:00E6: 98                           tya
-   226 00:00E7: 65 xx                        adc     ADDR_S+0
-   227 00:00E9: 85 xx                        sta     ADDR_S+0
-   228 00:00EB: 90 02                        bcc     $+4
-   229 00:00ED: E6 xx                        inc     ADDR_S+1
-   230                        
-   231 00:00EF: 38                           sec                             ; Exceeded the end address?
-   232 00:00F0: E5 xx                        sbc     ADDR_E+0
-   233 00:00F2: A5 xx                        lda     ADDR_S+1
-   234 00:00F4: E5 xx                        sbc     ADDR_E+1
-   235 00:00F6: 30 A3                        bmi     DisplayMemory           ; No, show more
-   236                        
-   237 00:00F8: 4C xx xx                     jmp     NewCommand
-   238                        NotMemoryDisplay:
-   239                        
-   240                        ;==============================================================================
-   241                        ; R - Select ROM Bank
-   242                        ;------------------------------------------------------------------------------
-   243                        
-   244 00:00FB: C9 52                        cmp     #'R'                    ; ROM Bank?
-   245 00:00FD: D0 26                        bne     NotROMBank
-   246                        
-   247 00:00FF: 20 xx xx                     jsr     SkipSpaces
-   248 00:0102: 90 03                        bcc     $+5
-   249 00:0104: 4C xx xx     BankFail:       jmp     ShowError
-   250 00:0107: C9 30                        cmp     #'0'
-   251 00:0109: 90 F9                        bcc     BankFail
-   252 00:010B: C9 36                        cmp     #'3'+3
-   253 00:010D: B0 F5                        bcs     BankFail
-   254                        
-   255 00:010F: 85 xx                        sta     TEMP
-   256 00:0111: A9 00                        lda     #0
-   257 00:0113: 66 xx                        ror     TEMP                    ; Bit 0 set
-   258 00:0115: B0 02                        bcs     $+4
-   259 00:0117: 09 0C                        ora     #%00001100              ; No, make CA2 (A15) low
-   260 00:0119: 66 xx                        ror     TEMP                    ; Bit 1 set
-   261 00:011B: B0 02                        bcs     $+4
-   262 00:011D: 09 C0                        ora     #%11000000              ; No, make CB2 (FAMS) low
-   263 00:011F: 8D EC 7F                     sta     VIA2_PCR
-   264                        
-   265 00:0122: 4C xx xx                     jmp     NewCommand
-   266                        NotROMBank:
-   267                        
-   268                        ;==============================================================================
-   269                        ; X - XMODEM Upload
-   270                        ;------------------------------------------------------------------------------
-   271                        
-  Sat Aug 15 2015 21:25                                                                                                    Page 9
+   214 00:00CF: B7 xx        CharLoop:       lda     [ADDR_S],Y
+   215 00:00D1: 20 xx xx                     jsr     IsPrintable
+   216 00:00D4: B0 02                        bcs     $+4
+   217 00:00D6: A9 2E                        lda     #'.'
+   218 00:00D8: 20 xx xx                     jsr     UartTx
+   219 00:00DB: C8                           iny
+   220 00:00DC: C0 10                        cpy     #16
+   221 00:00DE: D0 EF                        bne     CharLoop
+   222 00:00E0: A9 7C                        lda     #'|'
+   223 00:00E2: 20 xx xx                     jsr     UartTx
+   224                        
+   225 00:00E5: 18                           clc                             ; Bump the display address
+   226 00:00E6: 98                           tya
+   227 00:00E7: 65 xx                        adc     ADDR_S+0
+   228 00:00E9: 85 xx                        sta     ADDR_S+0
+   229 00:00EB: 90 02                        bcc     $+4
+   230 00:00ED: E6 xx                        inc     ADDR_S+1
+   231                        
+   232 00:00EF: 38                           sec                             ; Exceeded the end address?
+   233 00:00F0: E5 xx                        sbc     ADDR_E+0
+   234 00:00F2: A5 xx                        lda     ADDR_S+1
+   235 00:00F4: E5 xx                        sbc     ADDR_E+1
+   236 00:00F6: 30 A3                        bmi     DisplayMemory           ; No, show more
+   237                        
+   238 00:00F8: 4C xx xx                     jmp     NewCommand
+   239                        NotMemoryDisplay:
+   240                        
+   241                        ;==============================================================================
+   242                        ; R - Select ROM Bank
+   243                        ;------------------------------------------------------------------------------
+   244                        
+   245 00:00FB: C9 52                        cmp     #'R'                    ; ROM Bank?
+   246 00:00FD: D0 26                        bne     NotROMBank              ; No
+   247                        
+   248 00:00FF: 20 xx xx                     jsr     SkipSpaces              ; Find first argument
+   249 00:0102: 90 03                        bcc     $+5                     ; Success?
+   250 00:0104: 4C xx xx     BankFail:       jmp     ShowError               ; No
+   251                        
+   252 00:0107: C9 30                        cmp     #'0'                    ; Check bank is 0..3
+   253 00:0109: 90 F9                        bcc     BankFail
+   254 00:010B: C9 34                        cmp     #'3'+1
+   255 00:010D: B0 F5                        bcs     BankFail
+   256                        
+   257 00:010F: 85 xx                        sta     TEMP                    ; Work out VIA settings
+   258 00:0111: A9 00                        lda     #0
+   259 00:0113: 66 xx                        ror     TEMP                    ; Bit 0 set
+   260 00:0115: B0 02                        bcs     $+4
+   261 00:0117: 09 0C                        ora     #%00001100              ; No, make CA2 (A15) low
+   262 00:0119: 66 xx                        ror     TEMP                    ; Bit 1 set
+   263 00:011B: B0 02                        bcs     $+4
+   264 00:011D: 09 C0                        ora     #%11000000              ; No, make CB2 (FAMS) low
+   265 00:011F: 8D EC 7F                     sta     VIA2_PCR                ; Set ROM select lines
+   266                        
+   267 00:0122: 4C xx xx                     jmp     NewCommand              ; Done
+   268                        NotROMBank:
+   269                        
+   270                        ;==============================================================================
+   271                        ; U - Unlock Memory
+  Mon Nov  2 2015 22:33                                                                                                    Page 9
 
 
-   272 00:0125: C9 58                        cmp     #'X'                    ; XModem upload?
-   273 00:0127: F0 03                        beq     $+5
-   274 00:0129: 4C xx xx                     jmp     NotXModem
-   275                        
-   276 00:012C: A2 xx                        ldx     #ADDR_S                 ; Parse start address
-   277 00:012E: 20 xx xx                     jsr     GetAddr
-   278 00:0131: 90 03                        bcc     $+5
-   279 00:0133: 4C xx xx                     jmp     ShowError
-   280                        
-   281 00:0136: 24 xx                        bit     ADDR_S+1                ; Load into ROM area?
-   282 00:0138: 10 12                        bpl     NotROMArea
-   283 00:013A: AD EC 7F                     lda     VIA2_PCR                ; Yes, check ROM selected
-   284 00:013D: 29 CC                        and     #%11001100
-   285 00:013F: D0 0B                        bne     NotROMArea
-   286                                        long_i                          ; Upload to ROM3 ROM Area
-+  286 00:0141: C2 10                        rep     #(1<<X_FLAG)
-+  286                                        longi   on
-   287 00:0143: A2 xx xx                     ldx     #NOT_SAFE
-   288 00:0146: 20 xx xx                     jsr     UartStr
-   289 00:0149: 4C xx xx                     jmp     NewCommand
-   290                        
-   291                        NotROMArea:
-   292                                        long_i                          ; Display waiting message
-+  292 00:014C: C2 10                        rep     #(1<<X_FLAG)
-+  292                                        longi   on
-   293 00:014E: A2 xx xx                     ldx     #WAITING
-   294 00:0151: 20 xx xx                     jsr     UartStr
-   295 00:0154: 20 xx xx                     jsr     UartCRLF
-   296                                        short_i
-+  296 00:0157: E2 10                        sep     #(1<<X_FLAG)
-+  296                                        longi   off
-   297 00:0159: 64 xx                        stz     BLOCK                   ; Reset the block number
-   298 00:015B: E6 xx                        inc     BLOCK
+   272                        ;------------------------------------------------------------------------------
+   273                        
+   274 00:0125: C9 55                        cmp     #'U'                    ; Unlock memory?
+   275 00:0127: D0 1E                        bne     NotUnlock
+   276                        
+   277                                        short_a
++  277 00:0129: E2 20                        sep     #(1<<M_FLAG)
++  277                                        longa   off
+   278 00:012B: A9 55                        lda     #$55                    ; Execute the unlock sequence
+   279 00:012D: 8D 55 D5                     sta     $8000+$5555
+   280 00:0130: A9 AA                        lda     #$aa
+   281 00:0132: 8D AA AA                     sta     $8000+$2aaa
+   282 00:0135: A9 A0                        lda     #$a0
+   283 00:0137: 8D 55 D5                     sta     $8000+$5555
+   284                        
+   285                                        long_i
++  285 00:013A: C2 10                        rep     #(1<<X_FLAG)
++  285                                        longi   on
+   286 00:013C: A2 xx xx                     ldx     #UNLOCKED               ; And announce it
+   287 00:013F: 20 xx xx                     jsr     UartStr
+   288                                        short_i
++  288 00:0142: E2 10                        sep     #(1<<X_FLAG)
++  288                                        longi   off
+   289 00:0144: 4C xx xx                     jmp     NewCommand              ; Done
+   290                        NotUnlock:
+   291                        
+   292                        ;==============================================================================
+   293                        ; X - XMODEM Upload
+   294                        ;------------------------------------------------------------------------------
+   295                        
+   296 00:0147: C9 58                        cmp     #'X'                    ; XModem upload?
+   297 00:0149: F0 03                        beq     $+5                     ; Yes.
+   298 00:014B: 4C xx xx                     jmp     NotXModem
    299                        
-   300                        TransferWait:
-   301 00:015D: 64 xx                        stz     TEMP+0                  ; Clear timeout counter
-   302 00:015F: 64 xx                        stz     TEMP+1
-   303 00:0161: A9 EC        		lda	#-20
-   304 00:0163: 85 xx                        sta     TEMP+2
-   305                        TransferPoll:
-   306 00:0165: 20 xx xx                     jsr     UartRxTest              ; Any data yet?
-   307 00:0168: B0 11                        bcs     TransferScan
-   308 00:016A: E6 xx                        inc     TEMP+0
-   309 00:016C: D0 F7                        bne     TransferPoll
-   310 00:016E: E6 xx                        inc     TEMP+1
-   311 00:0170: D0 F3                        bne     TransferPoll
-   312 00:0172: E6 xx                        inc     TEMP+2
-   313 00:0174: D0 EF                        bne     TransferPoll
-   314 00:0176: 20 xx xx                     jsr     SendNAK                 ; Send a NAK
-   315 00:0179: 80 E2                        bra     TransferWait
-   316                        TransferScan:
-   317 00:017B: 20 xx xx                     jsr     UartRx                  ; Wait for SOH or EOT
-   318 00:017E: C9 04                        cmp     #EOT
-   319 00:0180: F0 45                        beq     TransferDone
-   320 00:0182: C9 01                        cmp     #SOH
-   321 00:0184: D0 D7                        bne     TransferWait
-   322 00:0186: 20 xx xx                     jsr     UartRx                  ; Check the block number
-   323 00:0189: C5 xx                        cmp     BLOCK
-  Sat Aug 15 2015 21:25                                                                                                    Page 10
+   300 00:014E: A2 xx                        ldx     #ADDR_S                 ; Parse start address
+   301 00:0150: 20 xx xx                     jsr     GetAddr
+   302 00:0153: 90 03                        bcc     $+5
+   303 00:0155: 4C xx xx                     jmp     ShowError
+   304                        
+   305 00:0158: 24 xx                        bit     ADDR_S+1                ; Load into ROM area?
+   306 00:015A: 10 12                        bpl     NotROMArea
+   307 00:015C: AD EC 7F                     lda     VIA2_PCR                ; Yes, check ROM selected
+   308 00:015F: 29 CC                        and     #%11001100
+   309 00:0161: D0 0B                        bne     NotROMArea
+   310                                        long_i                          ; Upload to ROM3 ROM Area
++  310 00:0163: C2 10                        rep     #(1<<X_FLAG)
++  310                                        longi   on
+   311 00:0165: A2 xx xx                     ldx     #NOT_SAFE
+   312 00:0168: 20 xx xx                     jsr     UartStr
+   313 00:016B: 4C xx xx                     jmp     NewCommand
+   314                        
+   315                        NotROMArea:
+   316                                        long_i                          ; Display waiting message
++  316 00:016E: C2 10                        rep     #(1<<X_FLAG)
++  316                                        longi   on
+   317 00:0170: A2 xx xx                     ldx     #WAITING
+   318 00:0173: 20 xx xx                     jsr     UartStr
+   319 00:0176: 20 xx xx                     jsr     UartCRLF
+  Mon Nov  2 2015 22:33                                                                                                    Page 10
 
 
-   324 00:018B: D0 34                        bne     TransferError
-   325 00:018D: 20 xx xx                     jsr     UartRx                  ; Check inverted block
-   326 00:0190: 49 FF                        eor     #$ff
-   327 00:0192: C5 xx                        cmp     BLOCK
-   328 00:0194: D0 2B                        bne     TransferError
-   329                        
-   330 00:0196: A0 00                        ldy     #0
-   331 00:0198: 84 xx                        sty     SUM                     ; Clear the check sum
-   332 00:019A: 20 xx xx     TransferBlock:  jsr     UartRx
-   333 00:019D: 97 xx                        sta     [ADDR_S],Y
-   334 00:019F: 18                           clc                             ; Add to check sum
-   335 00:01A0: 65 xx                        adc     SUM
-   336 00:01A2: 85 xx                        sta     SUM
-   337 00:01A4: C8                           iny
-   338 00:01A5: C0 80                        cpy     #128
-   339 00:01A7: D0 F1                        bne     TransferBlock
-   340 00:01A9: 20 xx xx                     jsr     UartRx                  ; Check the check sum
-   341 00:01AC: C5 xx                        cmp     SUM
-   342 00:01AE: D0 11                        bne     TransferError           ; Failed
-   343 00:01B0: 18                           clc
-   344 00:01B1: 98                           tya
-   345 00:01B2: 65 xx                        adc     ADDR_S+0                ; Bump address one block
-   346 00:01B4: 85 xx                        sta     ADDR_S+0
-   347 00:01B6: 90 02                        bcc     $+4
-   348 00:01B8: E6 xx                        inc     ADDR_S+1
-   349                        
-   350 00:01BA: 20 xx xx                     jsr     SendACK                 ; Acknowledge block
-   351 00:01BD: E6 xx                        inc     BLOCK                   ; Bump block number
-   352 00:01BF: 80 9C                        bra     TransferWait
+   320                                        short_i
++  320 00:0179: E2 10                        sep     #(1<<X_FLAG)
++  320                                        longi   off
+   321 00:017B: 64 xx                        stz     BLOCK                   ; Reset the block number
+   322 00:017D: E6 xx                        inc     BLOCK
+   323                        
+   324                        ResetRetries:
+   325 00:017F: A9 0A                        lda     #10                     ; Reset the retry counter
+   326 00:0181: 85 xx                        sta     RETRIES
+   327                        
+   328                        TransferWait:
+   329 00:0183: 64 xx                        stz     TEMP+0                  ; Clear timeout counter
+   330 00:0185: 64 xx                        stz     TEMP+1
+   331 00:0187: A9 EC                        lda     #-20
+   332 00:0189: 85 xx                        sta     TEMP+2
+   333                        TransferPoll:
+   334 00:018B: 20 xx xx                     jsr     UartRxTest              ; Any data yet?
+   335 00:018E: B0 22                        bcs     TransferScan
+   336 00:0190: E6 xx                        inc     TEMP+0
+   337 00:0192: D0 F7                        bne     TransferPoll
+   338 00:0194: E6 xx                        inc     TEMP+1
+   339 00:0196: D0 F3                        bne     TransferPoll
+   340 00:0198: E6 xx                        inc     TEMP+2
+   341 00:019A: D0 EF                        bne     TransferPoll
+   342 00:019C: C6 xx                        dec     RETRIES
+   343 00:019E: F0 05                        beq     TimedOut
+   344 00:01A0: 20 xx xx                     jsr     SendNAK                 ; Send a NAK
+   345 00:01A3: 80 DE                        bra     TransferWait
+   346                        
+   347                        TimedOut:
+   348                                        long_i
++  348 00:01A5: C2 10                        rep     #(1<<X_FLAG)
++  348                                        longi   on
+   349 00:01A7: A2 xx xx                     ldx     #TIMEOUT
+   350 00:01AA: 20 xx xx                     jsr     UartStr
+   351                                        short_i
++  351 00:01AD: E2 10                        sep     #(1<<X_FLAG)
++  351                                        longi   off
+   352 00:01AF: 4C xx xx                     jmp     NewCommand
    353                        
-   354                        TransferError;
-   355 00:01C1: 20 xx xx                     jsr     SendNAK                 ; Send a NAK
-   356 00:01C4: 4C xx xx                     jmp     TransferWait            ; And try again
-   357                        
-   358                        TransferDone:
-   359 00:01C7: 20 xx xx                     jsr     SendACK                 ; Acknowledge transmission
-   360 00:01CA: 4C xx xx                     jmp     NewCommand              ; Done
-   361                        
-   362                        SendACK:
-   363 00:01CD: A9 06                        lda     #ACK
-   364 00:01CF: 4C xx xx                     jmp     UartTx
-   365                        
-   366                        SendNAK:
-   367 00:01D2: A9 15                        lda     #NAK
-   368 00:01D4: 4C xx xx                     jmp     UartTx
-   369                        
-   370                        NotXModem:
+   354                        
+   355                        TransferScan:
+   356 00:01B2: 20 xx xx                     jsr     UartRx                  ; Wait for SOH or EOT
+   357 00:01B5: 85 40                sta <$40
+   358 00:01B7: C9 04                        cmp     #EOT
+   359 00:01B9: F0 49                        beq     TransferDone
+   360 00:01BB: C9 01                        cmp     #SOH
+   361 00:01BD: D0 C4                        bne     TransferWait
+   362 00:01BF: 20 xx xx                     jsr     UartRx                  ; Check the block number
+   363 00:01C2: 85 41                sta <$41
+   364 00:01C4: C5 xx                        cmp     BLOCK
+   365 00:01C6: D0 36                        bne     TransferError
+   366 00:01C8: 20 xx xx                     jsr     UartRx                  ; Check inverted block
+   367 00:01CB: 85 42                sta <$42
+   368 00:01CD: 49 FF                        eor     #$ff
+   369 00:01CF: C5 xx                        cmp     BLOCK
+   370 00:01D1: D0 2B                        bne     TransferError
    371                        
-   372                        ;==============================================================================
-   373                        ; ? - Help
-   374                        ;------------------------------------------------------------------------------
-   375                        
-   376 00:01D7: C9 3F                        cmp     #'?'                    ; Help command?
-   377 00:01D9: D0 0B                        bne     NotHelp
-   378                        
-   379                                        long_i
-+  379 00:01DB: C2 10                        rep     #(1<<X_FLAG)
-+  379                                        longi   on
-  Sat Aug 15 2015 21:25                                                                                                    Page 11
+  Mon Nov  2 2015 22:33                                                                                                    Page 11
 
 
-   380 00:01DD: A2 xx xx                     ldx     #HELP                   ; Output help string
-   381 00:01E0: 20 xx xx                     jsr     UartStr
-   382 00:01E3: 4C xx xx                     jmp     NewCommand
-   383                        NotHelp:
-   384                        
-   385                        ShowError:
-   386                                        long_i
-+  386 00:01E6: C2 10                        rep     #(1<<X_FLAG)
-+  386                                        longi   on
-   387 00:01E8: A2 xx xx                     ldx     #ERROR                  ; Output error message
-   388 00:01EB: 20 xx xx                     jsr     UartStr
-   389 00:01EE: 4C xx xx                     jmp     NewCommand
-   390                        
-   391                        ;==============================================================================
-   392                        ;------------------------------------------------------------------------------
-   393                        
-   394                        GetByte:
-   395 00:01F1: 9E 00 00                     stz     0,x                     ; Set the target address
-   396 00:01F4: 20 xx xx                     jsr     SkipSpaces              ; Skip to first real characater
-   397 00:01F7: 90 01                        bcc     $+3
-   398 00:01F9: 60                           rts                             ; None found
-   399 00:01FA: 20 xx xx                     jsr     IsHexDigit              ; Must have atleast one digit
-   400 00:01FD: 90 12                        bcc     ByteFail
-   401 00:01FF: 20 xx xx                     jsr     AddDigit
-   402 00:0202: 20 xx xx                     jsr     NextChar
-   403 00:0205: B0 08                        bcs     ByteDone
-   404 00:0207: 20 xx xx                     jsr     IsHexDigit
-   405 00:020A: 90 03                        bcc     ByteDone
-   406 00:020C: 20 xx xx                     jsr     AddDigit
-   407 00:020F: 18           ByteDone:       clc
-   408 00:0210: 60                           rts
-   409 00:0211: 38           ByteFail:       sec
-   410 00:0212: 60                           rts
+   372 00:01D3: A0 00                        ldy     #0
+   373 00:01D5: 84 xx                        sty     SUM                     ; Clear the check sum
+   374 00:01D7: 20 xx xx     TransferBlock:  jsr     UartRx
+   375 00:01DA: 97 xx                        sta     [ADDR_S],Y
+   376 00:01DC: 18                           clc                             ; Add to check sum
+   377 00:01DD: 65 xx                        adc     SUM
+   378 00:01DF: 85 xx                        sta     SUM
+   379 00:01E1: C8                           iny
+   380 00:01E2: C0 80                        cpy     #128
+   381 00:01E4: D0 F1                        bne     TransferBlock
+   382 00:01E6: 20 xx xx                     jsr     UartRx                  ; Check the check sum
+   383 00:01E9: C5 xx                        cmp     SUM
+   384 00:01EB: D0 11                        bne     TransferError           ; Failed
+   385 00:01ED: 18                           clc
+   386 00:01EE: 98                           tya
+   387 00:01EF: 65 xx                        adc     ADDR_S+0                ; Bump address one block
+   388 00:01F1: 85 xx                        sta     ADDR_S+0
+   389 00:01F3: 90 02                        bcc     $+4
+   390 00:01F5: E6 xx                        inc     ADDR_S+1
+   391                        
+   392 00:01F7: 20 xx xx                     jsr     SendACK                 ; Acknowledge block
+   393 00:01FA: E6 xx                        inc     BLOCK                   ; Bump block number
+   394 00:01FC: 80 85                        bra     TransferWait
+   395                        
+   396                        TransferError;
+   397 00:01FE: 20 xx xx                     jsr     SendNAK                 ; Send a NAK
+   398 00:0201: 4C xx xx                     jmp     TransferWait            ; And try again
+   399                        
+   400                        TransferDone:
+   401 00:0204: 20 xx xx                     jsr     SendACK                 ; Acknowledge transmission
+   402 00:0207: 4C xx xx                     jmp     NewCommand              ; Done
+   403                        
+   404                        SendACK:
+   405 00:020A: A9 06                        lda     #ACK
+   406 00:020C: 4C xx xx                     jmp     UartTx
+   407                        
+   408                        SendNAK:
+   409 00:020F: A9 15                        lda     #NAK
+   410 00:0211: 4C xx xx                     jmp     UartTx
    411                        
-   412                        GetAddr:
-   413 00:0213: 9E 00 00                     stz     0,x                     ; Set the target address
-   414 00:0216: 9E 01 00                     stz     1,x
-   415 00:0219: A5 xx                        lda     BANK
-   416 00:021B: 9D 02 00                     sta     2,x
-   417 00:021E: 20 xx xx                     jsr     SkipSpaces              ; Skip to first real characater
-   418 00:0221: 90 01                        bcc     $+3
-   419 00:0223: 60                           rts                             ; None found
-   420 00:0224: 20 xx xx                     jsr     IsHexDigit              ; Must have atleast one digit
-   421 00:0227: 90 2C                        bcc     AddrFail
-   422 00:0229: 20 xx xx                     jsr     AddDigit
-   423 00:022C: 20 xx xx                     jsr     NextChar
-   424 00:022F: B0 22                        bcs     AddrDone
-   425 00:0231: 20 xx xx                     jsr     IsHexDigit
-   426 00:0234: 90 1D                        bcc     AddrDone
-   427 00:0236: 20 xx xx                     jsr     AddDigit
-   428 00:0239: 20 xx xx                     jsr     NextChar
-   429 00:023C: B0 15                        bcs     AddrDone
-   430 00:023E: 20 xx xx                     jsr     IsHexDigit
-   431 00:0241: 90 10                        bcc     AddrDone
-   432 00:0243: 20 xx xx                     jsr     AddDigit
-   433 00:0246: 20 xx xx                     jsr     NextChar
-   434 00:0249: B0 08                        bcs     AddrDone
-   435 00:024B: 20 xx xx                     jsr     IsHexDigit
-  Sat Aug 15 2015 21:25                                                                                                    Page 12
+   412                        NotXModem:
+   413                        
+   414                        ;==============================================================================
+   415                        ; ? - Help
+   416                        ;------------------------------------------------------------------------------
+   417                        
+   418 00:0214: C9 3F                        cmp     #'?'                    ; Help command?
+   419 00:0216: D0 0B                        bne     NotHelp
+   420                        
+   421                                        long_i
++  421 00:0218: C2 10                        rep     #(1<<X_FLAG)
++  421                                        longi   on
+   422 00:021A: A2 xx xx                     ldx     #HELP                   ; Output help string
+   423 00:021D: 20 xx xx                     jsr     UartStr
+   424 00:0220: 4C xx xx                     jmp     NewCommand
+   425                        NotHelp:
+   426                        
+   427                        ShowError:
+  Mon Nov  2 2015 22:33                                                                                                    Page 12
 
 
-   436 00:024E: 90 03                        bcc     AddrDone
-   437 00:0250: 20 xx xx                     jsr     AddDigit
-   438 00:0253: 18           AddrDone:       clc
-   439 00:0254: 60                           rts
-   440 00:0255: 38           AddrFail:       sec
-   441 00:0256: 60                           rts
-   442                        
-   443                        AddDigit:
-   444 00:0257: 38                           sec                             ; Convert ASCII to binary
-   445 00:0258: E9 30                        sbc     #'0'
-   446 00:025A: C9 0A                        cmp     #$0a
-   447 00:025C: 90 02                        bcc     $+4
-   448 00:025E: E9 07                        sbc     #7
-   449                        
-   450 00:0260: 1E 00 00                     asl     0,x                     ; Shift up one nybble
-   451 00:0263: 3E 01 00                     rol     1,x
-   452 00:0266: 1E 00 00                     asl     0,x
-   453 00:0269: 3E 01 00                     rol     1,x
-   454 00:026C: 1E 00 00                     asl     0,x
-   455 00:026F: 3E 01 00                     rol     1,x
-   456 00:0272: 1E 00 00                     asl     0,x
-   457 00:0275: 3E 01 00                     rol     1,x
-   458                        
-   459 00:0278: 1D 00 00                     ora     0,x                     ; Merge in new digit
-   460 00:027B: 9D 00 00                     sta     0,x                     ; Then get next digit
-   461 00:027E: 60                           rts
+   428                                        long_i
++  428 00:0223: C2 10                        rep     #(1<<X_FLAG)
++  428                                        longi   on
+   429 00:0225: A2 xx xx                     ldx     #ERROR                  ; Output error message
+   430 00:0228: 20 xx xx                     jsr     UartStr
+   431 00:022B: 4C xx xx                     jmp     NewCommand
+   432                        
+   433                        ;==============================================================================
+   434                        ;------------------------------------------------------------------------------
+   435                        
+   436                        GetByte:
+   437 00:022E: 9E 00 00                     stz     0,x                     ; Set the target address
+   438 00:0231: 20 xx xx                     jsr     SkipSpaces              ; Skip to first real characater
+   439 00:0234: 90 01                        bcc     $+3
+   440 00:0236: 60                           rts                             ; None found
+   441 00:0237: 20 xx xx                     jsr     IsHexDigit              ; Must have atleast one digit
+   442 00:023A: 90 12                        bcc     ByteFail
+   443 00:023C: 20 xx xx                     jsr     AddDigit
+   444 00:023F: 20 xx xx                     jsr     NextChar
+   445 00:0242: B0 08                        bcs     ByteDone
+   446 00:0244: 20 xx xx                     jsr     IsHexDigit
+   447 00:0247: 90 03                        bcc     ByteDone
+   448 00:0249: 20 xx xx                     jsr     AddDigit
+   449 00:024C: 18           ByteDone:       clc
+   450 00:024D: 60                           rts
+   451 00:024E: 38           ByteFail:       sec
+   452 00:024F: 60                           rts
+   453                        
+   454                        GetAddr:
+   455 00:0250: 9E 00 00                     stz     0,x                     ; Set the target address
+   456 00:0253: 9E 01 00                     stz     1,x
+   457 00:0256: A5 xx                        lda     BANK
+   458 00:0258: 9D 02 00                     sta     2,x
+   459 00:025B: 20 xx xx                     jsr     SkipSpaces              ; Skip to first real characater
+   460 00:025E: 90 01                        bcc     $+3
+   461 00:0260: 60                           rts                             ; None found
    462                        
-   463                        ; Get the next character from the command buffer updating the position in X.
-   464                        ; Set the carry if the end of the buffer is reached.
-   465                        
-   466                        NextChar:
-   467 00:027F: C4 xx                        cpy     BUFLEN                  ; Any characters left?
-   468 00:0281: 90 01                        bcc     $+3
-   469 00:0283: 60                           rts
-   470 00:0284: B9 00 02                     lda     BUFFER,y
-   471 00:0287: C8                           iny
-   472 00:0288: 4C xx xx                     jmp     ToUpperCase
-   473                        
-   474                        SkipSpaces:
-   475 00:028B: 20 xx xx                     jsr     NextChar                ; Fetch next character
-   476 00:028E: 90 01                        bcc     $+3                     ; Any left?
-   477 00:0290: 60                           rts                             ; No
-   478 00:0291: C9 20                        cmp     #' '                    ; Is it a space?
-   479 00:0293: F0 F6                        beq     SkipSpaces              ; Yes, try again
-   480 00:0295: 18                           clc
-   481 00:0296: 60                           rts                             ; Done
-   482                        
-   483                        ; If the character in A is lower case then convert it to upper case.
-   484                        
-   485                        ToUpperCase:
-   486 00:0297: 20 xx xx                     jsr     IsLowerCase             ; Test the character
-   487 00:029A: 90 02                        bcc     $+4
-   488 00:029C: E9 20                        sbc     #32                     ; Convert lower case
-   489 00:029E: 18                           clc
-   490 00:029F: 60                           rts                             ; Done
-   491                        
-   492                        ; Determine if the character in A is a lower case letter. Set the carry if it
-   493                        ; is, otherwise clear it.
-  Sat Aug 15 2015 21:25                                                                                                    Page 13
+   463 00:0261: 20 xx xx                     jsr     IsHexDigit              ; Must have atleast one digit
+   464 00:0264: 90 2C                        bcc     AddrFail
+   465 00:0266: 20 xx xx                     jsr     AddDigit
+   466 00:0269: 20 xx xx                     jsr     NextChar
+   467 00:026C: B0 22                        bcs     AddrDone
+   468 00:026E: 20 xx xx                     jsr     IsHexDigit
+   469 00:0271: 90 1D                        bcc     AddrDone
+   470 00:0273: 20 xx xx                     jsr     AddDigit
+   471 00:0276: 20 xx xx                     jsr     NextChar
+   472 00:0279: B0 15                        bcs     AddrDone
+   473 00:027B: 20 xx xx                     jsr     IsHexDigit
+   474 00:027E: 90 10                        bcc     AddrDone
+   475 00:0280: 20 xx xx                     jsr     AddDigit
+   476 00:0283: 20 xx xx                     jsr     NextChar
+   477 00:0286: B0 08                        bcs     AddrDone
+   478 00:0288: 20 xx xx                     jsr     IsHexDigit
+   479 00:028B: 90 03                        bcc     AddrDone
+   480 00:028D: 20 xx xx                     jsr     AddDigit
+   481 00:0290: 18           AddrDone:       clc                             ; Carry clear got an address
+   482 00:0291: 60                           rts
+   483 00:0292: 38           AddrFail:       sec                             ; Carry set -- failed.
+  Mon Nov  2 2015 22:33                                                                                                    Page 13
 
 
-   494                        
-   495                        IsLowerCase:
-   496 00:02A0: C9 61                        cmp     #'a'                    ; Between a and z?
-   497 00:02A2: 90 06                        bcc     ClearCarry
-   498 00:02A4: C9 7B                        cmp     #'z'+1
-   499 00:02A6: B0 02                        bcs     ClearCarry
-   500 00:02A8: 38           SetCarry:       sec
-   501 00:02A9: 60                           rts
-   502 00:02AA: 18           ClearCarry:     clc
-   503 00:02AB: 60                           rts
-   504                        
-   505                        ; Determine if the character in A is a hex character. Set the carry if it is,
-   506                        ; otherwise clear it.
-   507                        
-   508                        IsHexDigit:
-   509 00:02AC: C9 30                        cmp     #'0'                    ; Between 0 and 9?
-   510 00:02AE: 90 FA                        bcc     ClearCarry
-   511 00:02B0: C9 3A                        cmp     #'9'+1
-   512 00:02B2: 90 F4                        bcc     SetCarry
-   513 00:02B4: C9 41                        cmp     #'A'                    ; Between A and F?
-   514 00:02B6: 90 F2                        bcc     ClearCarry
-   515 00:02B8: C9 47                        cmp     #'F'+1
-   516 00:02BA: 90 EC                        bcc     SetCarry
-   517 00:02BC: 80 EC                        bra     ClearCarry
-   518                        
-   519                        ; Determine if the character in A is a printable character. Set the carry if it
-   520                        ; is, otherwise clear it.
-   521                        
-   522                        IsPrintable:
-   523 00:02BE: C9 20                        cmp     #' '
-   524 00:02C0: 90 E8                        bcc     ClearCarry
-   525 00:02C2: C9 7F                        cmp     #DEL
-   526 00:02C4: 90 E2                        bcc     SetCarry
-   527 00:02C6: 80 E2                        bra     ClearCarry
-   528                        
-   529                        ;==============================================================================
-   530                        ;------------------------------------------------------------------------------
-   531                        
-   532                        UartHex2:
-   533 00:02C8: 48                           pha                             ; Save the original byte
-   534 00:02C9: 4A                           lsr     a                       ; Shift down hi nybble
-   535 00:02CA: 4A                           lsr     a
-   536 00:02CB: 4A                           lsr     a
-   537 00:02CC: 4A                           lsr     a
-   538 00:02CD: 20 xx xx                     jsr     UartHex                 ; Display
-   539 00:02D0: 68                           pla                             ; Recover data byte
-   540                        
-   541                        UartHex:
-   542 00:02D1: 29 0F                        and     #$0f                    ; Strip out lo nybble
-   543 00:02D3: F8                           sed                             ; Convert to ASCII
-   544 00:02D4: 18                           clc
-   545 00:02D5: 69 90                        adc     #$90
-   546 00:02D7: 69 40                        adc     #$40
-   547 00:02D9: D8                           cld
-   548 00:02DA: 4C xx xx                     jmp     UartTx                  ; And display
-   549                        
-   550                        ; Display the string of characters starting a the memory location pointed to by
-   551                        ; X (16-bits).
-  Sat Aug 15 2015 21:25                                                                                                    Page 14
+   484 00:0293: 60                           rts
+   485                        
+   486                        AddDigit:
+   487 00:0294: 38                           sec                             ; Convert ASCII to binary
+   488 00:0295: E9 30                        sbc     #'0'
+   489 00:0297: C9 0A                        cmp     #$0a
+   490 00:0299: 90 02                        bcc     $+4
+   491 00:029B: E9 07                        sbc     #7
+   492                        
+   493 00:029D: 1E 00 00                     asl     0,x                     ; Shift up one nybble
+   494 00:02A0: 3E 01 00                     rol     1,x
+   495 00:02A3: 1E 00 00                     asl     0,x
+   496 00:02A6: 3E 01 00                     rol     1,x
+   497 00:02A9: 1E 00 00                     asl     0,x
+   498 00:02AC: 3E 01 00                     rol     1,x
+   499 00:02AF: 1E 00 00                     asl     0,x
+   500 00:02B2: 3E 01 00                     rol     1,x
+   501                        
+   502 00:02B5: 1D 00 00                     ora     0,x                     ; Merge in new digit
+   503 00:02B8: 9D 00 00                     sta     0,x                     ; Then get next digit
+   504 00:02BB: 60                           rts
+   505                        
+   506                        ; Get the next character from the command buffer updating the position in X.
+   507                        ; Set the carry if the end of the buffer is reached.
+   508                        
+   509                        NextChar:
+   510 00:02BC: C4 xx                        cpy     BUFLEN                  ; Any characters left?
+   511 00:02BE: 90 01                        bcc     $+3
+   512 00:02C0: 60                           rts
+   513 00:02C1: B9 00 02                     lda     BUFFER,y
+   514 00:02C4: C8                           iny
+   515 00:02C5: 4C xx xx                     jmp     ToUpperCase
+   516                        
+   517                        SkipSpaces:
+   518 00:02C8: 20 xx xx                     jsr     NextChar                ; Fetch next character
+   519 00:02CB: 90 01                        bcc     $+3                     ; Any left?
+   520 00:02CD: 60                           rts                             ; No
+   521 00:02CE: C9 20                        cmp     #' '                    ; Is it a space?
+   522 00:02D0: F0 F6                        beq     SkipSpaces              ; Yes, try again
+   523 00:02D2: 18                           clc
+   524 00:02D3: 60                           rts                             ; Done
+   525                        
+   526                        ; If the character in A is lower case then convert it to upper case.
+   527                        
+   528                        ToUpperCase:
+   529 00:02D4: 20 xx xx                     jsr     IsLowerCase             ; Test the character
+   530 00:02D7: 90 02                        bcc     $+4
+   531 00:02D9: E9 20                        sbc     #32                     ; Convert lower case
+   532 00:02DB: 18                           clc
+   533 00:02DC: 60                           rts                             ; Done
+   534                        
+   535                        ; Determine if the character in A is a lower case letter. Set the carry if it
+   536                        ; is, otherwise clear it.
+   537                        
+   538                        IsLowerCase:
+   539 00:02DD: C9 61                        cmp     #'a'                    ; Between a and z?
+   540 00:02DF: 90 06                        bcc     ClearCarry
+   541 00:02E1: C9 7B                        cmp     #'z'+1
+  Mon Nov  2 2015 22:33                                                                                                    Page 14
 
 
-   552                        
-   553                        UartStr:
-   554 00:02DD: BD 00 00                     lda     0,x
-   555 00:02E0: D0 01                        bne     $+3
-   556 00:02E2: 60                           rts
-   557 00:02E3: 20 xx xx                     jsr     UartTx
-   558 00:02E6: E8                           inx
-   559 00:02E7: 80 F4                        bra     UartStr
-   560                        
-   561                        ; Display a CR/LF control character sequence.
-   562                        
-   563                        UartCRLF:
-   564 00:02E9: 20 xx xx                     jsr     UartCR
-   565 00:02EC: A9 0A                        lda     #LF
-   566 00:02EE: 4C xx xx                     jmp     UartTx
-   567 00:02F1: A9 0D        UartCR:         lda     #CR
-   568 00:02F3: 4C xx xx                     jmp     UartTx
-   569                        
-   570                        ;==============================================================================
-   571                        ; String Literals
-   572                        ;------------------------------------------------------------------------------
-   573                        
-   574 00:02F6: 0D 0A 57 36  TITLE           db      CR,LF,"W65C816SXB-Hacker [15.08]",0
-       00:02FA: 35 43 38 31 
-       00:02FE: 36 53 58 42 
-       00:0302: 2D 48 61 63 
-       00:0306: 6B 65 72 20 
-       00:030A: 5B 31 35 2E 
-       00:030E: 30 38 5D 00 
+   542 00:02E3: B0 02                        bcs     ClearCarry
+   543 00:02E5: 38           SetCarry:       sec
+   544 00:02E6: 60                           rts
+   545 00:02E7: 18           ClearCarry:     clc
+   546 00:02E8: 60                           rts
+   547                        
+   548                        ; Determine if the character in A is a hex character. Set the carry if it is,
+   549                        ; otherwise clear it.
+   550                        
+   551                        IsHexDigit:
+   552 00:02E9: C9 30                        cmp     #'0'                    ; Between 0 and 9?
+   553 00:02EB: 90 FA                        bcc     ClearCarry
+   554 00:02ED: C9 3A                        cmp     #'9'+1
+   555 00:02EF: 90 F4                        bcc     SetCarry
+   556 00:02F1: C9 41                        cmp     #'A'                    ; Between A and F?
+   557 00:02F3: 90 F2                        bcc     ClearCarry
+   558 00:02F5: C9 47                        cmp     #'F'+1
+   559 00:02F7: 90 EC                        bcc     SetCarry
+   560 00:02F9: 80 EC                        bra     ClearCarry
+   561                        
+   562                        ; Determine if the character in A is a printable character. Set the carry if it
+   563                        ; is, otherwise clear it.
+   564                        
+   565                        IsPrintable:
+   566 00:02FB: C9 20                        cmp     #' '
+   567 00:02FD: 90 E8                        bcc     ClearCarry
+   568 00:02FF: C9 7F                        cmp     #DEL
+   569 00:0301: 90 E2                        bcc     SetCarry
+   570 00:0303: 80 E2                        bra     ClearCarry
+   571                        
+   572                        ;==============================================================================
+   573                        ; Display Utilities
+   574                        ;------------------------------------------------------------------------------
    575                        
-   576 00:0312: 0D 0A 45 72  ERROR           db      CR,LF,"Error - Type ? for help",0
-       00:0316: 72 6F 72 20 
-       00:031A: 2D 20 54 79 
-       00:031E: 70 65 20 3F 
-       00:0322: 20 66 6F 72 
-       00:0326: 20 68 65 6C 
-       00:032A: 70 00 
+   576                        ; Display the value in A as two hexadecimal digits.
    577                        
-   578 00:032C: 0D 0A 57 44  NOT_SAFE        db      CR,LF,"WDC ROM Bank Selected",0
-       00:0330: 43 20 52 4F 
-       00:0334: 4D 20 42 61 
-       00:0338: 6E 6B 20 53 
-       00:033C: 65 6C 65 63 
-       00:0340: 74 65 64 00 
-   579                        
-   580 00:0344: 0D 0A 57 61  WAITING         db      CR,LF,"Waiting for XMODEM transfer to start",0
-       00:0348: 69 74 69 6E 
-       00:034C: 67 20 66 6F 
-       00:0350: 72 20 58 4D 
-       00:0354: 4F 44 45 4D 
-       00:0358: 20 74 72 61 
-       00:035C: 6E 73 66 65 
-       00:0360: 72 20 74 6F 
-       00:0364: 20 73 74 61 
-       00:0368: 72 74 00 
-   581                        
-   582 00:036B: 0D 0A 42 20  HELP            db      CR,LF,"B bb           - Set memory bank"
-       00:036F: 62 62 20 20 
-  Sat Aug 15 2015 21:25                                                                                                    Page 15
+   578                        UartHex2:
+   579 00:0305: 48                           pha                             ; Save the original byte
+   580 00:0306: 4A                           lsr     a                       ; Shift down hi nybble
+   581 00:0307: 4A                           lsr     a
+   582 00:0308: 4A                           lsr     a
+   583 00:0309: 4A                           lsr     a
+   584 00:030A: 20 xx xx                     jsr     UartHex                 ; Display
+   585 00:030D: 68                           pla                             ; Recover data byte
+   586                        
+   587                        ; Display the LSB of the value in A as a hexadecimal digit using decimal
+   588                        ; arithmetic to do the conversion.
+   589                        
+   590                        UartHex:
+   591 00:030E: 29 0F                        and     #$0f                    ; Strip out lo nybble
+   592 00:0310: F8                           sed                             ; Convert to ASCII
+   593 00:0311: 18                           clc
+   594 00:0312: 69 90                        adc     #$90
+   595 00:0314: 69 40                        adc     #$40
+   596 00:0316: D8                           cld
+   597 00:0317: 4C xx xx                     jmp     UartTx                  ; And display
+   598                        
+   599                        ; Display the string of characters starting a the memory location pointed to by
+  Mon Nov  2 2015 22:33                                                                                                    Page 15
 
 
-       00:0373: 20 20 20 20 
-       00:0377: 20 20 20 20 
-       00:037B: 20 2D 20 53 
-       00:037F: 65 74 20 6D 
-       00:0383: 65 6D 6F 72 
-       00:0387: 79 20 62 61 
-       00:038B: 6E 6B 
-   583 00:038D: 0D 0A 4D 20                  db      CR,LF,"M bbbb eeee    - Display memory in current bank"
-       00:0391: 62 62 62 62 
-       00:0395: 20 65 65 65 
-       00:0399: 65 20 20 20 
-       00:039D: 20 2D 20 44 
-       00:03A1: 69 73 70 6C 
-       00:03A5: 61 79 20 6D 
-       00:03A9: 65 6D 6F 72 
-       00:03AD: 79 20 69 6E 
-       00:03B1: 20 63 75 72 
-       00:03B5: 72 65 6E 74 
-       00:03B9: 20 62 61 6E 
-       00:03BD: 6B 
-   584 00:03BE: 0D 0A 52 20                  db      CR,LF,"R 0-3          - Select ROM bank 0-3"
-       00:03C2: 30 2D 33 20 
-       00:03C6: 20 20 20 20 
-       00:03CA: 20 20 20 20 
-       00:03CE: 20 2D 20 53 
-       00:03D2: 65 6C 65 63 
-       00:03D6: 74 20 52 4F 
-       00:03DA: 4D 20 62 61 
-       00:03DE: 6E 6B 20 30 
-       00:03E2: 2D 33 
-   585 00:03E4: 0D 0A 55 20                  db      CR,LF,"U              - Perform ROM unlock sequence"
-       00:03E8: 20 20 20 20 
-       00:03EC: 20 20 20 20 
-       00:03F0: 20 20 20 20 
-       00:03F4: 20 2D 20 50 
-       00:03F8: 65 72 66 6F 
-       00:03FC: 72 6D 20 52 
-       00:0400: 4F 4D 20 75 
-       00:0404: 6E 6C 6F 63 
-       00:0408: 6B 20 73 65 
-       00:040C: 71 75 65 6E 
-       00:0410: 63 65 
-   586 00:0412: 0D 0A 58 20                  db      CR,LF,"X bbbb         - XMODEM upload to current bank"
-       00:0416: 62 62 62 62 
-       00:041A: 20 20 20 20 
-       00:041E: 20 20 20 20 
-       00:0422: 20 2D 20 58 
-       00:0426: 4D 4F 44 45 
-       00:042A: 4D 20 75 70 
-       00:042E: 6C 6F 61 64 
-       00:0432: 20 74 6F 20 
-       00:0436: 63 75 72 72 
-       00:043A: 65 6E 74 20 
-       00:043E: 62 61 6E 6B 
-   587 00:0442: 00                           db      0
-   588                        
-   589                                        end
+   600                        ; X (16-bits).
+   601                        
+   602                        UartStr:
+   603 00:031A: BD 00 00                     lda     0,x                     ; Fetch the next character
+   604 00:031D: D0 01                        bne     $+3                     ; Return it end of string
+   605 00:031F: 60                           rts
+   606 00:0320: 20 xx xx                     jsr     UartTx                  ; Otherwise print it
+   607 00:0323: E8                           inx                             ; Bump the pointer
+   608 00:0324: 80 F4                        bra     UartStr                 ; And repeat
+   609                        
+   610                        ; Display a CR/LF control character sequence.
+   611                        
+   612                        UartCRLF:
+   613 00:0326: 20 xx xx                     jsr     UartCR                  ; Transmit a CR
+   614 00:0329: A9 0A                        lda     #LF                     ; Followed by a LF
+   615 00:032B: 4C xx xx                     jmp     UartTx
+   616                        
+   617 00:032E: A9 0D        UartCR:         lda     #CR                     ; Transmit a CR
+   618 00:0330: 4C xx xx                     jmp     UartTx
+   619                        
+   620                        ;==============================================================================
+   621                        ; String Literals
+   622                        ;------------------------------------------------------------------------------
+   623                        
+   624 00:0333: 0D 0A 57 36  TITLE           db      CR,LF,"W65C816SXB-Hacker [15.08]",0
+       00:0337: 35 43 38 31 
+       00:033B: 36 53 58 42 
+       00:033F: 2D 48 61 63 
+       00:0343: 6B 65 72 20 
+       00:0347: 5B 31 35 2E 
+       00:034B: 30 38 5D 00 
+   625                        
+   626 00:034F: 0D 0A 45 72  ERROR           db      CR,LF,"Error - Type ? for help",0
+       00:0353: 72 6F 72 20 
+       00:0357: 2D 20 54 79 
+       00:035B: 70 65 20 3F 
+       00:035F: 20 66 6F 72 
+       00:0363: 20 68 65 6C 
+       00:0367: 70 00 
+   627                        
+   628 00:0369: 0D 0A 52 4F  UNLOCKED        db      CR,LF,"ROM area unlocked",0
+       00:036D: 4D 20 61 72 
+       00:0371: 65 61 20 75 
+       00:0375: 6E 6C 6F 63 
+       00:0379: 6B 65 64 00 
+   629 00:037D: 0D 0A 57 44  NOT_SAFE        db      CR,LF,"WDC ROM Bank Selected",0
+       00:0381: 43 20 52 4F 
+       00:0385: 4D 20 42 61 
+       00:0389: 6E 6B 20 53 
+       00:038D: 65 6C 65 63 
+       00:0391: 74 65 64 00 
+   630                        
+   631 00:0395: 0D 0A 57 61  WAITING         db      CR,LF,"Waiting for XMODEM transfer to start",0
+       00:0399: 69 74 69 6E 
+       00:039D: 67 20 66 6F 
+       00:03A1: 72 20 58 4D 
+       00:03A5: 4F 44 45 4D 
+       00:03A9: 20 74 72 61 
+  Mon Nov  2 2015 22:33                                                                                                    Page 16
 
-  Sat Aug 15 2015 21:25                                                                                                    Page 16
+
+       00:03AD: 6E 73 66 65 
+       00:03B1: 72 20 74 6F 
+       00:03B5: 20 73 74 61 
+       00:03B9: 72 74 00 
+   632 00:03BC: 0D 0A 54 69  TIMEOUT         db      CR,LF,"Timeout",0
+       00:03C0: 6D 65 6F 75 
+       00:03C4: 74 00 
+   633                        
+   634 00:03C6: 0D 0A 42 20  HELP            db      CR,LF,"B bb           - Set memory bank"
+       00:03CA: 62 62 20 20 
+       00:03CE: 20 20 20 20 
+       00:03D2: 20 20 20 20 
+       00:03D6: 20 2D 20 53 
+       00:03DA: 65 74 20 6D 
+       00:03DE: 65 6D 6F 72 
+       00:03E2: 79 20 62 61 
+       00:03E6: 6E 6B 
+   635 00:03E8: 0D 0A 4D 20                  db      CR,LF,"M bbbb eeee    - Display memory in current bank"
+       00:03EC: 62 62 62 62 
+       00:03F0: 20 65 65 65 
+       00:03F4: 65 20 20 20 
+       00:03F8: 20 2D 20 44 
+       00:03FC: 69 73 70 6C 
+       00:0400: 61 79 20 6D 
+       00:0404: 65 6D 6F 72 
+       00:0408: 79 20 69 6E 
+       00:040C: 20 63 75 72 
+       00:0410: 72 65 6E 74 
+       00:0414: 20 62 61 6E 
+       00:0418: 6B 
+   636 00:0419: 0D 0A 52 20                  db      CR,LF,"R 0-3          - Select ROM bank 0-3"
+       00:041D: 30 2D 33 20 
+       00:0421: 20 20 20 20 
+       00:0425: 20 20 20 20 
+       00:0429: 20 2D 20 53 
+       00:042D: 65 6C 65 63 
+       00:0431: 74 20 52 4F 
+       00:0435: 4D 20 62 61 
+       00:0439: 6E 6B 20 30 
+       00:043D: 2D 33 
+   637 00:043F: 0D 0A 55 20                  db      CR,LF,"U              - Perform ROM unlock sequence"
+       00:0443: 20 20 20 20 
+       00:0447: 20 20 20 20 
+       00:044B: 20 20 20 20 
+       00:044F: 20 2D 20 50 
+       00:0453: 65 72 66 6F 
+       00:0457: 72 6D 20 52 
+       00:045B: 4F 4D 20 75 
+       00:045F: 6E 6C 6F 63 
+       00:0463: 6B 20 73 65 
+       00:0467: 71 75 65 6E 
+       00:046B: 63 65 
+   638 00:046D: 0D 0A 58 20                  db      CR,LF,"X bbbb         - XMODEM upload to current bank"
+       00:0471: 62 62 62 62 
+       00:0475: 20 20 20 20 
+       00:0479: 20 20 20 20 
+       00:047D: 20 2D 20 58 
+       00:0481: 4D 4F 44 45 
+  Mon Nov  2 2015 22:33                                                                                                    Page 17
 
 
+       00:0485: 4D 20 75 70 
+       00:0489: 6C 6F 61 64 
+       00:048D: 20 74 6F 20 
+       00:0491: 63 75 72 72 
+       00:0495: 65 6E 74 20 
+       00:0499: 62 61 6E 6B 
+   639 00:049D: 00                           db      0
+   640                        
+   641                                        end
 
-      Lines assembled: 786
+
+      Lines assembled: 848
       Errors: 0
