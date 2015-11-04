@@ -56,22 +56,22 @@ DEL             equ     $7f
 
                 page0
 
-BUFLEN          ds      1
-BANK            ds      1
+BUFLEN          ds      1                       ; Command buffer length
+BANK            ds      1                       ; Memory bank
 
-ADDR_S          ds      3
-ADDR_E          ds      3
+ADDR_S          ds      3                       ; Start address
+ADDR_E          ds      3                       ; End address
 
 BLOCK           ds      1                       ; XMODEM block number
 RETRIES         ds      1                       ; Retry count
-SUM             ds      1
+SUM             ds      1                       ; Checksum
 
-TEMP            ds      4
+TEMP            ds      4                       ; Scratch workspace
 
                 data
                 org     $200
 
-BUFFER          ds      128
+BUFFER          ds      128                     ; Command buffer
 
 ;==============================================================================
 ; Initialisation
@@ -96,13 +96,13 @@ Start:
 ;------------------------------------------------------------------------------
 
 NewCommand:
+                short_i
                 stz     BUFLEN                  ; Clear the buffer
                 jsr     UartCRLF                ; Move to a new line
 
                 lda     #'.'                    ; Output the prompt
                 jsr     UartTx
 
-                short_i
                 ldx     #0
 DisplayCmd:     cpx     BUFLEN                  ; Any saved characters
                 beq     ReadCommand
@@ -169,6 +169,67 @@ ProcessCommand:
                 jmp     ShowError
                 jmp     NewCommand
 NotMemoryBank:
+
+;==============================================================================
+; E - Erase ROM bank
+;------------------------------------------------------------------------------
+
+                cmp     #'E'                    ; Erase bank?
+                bne     NotEraseBank
+
+                jsr     CheckSafe
+
+                lda     #$00                    ; Set start address
+                sta     ADDR_S+0
+                lda     #$80
+                sta     ADDR_S+1
+EraseLoop:
+                lda     #$aa                    ; Unlock flash
+                sta     $8000+$5555
+                lda     #$55
+                sta     $8000+$2aaa
+                lda     #$80                    ; Signal erase
+                sta     $8000+$5555
+                lda     #$aa
+                sta     $8000+$5555
+                lda     #$55
+                sta     $8000+$2aaa
+                lda     #$30                    ; Sector erase
+                sta     (ADDR_S)
+
+EraseWait:
+                lda     (ADDR_S)                ; Wait for erase to finish
+                cmp     #$FF
+                bne     EraseWait
+
+                clc                             ; Move to next sector
+                lda     ADDR_S+1
+                adc     #$10
+                sta     ADDR_S+1
+                bcc     EraseLoop               ; Repeat until end of memory
+                jmp     NewCommand              ; And start over
+
+EraseFailed:
+                long_i                          ; Warn that erase failed
+                ldx     #ERASE_FAILED
+                jsr     UartStr
+                longi   off
+                jmp     NewCommand              ; And start over
+NotEraseBank:
+
+;==============================================================================
+; G - Goto
+;------------------------------------------------------------------------------
+
+                cmp     #'G'                    ; Invoke code
+                bne     NotGoto
+
+                ldx     #ADDR_S                 ; Parse execution address
+                jsr     GetAddr
+                bcs     $+5
+                jmp     [ADDR_S]                ; Run from address
+                jmp     ($FFFC)                 ; Otherwise reset
+NotGoto:
 
 ;==============================================================================
 ; M - Display Memory
@@ -267,6 +328,7 @@ BankFail:       jmp     ShowError               ; No
                 jmp     NewCommand              ; Done
 NotROMBank:
 
+                if      0
 ;==============================================================================
 ; U - Unlock Memory
 ;------------------------------------------------------------------------------
@@ -275,19 +337,22 @@ NotROMBank:
                 bne     NotUnlock
 
                 short_a
-                lda     #$55                    ; Execute the unlock sequence
+                lda     #$aa                    ; Execute the unlock sequence
                 sta     $8000+$5555
-                lda     #$aa
+                lda     #$55
                 sta     $8000+$2aaa
                 lda     #$a0
                 sta     $8000+$5555
+                lda     #$ce
+                sta     $a000
 
                 long_i
                 ldx     #UNLOCKED               ; And announce it
                 jsr     UartStr
-                short_i
+                longi   off
                 jmp     NewCommand              ; Done
 NotUnlock:
+                endif
 
 ;==============================================================================
 ; X - XMODEM Upload
@@ -304,13 +369,7 @@ NotUnlock:
 
                 bit     ADDR_S+1                ; Load into ROM area?
                 bpl     NotROMArea
-                lda     VIA2_PCR                ; Yes, check ROM selected
-                and     #%11001100
-                bne     NotROMArea
-                long_i                          ; Upload to ROM3 ROM Area
-                ldx     #NOT_SAFE
-                jsr     UartStr
-                jmp     NewCommand
+                jsr     CheckSafe               ; Yes, check selection
 
 NotROMArea:
                 long_i                          ; Display waiting message
@@ -348,31 +407,50 @@ TimedOut:
                 long_i
                 ldx     #TIMEOUT
                 jsr     UartStr
-                short_i
+                longi   off
                 jmp     NewCommand
 
 
 TransferScan:
                 jsr     UartRx                  ; Wait for SOH or EOT
-        sta <$40
                 cmp     #EOT
                 beq     TransferDone
                 cmp     #SOH
                 bne     TransferWait
                 jsr     UartRx                  ; Check the block number
-        sta <$41
                 cmp     BLOCK
                 bne     TransferError
                 jsr     UartRx                  ; Check inverted block
-        sta <$42
                 eor     #$ff
                 cmp     BLOCK
                 bne     TransferError
 
                 ldy     #0
                 sty     SUM                     ; Clear the check sum
-TransferBlock:  jsr     UartRx
+TransferBlock:
+                jsr     UartRx
+                pha
+
+                lda     ADDR_S+2                ; Writing to ROM?
+                bne     WriteByte               ; No
+                bit     ADDR_S+1
+                bpl     WriteByte               ; No
+
+                lda     #$aa                    ; Yes, unlock flash
+                sta     $8000+$5555
+                lda     #$55
+                sta     $8000+$2aaa
+                lda     #$a0                    ; Start byte write
+                sta     $8000+$5555
+
+WriteByte:
+                pla
                 sta     [ADDR_S],Y
+
+WriteWait:
+                cmp     [ADDR_S],Y              ; Wait for write
+                bne     WriteWait
+
                 clc                             ; Add to check sum
                 adc     SUM
                 sta     SUM
@@ -391,7 +469,7 @@ TransferBlock:  jsr     UartRx
 
                 jsr     SendACK                 ; Acknowledge block
                 inc     BLOCK                   ; Bump block number
-                bra     TransferWait
+                jmp     TransferWait
 
 TransferError;
                 jsr     SendNAK                 ; Send a NAK
@@ -421,14 +499,38 @@ NotXModem:
                 long_i
                 ldx     #HELP                   ; Output help string
                 jsr     UartStr
+                longi   off
                 jmp     NewCommand
 NotHelp:
+
+;------------------------------------------------------------------------------
 
 ShowError:
                 long_i
                 ldx     #ERROR                  ; Output error message
                 jsr     UartStr
+                longi   off
                 jmp     NewCommand
+
+;==============================================================================
+;------------------------------------------------------------------------------
+
+; Checks if an expendible ROM bank is currently selected. If the bank with the
+; WDC firmware is selected then warn and accept a new command.
+
+CheckSafe:
+                lda     VIA2_PCR                ; WDC ROM selected?
+                and     #%11001100
+                beq     $+3
+                rts                             ; No, save to change
+
+                pla                             ; Discard return address
+                pla
+                long_i                          ; Complain about bank
+                ldx     #NOT_SAFE
+                jsr     UartStr
+                longi   off
+                jmp     NewCommand              ; And start over
 
 ;==============================================================================
 ;------------------------------------------------------------------------------
@@ -621,21 +723,23 @@ UartCR:         lda     #CR                     ; Transmit a CR
 ; String Literals
 ;------------------------------------------------------------------------------
 
-TITLE           db      CR,LF,"W65C816SXB-Hacker [15.08]",0
+TITLE           db      CR,LF,"W65C816SXB-Hacker [15.11]",0
 
 ERROR           db      CR,LF,"Error - Type ? for help",0
 
-UNLOCKED        db      CR,LF,"ROM area unlocked",0
+ERASE_FAILED    db      CR,LF,"Erase failed",0
+WRITE_FAILED    db      CR,LF,"Write failed",0
 NOT_SAFE        db      CR,LF,"WDC ROM Bank Selected",0
 
 WAITING         db      CR,LF,"Waiting for XMODEM transfer to start",0
 TIMEOUT         db      CR,LF,"Timeout",0
 
 HELP            db      CR,LF,"B bb           - Set memory bank"
-                db      CR,LF,"M bbbb eeee    - Display memory in current bank"
+                db      CR,LF,"E              - Erase ROM area"
+                db      CR,LF,"G [xxxx]       - Run from bb:xxxx or invoke reset vector"
+                db      CR,LF,"M ssss eeee    - Display memory in current bank"
                 db      CR,LF,"R 0-3          - Select ROM bank 0-3"
-                db      CR,LF,"U              - Perform ROM unlock sequence"
-                db      CR,LF,"X bbbb         - XMODEM upload to current bank"
+                db      CR,LF,"X xxxx         - XMODEM upload to bb:xxxx"
                 db      0
 
                 end
