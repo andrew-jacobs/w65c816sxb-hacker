@@ -19,6 +19,8 @@
 ;==============================================================================
 ; Notes:
 ;
+; Timer2 in the VIA2 is used to time the ACIA transmissions and determine when
+; the device is capable of sending another character.
 ;
 ;------------------------------------------------------------------------------
 
@@ -32,7 +34,21 @@
                 include "w65c816.inc"
                 include "w65c816sxb.inc"
 
-USE_FIFO        equ     0
+;==============================================================================
+; Configuration
+;------------------------------------------------------------------------------
+
+USE_FIFO        equ     0                       ; Build using USB FIFO as UART
+
+BAUD_RATE       equ     19200                   ; ACIA baud rate
+
+;------------------------------------------------------------------------------
+
+TXD_COUNT       equ     OSC_FREQ/(BAUD_RATE/11)
+
+                if      TXD_COUNT&$ffff0000
+                messg   "TXD_DELAY does not fit in 16-bits"
+                endif
 
 ;==============================================================================
 ; Power On Reset
@@ -42,12 +58,13 @@ USE_FIFO        equ     0
                 extern  Start
 RESET:
                 sei                             ; Stop interrupts
+                ldx     #$ff                    ; Reset the stack
+                txs
+
                 lda     VIA1_IER                ; Ensure no via interrupts
                 sta     VIA1_IER
                 lda     VIA2_IER
                 sta     VIA2_IER
-                ldx     #$ff                    ; Reset the stack
-                txs
 
                 if      USE_FIFO
                 lda     #$1c                    ; Configure VIA for USB FIFO
@@ -64,6 +81,10 @@ RESET:
                 lda     #%11001001              ; No parity, no interrupt
                 sta     ACIA_CMD
                 lda     ACIA_RXD                ; Clear receive buffer
+
+                lda     #1<<5                   ; Put VIA2 Timer2 into timed mode
+                trb     VIA2_ACR
+                jsr     TxDelay                 ; And prime the timer
                 endif
 
                 native                          ; Switch to native mode
@@ -111,15 +132,16 @@ ABORT:
                 bra     $                       ; Loop forever
 
 ;==============================================================================
-; Buffered UART Interface
+; USB FIFO Interface
 ;------------------------------------------------------------------------------
 
-; Adds the character in A to the transmit buffer. If the buffer is full then
-; wait for it to drain.
+                if      USE_FIFO
+
+; Add the character in A to the FTDI USB FIFO transmit buffer. If the buffer
+; is full wait for space to become available.
 
                 public  UartTx
 UartTx:
-                if      USE_FIFO
                 phx
                 php
                 short_ai
@@ -147,34 +169,11 @@ TxWait:         bit     VIA2_IRB                ; Is there space for more data
                 plx
                 rts
 
-                else
-
-                pha                             ; Save the character
-                php                             ; Save register sizes
-                short_a                         ; Make A 8-bits
-                sta     ACIA_TXD                ; Transmit the character
-                jsr     TxDelay                 ; Delay until send
-                jsr     TxDelay
-                jsr     TxDelay
-                jsr     TxDelay
-                jsr     TxDelay
-                jsr     TxDelay
-                plp                             ; Restore register sizes
-                pla                             ; And callers A
-                rts                             ; Done
-
-TxDelay:        lda     #0                      ; Waste loads of cycles
-                inc     a
-                bne     $-1
-                rts
-                endif
-
-; Fetch the next character from the RX buffer waiting for some to arrive if the
-; buffer is empty.
+; Read a character from the FTDI USB FIFO and return it in A. If no data is
+; available then wait for some to arrive.
 
                 public  UartRx
-UartRx:
-                if      USE_FIFO
+UartRx
                 phx                             ; Save callers X
                 php                             ; Save register sizes
                 short_ai                        ; Make registers 8-bit
@@ -197,22 +196,11 @@ RxWait:         bit     VIA2_IRB
                 plx                             ; .. and callers X
                 rts                             ; Done
 
-                else
+; Check if the receive buffer in the FIFO contains any data and return C=1 if
+; there is some.
 
-                php                             ; Save register sizes
-                short_a                         ; Make A 8-bits
-RxWait:
-                lda     ACIA_SR                 ; Any data in RX buffer?
-                and     #$08
-                beq     RxWait                  ; No
-                lda     ACIA_RXD                ; Yes, read it
-                plp                             ; Restore register sizes
-                rts                             ; Done
-                endif
-
-                public  UartRxTest
+                public  UartRxText
 UartRxTest:
-                if      USE_FIFO
                 pha                             ; Save callers A
                 php                             ; Save register sizes
                 short_a                         ; Make A 8-bits
@@ -223,8 +211,58 @@ UartRxTest:
                 pla                             ; Restore A
                 rts                             ; Done
 
+;==============================================================================
+; ACIA Interface
+;------------------------------------------------------------------------------
+
                 else
 
+; Wait until the Timer2 in VIA2 indicates that the last transmission has been
+; completed then send the character in A and restart the timer.
+
+                public  UartTx
+UartTx:
+                pha                             ; Save the character
+                php                             ; Save register sizes
+                short_a                         ; Make A 8-bits
+                pha
+                lda     #1<<5
+TxWait:         bit     VIA2_IFR                ; Has the timer finished?
+                beq     TxWait
+                jsr     TxDelay                 ; Yes, re-reload the timer
+                pla
+                sta     ACIA_TXD                ; Transmit the character
+                plp                             ; Restore register sizes
+                pla                             ; And callers A
+                rts                             ; Done
+
+TxDelay:
+                lda     #<TXD_COUNT             ; Load VIA T2 with transmit
+                sta     VIA2_T2CL               ; .. delay time
+                lda     #>TXD_COUNT
+                sta     VIA2_T2CH
+                rts
+
+; Fetch the next character from the receive buffer waiting for some to arrive
+; if the buffer is empty.
+
+                public  UartRx
+UartRx:
+                php                             ; Save register sizes
+                short_a                         ; Make A 8-bits
+RxWait:
+                lda     ACIA_SR                 ; Any data in RX buffer?
+                and     #$08
+                beq     RxWait                  ; No
+                lda     ACIA_RXD                ; Yes, read it
+                plp                             ; Restore register sizes
+                rts                             ; Done
+
+; Check if the receive buffer contains any data and return C=1 if there is
+; some.
+
+                public  UartRxTest
+UartRxTest:
                 pha                             ; Save callers A
                 php
                 short_a
@@ -236,6 +274,7 @@ UartRxTest:
                 ror     a
                 pla                             ; Restore A
                 rts                             ; Done
+
                 endif
 
 ;==============================================================================
