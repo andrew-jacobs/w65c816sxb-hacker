@@ -37,7 +37,7 @@ Use the WDC debugger to download the hacking tool to the SXB board and start
 execution. The tool will respond with a message in the terminal software.
 
 ```
-SXB-Hacker [15.08]
+W65C816SXB-Hacker [15.11]
 .
 ```
 The 'M' command allows you to display memory, for example 'M FFE0 FFFF' will
@@ -47,10 +47,35 @@ display the vectors at the top of the memory
 00:FFE0 FF FF FF FF 1C 81 08 81 19 81 0C 81 24 81 16 81 |............$...|
 00:FFF0 1F 81 1F 81 10 81 1F 81 13 81 04 81 2B 81 00 81 |............+...|
 ```
-Using the 'R' command you can pick another memory bank, like 0
+Using the 'R' command you can pick another ROM memory bank, like 0
 ```
 .R 0
 .M FFE0 FFFF
 00:FFE0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF |................|
 00:FFF0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF |................|
 ```
+The 'E' command will erase a ROM bank from 8000 to FFFF ready for a new
+image to be loaded. After erasing the entire region should be set to FF
+values.
+
+The 'X' command starts an XMODEM download to the specified address. You can
+download into any memory area including the ROM as long as the WDC firmware
+bank is not selected.
+```
+.X A000
+
+Waiting for XMODEM transfer to start
+```
+You can start execution of downloaded code using the 'G' command. You can
+either specify the address to start at or omit it to tell the monitor to
+use the reset vector as the target address.
+```
+.G A000
+or
+.G
+```
+The 'B' command sets the memory bank (e.g. bits 23 to 16 of the address bus)
+when displaying or altering memory. I've added this command to suppport a
+hardware project I'm working on to add additional RAM via the XBUS connector.
+On a standard SXB board you can only access bank 00. Attempting to accessing
+other banks will crash your SXB.

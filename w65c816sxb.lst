@@ -1,4 +1,4 @@
-  Mon Nov  2 2015 22:33                                                                                                    Page 1
+  Sat Nov  7 2015  0:02                                                                                                    Page 1
 
 
                                                ***************************************
@@ -59,7 +59,7 @@
     18             00000005   M_FLAG          equ     5
     19             00000004   X_FLAG          equ     4
     20             00000004   B_FLAG          equ     4
-  Mon Nov  2 2015 22:33                                                                                                    Page 2
+  Sat Nov  7 2015  0:02                                                                                                    Page 2
 
 
     21             00000003   D_FLAG          equ     3
@@ -120,7 +120,7 @@
     76                        short_i         macro
     77                                        sep     #(1<<X_FLAG)
     78                                        longi   off
-  Mon Nov  2 2015 22:33                                                                                                    Page 3
+  Sat Nov  7 2015  0:02                                                                                                    Page 3
 
 
     79                                        endm
@@ -181,7 +181,7 @@
     48             00007FA2   PIA_PIB         equ     $7fa2
     49             00007FA2   PIA_DDRB        equ     $7fa2
     50             00007FA3   PIA_CRB         equ     $7fa3
-  Mon Nov  2 2015 22:33                                                                                                    Page 4
+  Sat Nov  7 2015  0:02                                                                                                    Page 4
 
 
     51                        
@@ -242,7 +242,7 @@
     43                        RESET:
     44 00:0000: 78                           sei                             ; Stop interrupts
     45 00:0001: AD CE 7F                     lda     VIA1_IER                ; Ensure no via interrupts
-  Mon Nov  2 2015 22:33                                                                                                    Page 5
+  Sat Nov  7 2015  0:02                                                                                                    Page 5
 
 
     46 00:0004: 8D CE 7F                     sta     VIA1_IER
@@ -303,7 +303,7 @@
     99                        
    100                        NMI:
    101 00:0033: 80 FE                        bra     $                       ; Loop forever
-  Mon Nov  2 2015 22:33                                                                                                    Page 6
+  Sat Nov  7 2015  0:02                                                                                                    Page 6
 
 
    102                        
@@ -364,7 +364,7 @@
    155 00:003D: 8D 80 7F                     sta     ACIA_TXD                ; Transmit the character
    156 00:0040: 20 xx xx                     jsr     TxDelay                 ; Delay until send
    157 00:0043: 20 xx xx                     jsr     TxDelay
-  Mon Nov  2 2015 22:33                                                                                                    Page 7
+  Sat Nov  7 2015  0:02                                                                                                    Page 7
 
 
    158 00:0046: 20 xx xx                     jsr     TxDelay
@@ -425,7 +425,7 @@
    211                                        endif
    212                        
    213                                        public  UartRxTest
-  Mon Nov  2 2015 22:33                                                                                                    Page 8
+  Sat Nov  7 2015  0:02                                                                                                    Page 8
 
 
    214                        UartRxTest:
@@ -486,7 +486,7 @@
    267                        Vectors         section offset $ffe0
    268                        
    269 00:FFE0:                              ds      4                       ; Reserved
-  Mon Nov  2 2015 22:33                                                                                                    Page 9
+  Sat Nov  7 2015  0:02                                                                                                    Page 9
 
 
    270 00:FFE4: xx xx                        dw      COP                     ; $FFE4 - COP(816)
