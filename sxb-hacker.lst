@@ -1,4 +1,4 @@
-  Wed Nov  4 2015 23:06                                                                                                    Page 1
+  Thu Nov 19 2015 15:52                                                                                                    Page 1
 
 
                                                ***************************************
@@ -59,7 +59,7 @@
     16             00000007   N_FLAG          equ     7
     17             00000006   V_FLAG          equ     6
     18             00000005   M_FLAG          equ     5
-  Wed Nov  4 2015 23:06                                                                                                    Page 2
+  Thu Nov 19 2015 15:52                                                                                                    Page 2
 
 
     19             00000004   X_FLAG          equ     4
@@ -120,7 +120,7 @@
     74                                        endm
     75                        
     76                        short_i         macro
-  Wed Nov  4 2015 23:06                                                                                                    Page 3
+  Thu Nov 19 2015 15:52                                                                                                    Page 3
 
 
     77                                        sep     #(1<<X_FLAG)
@@ -181,7 +181,7 @@
     46             00007FA0   PIA_DDRA        equ     $7fa0
     47             00007FA1   PIA_CRA         equ     $7fa1
     48             00007FA2   PIA_PIB         equ     $7fa2
-  Wed Nov  4 2015 23:06                                                                                                    Page 4
+  Thu Nov 19 2015 15:52                                                                                                    Page 4
 
 
     49             00007FA2   PIA_DDRB        equ     $7fa2
@@ -242,7 +242,7 @@
     43             00000006   ACK             equ     $06
     44             00000007   BEL             equ     $07
     45             00000008   BS              equ     $08
-  Wed Nov  4 2015 23:06                                                                                                    Page 5
+  Thu Nov 19 2015 15:52                                                                                                    Page 5
 
 
     46             0000000A   LF              equ     $0a
@@ -303,7 +303,7 @@
     97                        
     98                        NewCommand:
     99                                        short_i
-  Wed Nov  4 2015 23:06                                                                                                    Page 6
+  Thu Nov 19 2015 15:52                                                                                                    Page 6
 
 
 +   99 00:000F: E2 10                        sep     #(1<<X_FLAG)
@@ -364,7 +364,7 @@
    153 00:0069: 86 xx                        stx     BUFLEN                  ; Save final length
    154 00:006B: A0 00                        ldy     #0                      ; Load index for start
    155                        
-  Wed Nov  4 2015 23:06                                                                                                    Page 7
+  Thu Nov 19 2015 15:52                                                                                                    Page 7
 
 
    156 00:006D: 20 xx xx                     jsr     SkipSpaces              ; Fetch command character
@@ -425,7 +425,7 @@
    211                        
    212                        EraseFailed:
    213                                        long_i                          ; Warn that erase failed
-  Wed Nov  4 2015 23:06                                                                                                    Page 8
+  Thu Nov 19 2015 15:52                                                                                                    Page 8
 
 
 +  213 00:00C1: C2 10                        rep     #(1<<X_FLAG)
@@ -486,7 +486,7 @@
    267 00:0119: C0 10                        cpy     #16
    268 00:011B: D0 F1                        bne     ByteLoop
    269                        
-  Wed Nov  4 2015 23:06                                                                                                    Page 9
+  Thu Nov 19 2015 15:52                                                                                                    Page 9
 
 
    270 00:011D: A9 20                        lda     #' '
@@ -547,7 +547,7 @@
    325 00:0177: 09 C0                        ora     #%11000000              ; No, make CB2 (FAMS) low
    326 00:0179: 8D EC 7F                     sta     VIA2_PCR                ; Set ROM select lines
    327                        
-  Wed Nov  4 2015 23:06                                                                                                    Page 10
+  Thu Nov 19 2015 15:52                                                                                                    Page 10
 
 
    328 00:017C: 4C xx xx                     jmp     NewCommand              ; Done
@@ -608,7 +608,7 @@
 +  379                                        longi   off
    380 00:01A4: 64 xx                        stz     BLOCK                   ; Reset the block number
    381 00:01A6: E6 xx                        inc     BLOCK
-  Wed Nov  4 2015 23:06                                                                                                    Page 11
+  Thu Nov 19 2015 15:52                                                                                                    Page 11
 
 
    382                        
@@ -669,7 +669,7 @@
    435 00:01FE: D0 13                        bne     WriteByte               ; No
    436 00:0200: 24 xx                        bit     ADDR_S+1
    437 00:0202: 10 0F                        bpl     WriteByte               ; No
-  Wed Nov  4 2015 23:06                                                                                                    Page 12
+  Thu Nov 19 2015 15:52                                                                                                    Page 12
 
 
    438                        
@@ -730,7 +730,7 @@
    493                        ; ? - Help
    494                        ;------------------------------------------------------------------------------
    495                        
-  Wed Nov  4 2015 23:06                                                                                                    Page 13
+  Thu Nov 19 2015 15:52                                                                                                    Page 13
 
 
    496 00:0253: C9 3F                        cmp     #'?'                    ; Help command?
@@ -791,7 +791,7 @@
    545 00:0290: 20 xx xx                     jsr     AddDigit
    546 00:0293: 20 xx xx                     jsr     NextChar
    547 00:0296: B0 08                        bcs     ByteDone
-  Wed Nov  4 2015 23:06                                                                                                    Page 14
+  Thu Nov 19 2015 15:52                                                                                                    Page 14
 
 
    548 00:0298: 20 xx xx                     jsr     IsHexDigit
@@ -852,7 +852,7 @@
    603                        
    604 00:0309: 1D 00 00                     ora     0,x                     ; Merge in new digit
    605 00:030C: 9D 00 00                     sta     0,x                     ; Then get next digit
-  Wed Nov  4 2015 23:06                                                                                                    Page 15
+  Thu Nov 19 2015 15:52                                                                                                    Page 15
 
 
    606 00:030F: 60                           rts
@@ -913,7 +913,7 @@
    661 00:034B: 90 EC                        bcc     SetCarry
    662 00:034D: 80 EC                        bra     ClearCarry
    663                        
-  Wed Nov  4 2015 23:06                                                                                                    Page 16
+  Thu Nov 19 2015 15:52                                                                                                    Page 16
 
 
    664                        ; Determine if the character in A is a printable character. Set the carry if it
@@ -974,7 +974,7 @@
    719 00:0382: A9 0D        UartCR:         lda     #CR                     ; Transmit a CR
    720 00:0384: 4C xx xx                     jmp     UartTx
    721                        
-  Wed Nov  4 2015 23:06                                                                                                    Page 17
+  Thu Nov 19 2015 15:52                                                                                                    Page 17
 
 
    722                        ;==============================================================================
@@ -1035,7 +1035,7 @@
        00:043C: 65 6D 6F 72 
        00:0440: 79 20 62 61 
        00:0444: 6E 6B 
-  Wed Nov  4 2015 23:06                                                                                                    Page 18
+  Thu Nov 19 2015 15:52                                                                                                    Page 18
 
 
    738 00:0446: 0D 0A 45 20                  db      CR,LF,"E              - Erase ROM area"
@@ -1096,7 +1096,7 @@
        00:0518: 20 74 6F 20 
        00:051C: 62 62 3A 78 
        00:0520: 78 78 78 
-  Wed Nov  4 2015 23:06                                                                                                    Page 19
+  Thu Nov 19 2015 15:52                                                                                                    Page 19
 
 
    743 00:0523: 00                           db      0
