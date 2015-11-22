@@ -1,4 +1,4 @@
-;==============================================================================
+;===============================================================================
 ;  ______  ______        _   _            _
 ; / ___\ \/ / __ )      | | | | __ _  ___| | _____ _ __
 ; \___ \\  /|  _ \ _____| |_| |/ _` |/ __| |/ / _ \ '__|
@@ -6,7 +6,7 @@
 ; |____/_/\_\____/      |_| |_|\__,_|\___|_|\_\___|_|
 ;
 ; A program for Hacking your W65C816SXB
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 ; Copyright (C)2015 Andrew Jacobs
 ; All rights reserved.
 ;
@@ -16,13 +16,13 @@
 ;
 ; http://creativecommons.org/licenses/by-nc-sa/4.0/
 ;
-;==============================================================================
+;===============================================================================
 ; Notes:
 ;
 ; This program provides a simple monitor that you can use to inspect the memory
 ; in your W65C816SXB and reprogram parts of the flash ROM.
 ;
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
                 pw      132
                 inclist on
@@ -34,9 +34,9 @@
                 include "w65c816.inc"
                 include "w65c816sxb.inc"
 
-;==============================================================================
+;===============================================================================
 ; ASCII Character Codes
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
 SOH             equ     $01
 EOT             equ     $04
@@ -50,11 +50,12 @@ CAN             equ     $18
 ESC             equ     $1b
 DEL             equ     $7f
 
-;==============================================================================
+;===============================================================================
 ; Data Areas
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
                 page0
+                org     $20
 
 BUFLEN          ds      1                       ; Command buffer length
 BANK            ds      1                       ; Memory bank
@@ -73,9 +74,9 @@ TEMP            ds      4                       ; Scratch workspace
 
 BUFFER          ds      128                     ; Command buffer
 
-;==============================================================================
+;===============================================================================
 ; Initialisation
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
                 code
                 public  Start
@@ -91,13 +92,14 @@ Start:
 
                 stz     BANK                    ; Reset default bank
 
-;==============================================================================
+;===============================================================================
 ; Command Processor
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
 NewCommand:
-                short_i
                 stz     BUFLEN                  ; Clear the buffer
+ShowCommand:
+                short_i
                 jsr     UartCRLF                ; Move to a new line
 
                 lda     #'.'                    ; Output the prompt
@@ -156,9 +158,9 @@ ProcessCommand:
                 jsr     SkipSpaces              ; Fetch command character
                 bcs     NewCommand              ; None, empty command
 
-;==============================================================================
+;===============================================================================
 ; B - Select Memory Bank
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
                 cmp     #'B'                    ; Select memory bank?
                 bne     NotMemoryBank
@@ -170,9 +172,9 @@ ProcessCommand:
                 jmp     NewCommand
 NotMemoryBank:
 
-;==============================================================================
+;===============================================================================
 ; E - Erase ROM bank
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
                 cmp     #'E'                    ; Erase bank?
                 bne     NotEraseBank
@@ -217,9 +219,9 @@ EraseFailed:
                 jmp     NewCommand              ; And start over
 NotEraseBank:
 
-;==============================================================================
+;===============================================================================
 ; G - Goto
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
                 cmp     #'G'                    ; Invoke code
                 bne     NotGoto
@@ -231,9 +233,9 @@ NotEraseBank:
                 jmp     ($FFFC)                 ; Otherwise reset
 NotGoto:
 
-;==============================================================================
+;===============================================================================
 ; M - Display Memory
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
                 cmp     #'M'                    ; Memory display?
                 bne     NotMemoryDisplay
@@ -299,9 +301,94 @@ CharLoop:       lda     [ADDR_S],Y
                 jmp     NewCommand
 NotMemoryDisplay:
 
-;==============================================================================
+;===============================================================================
+; S - S19 Record
+;-------------------------------------------------------------------------------
+
+                cmp     #'S'                    ; S19?
+                beq     $+5
+                jmp     NotS19
+
+                jsr     NextChar                ; Get record type
+                bcs     S19Fail
+                cmp     #'1'                    ; Only process type 1
+                bne     S19Done
+
+                ldx     #ADDR_E                 ; Get byte count
+                jsr     GetByte
+                bcs     S19Fail
+                lda     ADDR_E                  ; Use as initial checksum
+                sta     SUM
+                dec     ADDR_E
+                beq     S19Fail
+
+                ldx     #ADDR_S                 ; Get address
+                jsr     GetAddr
+                bcs     S19Fail
+                lda     ADDR_S+0                ; Add to checksum
+                adc     ADDR_S+1
+                clc
+                adc     SUM
+                sta     SUM
+                dec     ADDR_E
+                beq     S19Fail
+                dec     ADDR_E
+                beq     S19Fail
+
+S19Load:
+                ldx     #TEMP                   ; Fetch a data byte
+                jsr     GetByte
+                bcs     S19Fail
+                lda     TEMP
+                adc     SUM
+                sta     SUM
+                dec     ADDR_E
+                beq     S19Fail
+
+                lda     ADDR_S+2                ; Writing to ROM?
+                bne     WriteS19                ; No
+                bit     ADDR_S+1
+                bpl     WriteS19                ; No
+
+                lda     #$aa                    ; Yes, unlock flash
+                sta     $8000+$5555
+                lda     #$55
+                sta     $8000+$2aaa
+                lda     #$a0                    ; Start byte write
+                sta     $8000+$5555
+WriteS19:
+                lda     TEMP                    ; Write the value
+                sta     [ADDR_S]
+
+                inc     ADDR_S+0                ; Bump address by one
+                bne     $+4
+                inc     ADDR_S+1
+
+                lda     ADDR_E                  ; Reached checksum?
+                cmp     #1
+                bne     S19Load
+
+                ldx     #TEMP                   ; Yes, read it
+                jsr     GetByte
+                bcs     S19Fail
+                lda     TEMP
+                adc     SUM
+                cmp     #$ff                    ; Checksum correct?
+                bne     S19Fail
+
+S19Done:        jmp     NewCommand              ; Get
+
+S19Fail:
+                long_i                          ; Display error message
+                ldx     #INVALID_S19
+                jsr     UartStr
+                longi   off
+                jmp     NewCommand              ; And start over
+NotS19:
+
+;===============================================================================
 ; R - Select ROM Bank
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
                 cmp     #'R'                    ; ROM Bank?
                 bne     NotROMBank              ; No
@@ -328,35 +415,63 @@ BankFail:       jmp     ShowError               ; No
                 jmp     NewCommand              ; Done
 NotROMBank:
 
-                if      0
-;==============================================================================
-; U - Unlock Memory
-;------------------------------------------------------------------------------
+;===============================================================================
+; W - Write memory
+;-------------------------------------------------------------------------------
 
-                cmp     #'U'                    ; Unlock memory?
-                bne     NotUnlock
+                cmp     #'W'                    ; Write memory?
+                bne     NotWrite
 
-                short_a
-                lda     #$aa                    ; Execute the unlock sequence
+                ldx     #ADDR_S                 ; Parse start address
+                jsr     GetAddr
+                bcc     $+5
+                jmp     ShowError
+
+                bit     ADDR_S+1                ; Load into ROM area?
+                bpl     $+5
+                jsr     CheckSafe               ; Yes, check selection
+
+                ldx     #ADDR_E                 ; Parse value byte
+                jsr     GetByte                 ; Is there a value?
+                bcc     $+5
+                jmp     NewCommand              ; No.
+
+                lda     ADDR_S+2                ; Writing to ROM?
+                bne     WriteMemory             ; No
+                bit     ADDR_S+1
+                bpl     WriteMemory             ; No
+
+                lda     #$aa                    ; Yes, unlock flash
                 sta     $8000+$5555
                 lda     #$55
                 sta     $8000+$2aaa
-                lda     #$a0
+                lda     #$a0                    ; Start byte write
                 sta     $8000+$5555
-                lda     #$ce
-                sta     $a000
+WriteMemory:
+                lda     ADDR_E                  ; Write the value
+                sta     [ADDR_S]
 
-                long_i
-                ldx     #UNLOCKED               ; And announce it
-                jsr     UartStr
-                longi   off
-                jmp     NewCommand              ; Done
-NotUnlock:
-                endif
+                inc     ADDR_S+0                ; Bump address by one
+                bne     $+4
+                inc     ADDR_S+1
 
-;==============================================================================
+                lda     #'W'                    ; Build command for next byte
+                jsr     StartCommand
+                lda     #' '
+                jsr     BuildCommand
+                lda     ADDR_S+1                ; Add the next address
+                jsr     BuildByte
+                lda     ADDR_S+0
+                jsr     BuildByte
+                lda     #' '
+                jsr     BuildCommand
+                jmp     ShowCommand             ; And prompt for data
+
+NotWrite:
+
+;===============================================================================
 ; X - XMODEM Upload
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
                 cmp     #'X'                    ; XModem upload?
                 beq     $+5                     ; Yes.
@@ -368,10 +483,9 @@ NotUnlock:
                 jmp     ShowError
 
                 bit     ADDR_S+1                ; Load into ROM area?
-                bpl     NotROMArea
+                bpl     $+5
                 jsr     CheckSafe               ; Yes, check selection
 
-NotROMArea:
                 long_i                          ; Display waiting message
                 ldx     #WAITING
                 jsr     UartStr
@@ -409,7 +523,6 @@ TimedOut:
                 jsr     UartStr
                 longi   off
                 jmp     NewCommand
-
 
 TransferScan:
                 jsr     UartRx                  ; Wait for SOH or EOT
@@ -489,9 +602,9 @@ SendNAK:
 
 NotXModem:
 
-;==============================================================================
+;===============================================================================
 ; ? - Help
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
                 cmp     #'?'                    ; Help command?
                 bne     NotHelp
@@ -503,7 +616,7 @@ NotXModem:
                 jmp     NewCommand
 NotHelp:
 
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
 ShowError:
                 long_i
@@ -512,10 +625,10 @@ ShowError:
                 longi   off
                 jmp     NewCommand
 
-;==============================================================================
-;------------------------------------------------------------------------------
+;===============================================================================
+;-------------------------------------------------------------------------------
 
-; Checks if an expendible ROM bank is currently selected. If the bank with the
+; Checks if an expendable ROM bank is currently selected. If the bank with the
 ; WDC firmware is selected then warn and accept a new command.
 
 CheckSafe:
@@ -532,15 +645,19 @@ CheckSafe:
                 longi   off
                 jmp     NewCommand              ; And start over
 
-;==============================================================================
-;------------------------------------------------------------------------------
+;===============================================================================
+; Byte and Word Parsing
+;-------------------------------------------------------------------------------
+
+; Parse a hex byte from the command line and store it at the location indicated
+; by the X register.
 
 GetByte:
                 stz     0,x                     ; Set the target address
-                jsr     SkipSpaces              ; Skip to first real characater
+                jsr     SkipSpaces              ; Skip to first real character
                 bcc     $+3
                 rts                             ; None found
-                jsr     IsHexDigit              ; Must have atleast one digit
+                jsr     IsHexDigit              ; Must have at least one digit
                 bcc     ByteFail
                 jsr     AddDigit
                 jsr     NextChar
@@ -553,16 +670,19 @@ ByteDone:       clc
 ByteFail:       sec
                 rts
 
+; Parse an address from the command line and store it at the location indicated
+; by the X register.
+
 GetAddr:
                 stz     0,x                     ; Set the target address
                 stz     1,x
                 lda     BANK
                 sta     2,x
-                jsr     SkipSpaces              ; Skip to first real characater
+                jsr     SkipSpaces              ; Skip to first real character
                 bcc     $+3
                 rts                             ; None found
 
-                jsr     IsHexDigit              ; Must have atleast one digit
+                jsr     IsHexDigit              ; Must have at least one digit
                 bcc     AddrFail
                 jsr     AddDigit
                 jsr     NextChar
@@ -585,6 +705,9 @@ AddrDone:       clc                             ; Carry clear got an address
 AddrFail:       sec                             ; Carry set -- failed.
                 rts
 
+; Add a hex digit to the 16-bit value being build at at the location indicated
+; by X.
+
 AddDigit:
                 sec                             ; Convert ASCII to binary
                 sbc     #'0'
@@ -602,8 +725,12 @@ AddDigit:
                 rol     1,x
 
                 ora     0,x                     ; Merge in new digit
-                sta     0,x                     ; Then get next digit
+                sta     0,x                     ; .. and save
                 rts
+
+;===============================================================================
+; Command Line Parsing and Building
+;-------------------------------------------------------------------------------
 
 ; Get the next character from the command buffer updating the position in X.
 ; Set the carry if the end of the buffer is reached.
@@ -616,6 +743,9 @@ NextChar:
                 iny
                 jmp     ToUpperCase
 
+; Skip over any spaces until a non-space character or the end of the string
+; is reached.
+
 SkipSpaces:
                 jsr     NextChar                ; Fetch next character
                 bcc     $+3                     ; Any left?
@@ -624,6 +754,37 @@ SkipSpaces:
                 beq     SkipSpaces              ; Yes, try again
                 clc
                 rts                             ; Done
+
+; Clear the buffer and the add the command character in A.
+
+StartCommand:
+                stz     BUFLEN                  ; Clear the character cound
+
+; Append the character in A to the command being built updating the length.
+
+BuildCommand:
+                ldy     BUFLEN
+                inc     BUFLEN
+                sta     BUFFER,y
+                rts
+
+; Convert the value in A into hex characters and append to the command buffer.
+
+BuildByte:
+                pha                             ; Save the value
+                lsr     a                       ; Shift MS nybble down
+                lsr     a
+                lsr     a
+                lsr     a
+                jsr     HexToAscii              ; Convert to ASCII
+                jsr     BuildCommand            ; .. and add to command
+                pla                             ; Pull LS nybble
+                jsr     HexToAscii              ; Convert to ASCII
+                jmp     BuildCommand            ; .. and add to command
+
+;===============================================================================
+; Character Classification
+;-------------------------------------------------------------------------------
 
 ; If the character in A is lower case then convert it to upper case.
 
@@ -671,9 +832,9 @@ IsPrintable:
                 bcc     SetCarry
                 bra     ClearCarry
 
-;==============================================================================
+;===============================================================================
 ; Display Utilities
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
 ; Display the value in A as two hexadecimal digits.
 
@@ -690,13 +851,20 @@ UartHex2:
 ; arithmetic to do the conversion.
 
 UartHex:
+                jsr     HexToAscii              ; Convert to ASCII
+                jmp     UartTx                  ; And display
+
+; Convert a LSB of the value in A to a hexadecimal digit using decimal
+; arithmetic.
+
+HexToAscii:
                 and     #$0f                    ; Strip out lo nybble
                 sed                             ; Convert to ASCII
                 clc
                 adc     #$90
                 adc     #$40
                 cld
-                jmp     UartTx                  ; And display
+                rts                             ; Done
 
 ; Display the string of characters starting a the memory location pointed to by
 ; X (16-bits).
@@ -719,9 +887,9 @@ UartCRLF:
 UartCR:         lda     #CR                     ; Transmit a CR
                 jmp     UartTx
 
-;==============================================================================
+;===============================================================================
 ; String Literals
-;------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
 TITLE           db      CR,LF,"W65C816SXB-Hacker [15.11]",0
 
@@ -730,6 +898,7 @@ ERROR           db      CR,LF,"Error - Type ? for help",0
 ERASE_FAILED    db      CR,LF,"Erase failed",0
 WRITE_FAILED    db      CR,LF,"Write failed",0
 NOT_SAFE        db      CR,LF,"WDC ROM Bank Selected",0
+INVALID_S19     db      CR,LF,"Invalid S19 record",0
 
 WAITING         db      CR,LF,"Waiting for XMODEM transfer to start",0
 TIMEOUT         db      CR,LF,"Timeout",0
@@ -739,6 +908,8 @@ HELP            db      CR,LF,"B bb           - Set memory bank"
                 db      CR,LF,"G [xxxx]       - Run from bb:xxxx or invoke reset vector"
                 db      CR,LF,"M ssss eeee    - Display memory in current bank"
                 db      CR,LF,"R 0-3          - Select ROM bank 0-3"
+                db      CR,LF,"S...           - Process S19 record"
+                db      CR,LF,"W xxxx bb      - Set memory at xxxx to bb"
                 db      CR,LF,"X xxxx         - XMODEM upload to bb:xxxx"
                 db      0
 
