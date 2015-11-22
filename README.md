@@ -76,10 +76,10 @@ or
 ```
 You can write a single byte of data  into memory manually using the 'W' command.
 The program will prompt you to enter another byte at the next address.
-...
+```
 .W 4000 FF
 .W 4001
-...
+```
 You can leave byte entry mode by pressing escape, deleting the command with
 backspace or pressing ENTER.
 
