@@ -43,7 +43,7 @@ native          macro
                 xce
                 endm
 
-; Resets the M bit making the accumator and memory accesses 16-bits wide.
+; Resets the M bit making the accumulator and memory accesses 16-bits wide.
  
 long_a          macro
                 rep     #(1<<M_FLAG)
@@ -57,7 +57,7 @@ long_i          macro
                 longi   on
                 endm
 
-; Resets the M and X bits making the accumator, memory accesses and index
+; Resets the M and X bits making the accumulator, memory accesses and index
 ; registers 16-bits wide.
                 
 long_ai         macro
@@ -66,18 +66,23 @@ long_ai         macro
                 longi   on
                 endm
 
-; Sets the M bit making the accumator and memory accesses 16-bits wide.
+; Sets the M bit making the accumulator and memory accesses 8-bits wide.
 
 short_a         macro
                 sep     #(1<<M_FLAG)
                 longa   off
                 endm
 
+; Sets the X bit making the index registers 8-bits wide.
+
 short_i         macro
                 sep     #(1<<X_FLAG)
                 longi   off
                 endm
                 
+; Sets the M & X bits making the accumulator, memory accesses and index
+; registers 8-bits wide.
+
 short_ai        macro
                 sep     #(1<<M_FLAG)|(1<<X_FLAG)
                 longa   off

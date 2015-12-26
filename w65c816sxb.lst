@@ -1,4 +1,4 @@
-  Sun Nov 22 2015 22:00                                                                                                    Page 1
+  Fri Dec 25 2015 13:42                                                                                                    Page 1
 
 
                                                ***************************************
@@ -59,7 +59,7 @@
     16             00000007   N_FLAG          equ     7
     17             00000006   V_FLAG          equ     6
     18             00000005   M_FLAG          equ     5
-  Sun Nov 22 2015 22:00                                                                                                    Page 2
+  Fri Dec 25 2015 13:42                                                                                                    Page 2
 
 
     19             00000004   X_FLAG          equ     4
@@ -120,7 +120,7 @@
     74                                        endm
     75                        
     76                        short_i         macro
-  Sun Nov 22 2015 22:00                                                                                                    Page 3
+  Fri Dec 25 2015 13:42                                                                                                    Page 3
 
 
     77                                        sep     #(1<<X_FLAG)
@@ -181,7 +181,7 @@
     46             00007FA0   PIA_DDRA        equ     $7fa0
     47             00007FA1   PIA_CRA         equ     $7fa1
     48             00007FA2   PIA_PIB         equ     $7fa2
-  Sun Nov 22 2015 22:00                                                                                                    Page 4
+  Fri Dec 25 2015 13:42                                                                                                    Page 4
 
 
     49             00007FA2   PIA_DDRB        equ     $7fa2
@@ -242,7 +242,7 @@
     43             00004B00   BAUD_RATE       equ     19200                   ; ACIA baud rate
     44                        
     45                        ;------------------------------------------------------------------------------
-  Sun Nov 22 2015 22:00                                                                                                    Page 5
+  Fri Dec 25 2015 13:42                                                                                                    Page 5
 
 
     46                        
@@ -303,7 +303,7 @@
     99                        IRQBRK:
    100 00:0033: 80 FE                        bra     $                       ; Loop forever
    101                        
-  Sun Nov 22 2015 22:00                                                                                                    Page 6
+  Fri Dec 25 2015 13:42                                                                                                    Page 6
 
 
    102                        ; Handle NMI interrupts in emulation mode.
@@ -364,7 +364,7 @@
    157                                        tax
    158                                        ora     #$04
    159                                        sta     VIA2_ORB
-  Sun Nov 22 2015 22:00                                                                                                    Page 7
+  Fri Dec 25 2015 13:42                                                                                                    Page 7
 
 
    160                                        lda     #$ff                    ; Make data port all output
@@ -425,7 +425,7 @@
    215                        ; ACIA Interface
    216                        ;------------------------------------------------------------------------------
    217                        
-  Sun Nov 22 2015 22:00                                                                                                    Page 8
+  Fri Dec 25 2015 13:42                                                                                                    Page 8
 
 
    218                                        else
@@ -486,7 +486,7 @@
 +  268 00:0073: E2 20                        sep     #(1<<M_FLAG)
 +  268                                        longa   off
    269 00:0075: AD 81 7F                     lda     ACIA_SR                 ; Read the status register
-  Sun Nov 22 2015 22:00                                                                                                    Page 9
+  Fri Dec 25 2015 13:42                                                                                                    Page 9
 
 
    270 00:0078: 28                           plp
@@ -547,7 +547,7 @@
    325                        
    326                                        end
 
-  Sun Nov 22 2015 22:00                                                                                                    Page 10
+  Fri Dec 25 2015 13:42                                                                                                    Page 10
 
 
 

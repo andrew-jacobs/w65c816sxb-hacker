@@ -1,4 +1,4 @@
-  Sun Nov 22 2015 23:00                                                                                                    Page 1
+  Fri Dec 25 2015 13:42                                                                                                    Page 1
 
 
                                                ***************************************
@@ -59,7 +59,7 @@
     16             00000007   N_FLAG          equ     7
     17             00000006   V_FLAG          equ     6
     18             00000005   M_FLAG          equ     5
-  Sun Nov 22 2015 23:00                                                                                                    Page 2
+  Fri Dec 25 2015 13:42                                                                                                    Page 2
 
 
     19             00000004   X_FLAG          equ     4
@@ -120,7 +120,7 @@
     74                                        endm
     75                        
     76                        short_i         macro
-  Sun Nov 22 2015 23:00                                                                                                    Page 3
+  Fri Dec 25 2015 13:42                                                                                                    Page 3
 
 
     77                                        sep     #(1<<X_FLAG)
@@ -181,7 +181,7 @@
     46             00007FA0   PIA_DDRA        equ     $7fa0
     47             00007FA1   PIA_CRA         equ     $7fa1
     48             00007FA2   PIA_PIB         equ     $7fa2
-  Sun Nov 22 2015 23:00                                                                                                    Page 4
+  Fri Dec 25 2015 13:42                                                                                                    Page 4
 
 
     49             00007FA2   PIA_DDRB        equ     $7fa2
@@ -242,7 +242,7 @@
     43             00000006   ACK             equ     $06
     44             00000007   BEL             equ     $07
     45             00000008   BS              equ     $08
-  Sun Nov 22 2015 23:00                                                                                                    Page 5
+  Fri Dec 25 2015 13:42                                                                                                    Page 5
 
 
     46             0000000A   LF              equ     $0a
@@ -303,7 +303,7 @@
     97                        ;-------------------------------------------------------------------------------
     98                        
     99                        NewCommand:
-  Sun Nov 22 2015 23:00                                                                                                    Page 6
+  Fri Dec 25 2015 13:42                                                                                                    Page 6
 
 
    100 00:000F: 64 20                        stz     BUFLEN                  ; Clear the buffer
@@ -364,7 +364,7 @@
    153                        
    154                        ProcessCommand:
    155 00:0069: 86 20                        stx     BUFLEN                  ; Save final length
-  Sun Nov 22 2015 23:00                                                                                                    Page 7
+  Fri Dec 25 2015 13:42                                                                                                    Page 7
 
 
    156 00:006B: A0 00                        ldy     #0                      ; Load index for start
@@ -425,7 +425,7 @@
    211 00:00BC: 90 D4                        bcc     EraseLoop               ; Repeat until end of memory
    212 00:00BE: 4C xx xx                     jmp     NewCommand              ; And start over
    213                        
-  Sun Nov 22 2015 23:00                                                                                                    Page 8
+  Fri Dec 25 2015 13:42                                                                                                    Page 8
 
 
    214                        EraseFailed:
@@ -486,7 +486,7 @@
    267 00:0115: 20 xx xx                     jsr     UartHex2
    268 00:0118: C8                           iny
    269 00:0119: C0 10                        cpy     #16
-  Sun Nov 22 2015 23:00                                                                                                    Page 9
+  Fri Dec 25 2015 13:42                                                                                                    Page 9
 
 
    270 00:011B: D0 F1                        bne     ByteLoop
@@ -547,7 +547,7 @@
    325 00:0174: A2 22                        ldx     #ADDR_S                 ; Get address
    326 00:0176: 20 xx xx                     jsr     GetAddr
    327 00:0179: B0 5B                        bcs     S19Fail
-  Sun Nov 22 2015 23:00                                                                                                    Page 10
+  Fri Dec 25 2015 13:42                                                                                                    Page 10
 
 
    328 00:017B: A5 22                        lda     ADDR_S+0                ; Add to checksum
@@ -608,7 +608,7 @@
 +  382 00:01D6: C2 10                        rep     #(1<<X_FLAG)
 +  382                                        longi   on
    383 00:01D8: A2 xx xx                     ldx     #INVALID_S19
-  Sun Nov 22 2015 23:00                                                                                                    Page 11
+  Fri Dec 25 2015 13:42                                                                                                    Page 11
 
 
    384 00:01DB: 20 xx xx                     jsr     UartStr
@@ -669,7 +669,7 @@
    439 00:022A: A5 24                        lda     ADDR_S+2                ; Writing to ROM?
    440 00:022C: D0 13                        bne     WriteMemory             ; No
    441 00:022E: 24 23                        bit     ADDR_S+1
-  Sun Nov 22 2015 23:00                                                                                                    Page 12
+  Fri Dec 25 2015 13:42                                                                                                    Page 12
 
 
    442 00:0230: 10 0F                        bpl     WriteMemory             ; No
@@ -730,7 +730,7 @@
 +  493                                        longi   off
    494 00:028C: 64 28                        stz     BLOCK                   ; Reset the block number
    495 00:028E: E6 28                        inc     BLOCK
-  Sun Nov 22 2015 23:00                                                                                                    Page 13
+  Fri Dec 25 2015 13:42                                                                                                    Page 13
 
 
    496                        
@@ -791,7 +791,7 @@
    549 00:02E8: 24 23                        bit     ADDR_S+1
    550 00:02EA: 10 0F                        bpl     WriteByte               ; No
    551                        
-  Sun Nov 22 2015 23:00                                                                                                    Page 14
+  Fri Dec 25 2015 13:42                                                                                                    Page 14
 
 
    552 00:02EC: A9 AA                        lda     #$aa                    ; Yes, unlock flash
@@ -852,7 +852,7 @@
    607                        ;-------------------------------------------------------------------------------
    608                        
    609 00:033B: C9 3F                        cmp     #'?'                    ; Help command?
-  Sun Nov 22 2015 23:00                                                                                                    Page 15
+  Fri Dec 25 2015 13:42                                                                                                    Page 15
 
 
    610 00:033D: D0 0B                        bne     NotHelp
@@ -913,7 +913,7 @@
    659 00:0372: 60                           rts                             ; None found
    660 00:0373: 20 xx xx                     jsr     IsHexDigit              ; Must have at least one digit
    661 00:0376: 90 12                        bcc     ByteFail
-  Sun Nov 22 2015 23:00                                                                                                    Page 16
+  Fri Dec 25 2015 13:42                                                                                                    Page 16
 
 
    662 00:0378: 20 xx xx                     jsr     AddDigit
@@ -974,7 +974,7 @@
    717                        
    718 00:03D9: 1E 00 00                     asl     0,x                     ; Shift up one nybble
    719 00:03DC: 3E 01 00                     rol     1,x
-  Sun Nov 22 2015 23:00                                                                                                    Page 17
+  Fri Dec 25 2015 13:42                                                                                                    Page 17
 
 
    720 00:03DF: 1E 00 00                     asl     0,x
@@ -1035,7 +1035,7 @@
    775 00:041B: 4A                           lsr     a                       ; Shift MS nybble down
    776 00:041C: 4A                           lsr     a
    777 00:041D: 4A                           lsr     a
-  Sun Nov 22 2015 23:00                                                                                                    Page 18
+  Fri Dec 25 2015 13:42                                                                                                    Page 18
 
 
    778 00:041E: 4A                           lsr     a
@@ -1096,7 +1096,7 @@
    833 00:045B: 80 E2                        bra     ClearCarry
    834                        
    835                        ;===============================================================================
-  Sun Nov 22 2015 23:00                                                                                                    Page 19
+  Fri Dec 25 2015 13:42                                                                                                    Page 19
 
 
    836                        ; Display Utilities
@@ -1157,7 +1157,7 @@
    891                        ; String Literals
    892                        ;-------------------------------------------------------------------------------
    893                        
-  Sun Nov 22 2015 23:00                                                                                                    Page 20
+  Fri Dec 25 2015 13:42                                                                                                    Page 20
 
 
    894 00:048F: 0D 0A 57 36  TITLE           db      CR,LF,"W65C816SXB-Hacker [15.11]",0
@@ -1218,7 +1218,7 @@
        00:0551: 20 2D 20 53 
        00:0555: 65 74 20 6D 
        00:0559: 65 6D 6F 72 
-  Sun Nov 22 2015 23:00                                                                                                    Page 21
+  Fri Dec 25 2015 13:42                                                                                                    Page 21
 
 
        00:055D: 79 20 62 61 
@@ -1279,7 +1279,7 @@
        00:062D: 73 73 20 53 
        00:0631: 31 39 20 72 
        00:0635: 65 63 6F 72 
-  Sun Nov 22 2015 23:00                                                                                                    Page 22
+  Fri Dec 25 2015 13:42                                                                                                    Page 22
 
 
        00:0639: 64 
