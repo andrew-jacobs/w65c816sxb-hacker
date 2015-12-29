@@ -7,21 +7,41 @@
 ;
 ; Western Design Center W65C816 device definitions                                          
 ;------------------------------------------------------------------------------
-
+; Copyright (C)2015 HandCoded Software Ltd.
+; All rights reserved.
+;
+; This work is made available under the terms of the Creative Commons
+; Attribution-NonCommercial-ShareAlike 4.0 International license. Open the
+; following URL to see the details.
+;
+; http://creativecommons.org/licenses/by-nc-sa/4.0/
+;
+;===============================================================================
+; Notes:
+;
+; Various macros and definitions for the W65C816 microprocessor.
+;
+;===============================================================================
+; Revision History:
+;
+; 2015-12-18 AJ Initial version
+;-------------------------------------------------------------------------------
+; $Id$
+;-------------------------------------------------------------------------------
 
 ;==============================================================================
 ; Status Register Bits
 ;------------------------------------------------------------------------------
 
-N_FLAG          equ     7
-V_FLAG          equ     6
-M_FLAG          equ     5
-X_FLAG          equ     4
-B_FLAG          equ     4
-D_FLAG          equ     3
-I_FLAG          equ     2
-Z_FLAG          equ     1
-C_FLAG          equ     0
+N_FLAG          equ     1<<7
+V_FLAG          equ     1<<6
+M_FLAG          equ     1<<5
+X_FLAG          equ     1<<4
+B_FLAG          equ     1<<4
+D_FLAG          equ     1<<3
+I_FLAG          equ     1<<2
+Z_FLAG          equ     1<<1
+C_FLAG          equ     1<<0
 
 ;==============================================================================
 ; Macros
@@ -46,14 +66,14 @@ native          macro
 ; Resets the M bit making the accumulator and memory accesses 16-bits wide.
  
 long_a          macro
-                rep     #(1<<M_FLAG)
+                rep     #M_FLAG
                 longa   on
                 endm
 
 ; Resets the X bit making the index registers 16-bits wide
 
 long_i          macro
-                rep     #(1<<X_FLAG)
+                rep     #X_FLAG
                 longi   on
                 endm
 
@@ -61,7 +81,7 @@ long_i          macro
 ; registers 16-bits wide.
                 
 long_ai         macro
-                rep     #(1<<M_FLAG)|(1<<X_FLAG)
+                rep     #M_FLAG|X_FLAG
                 longa   on
                 longi   on
                 endm
@@ -69,14 +89,14 @@ long_ai         macro
 ; Sets the M bit making the accumulator and memory accesses 8-bits wide.
 
 short_a         macro
-                sep     #(1<<M_FLAG)
+                sep     #M_FLAG
                 longa   off
                 endm
 
 ; Sets the X bit making the index registers 8-bits wide.
 
 short_i         macro
-                sep     #(1<<X_FLAG)
+                sep     #X_FLAG
                 longi   off
                 endm
                 
@@ -84,7 +104,7 @@ short_i         macro
 ; registers 8-bits wide.
 
 short_ai        macro
-                sep     #(1<<M_FLAG)|(1<<X_FLAG)
+                sep     #M_FLAG|X_FLAG
                 longa   off
                 longi   off
                 endm

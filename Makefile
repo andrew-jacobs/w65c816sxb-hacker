@@ -8,7 +8,7 @@ LD			=	wdcln
 
 RM			=	erase
 
-AS_FLAGS	=	-g -l
+AS_FLAGS	=	-g -l -DW65C816SXB
 
 LD_FLAGS	=	-g -t -C0300
 
