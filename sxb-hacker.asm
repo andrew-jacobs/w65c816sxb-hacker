@@ -29,7 +29,11 @@
 
                 chip    65816
 
+                ifdef   W65C265SXB
+                include "w65c265.inc"
+                else
                 include "w65c816.inc"
+                endif
 
 ;===============================================================================
 ;-------------------------------------------------------------------------------
@@ -336,6 +340,32 @@ Disassemble:
                 jsr     TxSymbolic              ; And instruction
 
                 lda     [ADDR_S]                ; Fetch opcode again
+                pha
+                ldy     #1
+
+                cmp     #$18                    ; CLC?
+                bne     NotCLC
+                lda     #C_FLAG
+                bra     DoREP
+NotCLC:
+                cmp     #$38                    ; SEC?
+                bne     NotSEC
+                lda     #C_FLAG
+                bra     DoSEP
+NotSEC:
+                cmp     #$c2                    ; REP?
+                bne     NotREP
+                lda     [ADDR_S],Y
+DoREP:          trb     FLAGS
+                bra     NextOpcode
+NotREP:
+                cmp     #$e2                    ; SEP?
+                bne     NextOpcode
+                lda     [ADDR_S],Y
+DoSEP:          tsb     FLAGS
+
+NextOpcode:
+                pla
                 jsr     OpcodeSize
 
                 clc
@@ -361,6 +391,13 @@ NotDisassemble:
                 bne     NotEraseBank
 
                 jsr     CheckSafe
+
+                ifdef   W65C265SXB
+                lda     BCR                     ; Save mask rom state
+                pha
+                lda     #$80                    ; Then ensure disabled
+                tsb     BCR
+                endif
 
                 lda     #$00                    ; Set start address
                 sta     ADDR_S+0
@@ -390,6 +427,12 @@ EraseWait:
                 adc     #$10
                 sta     ADDR_S+1
                 bcc     EraseLoop               ; Repeat until end of memory
+
+                ifdef   W65C265SXB
+                pla                             ; Restore mask ROM state
+                sta     BCR
+                endif
+
                 jmp     NewCommand              ; And start over
 
 EraseFailed:
@@ -408,9 +451,26 @@ NotEraseBank:
                 cmp     #'F'
                 bne     NotMaskROM
 
-                ; TODO
+                jsr     SkipSpaces              ; Find first argument
+                bcs     MaskFail                ; Success?
 
+                cmp     #'0'                    ; Check bank is 0..3
+                beq     MaskOff
+                cmp     #'1'
+                beq     MaskOn
+MaskFail:
+                jmp     ShowError
+
+MaskOn:
+                lda     #$80                    ; Enable mask ROM
+                trb     BCR
                 jmp     NewCommand
+
+MaskOff:
+                lda     #$80                    ; Disable mask ROM
+                tsb     BCR
+                jmp     NewCommand
+
 NotMaskROM:
                 endif
 
@@ -427,6 +487,102 @@ NotMaskROM:
                 jmp     [ADDR_S]                ; Run from address
                 jmp     ($FFFC)                 ; Otherwise reset
 NotGoto:
+
+;===============================================================================
+; H - Hunt for RAM
+;-------------------------------------------------------------------------------
+
+                cmp     #'H'                    ; Hunt for RAM
+                beq     $+5
+                jmp     NotHunt
+
+                stz     ADDR_S+0                ; Start at $00:0000
+                stz     ADDR_S+1
+                stz     ADDR_S+2
+
+HuntStart:
+                lda     [ADDR_S]                ; Is byte is writeable?
+                pha
+                eor     #$ff
+                sta     [ADDR_S]
+                cmp     [ADDR_S]
+                beq     HuntFound               ; Yes
+
+                pla
+                clc                             ; Try the next block
+                lda     ADDR_S+1
+                adc     #$10
+                sta     ADDR_S+1
+                bcc     HuntStart
+                inc     ADDR_S+2
+                bne     HuntStart
+                jmp     NewCommand              ; Reached end of RAM
+
+HuntFound:
+                jsr     TxCRLF
+                lda     ADDR_S+2                ; Print start address
+                jsr     TxHex2
+                lda     #':'
+                jsr     UartTx
+                lda     ADDR_S+1
+                jsr     TxHex2
+                lda     ADDR_S+0
+                jsr     TxHex2
+
+                lda     #'-'
+                jsr     UartTx
+
+HuntEnd:
+                pla                             ; Restore memory bytes
+                sta     [ADDR_S]
+                clc                             ; Try the next block
+                lda     ADDR_S+1
+                adc     #$10
+                sta     ADDR_S+1
+                bcc     HuntNext
+                inc     ADDR_S+2
+                beq     HuntDone
+
+HuntNext
+                lda     [ADDR_S]                ; Is byte is writeable?
+                pha
+                eor     #$ff
+                sta     [ADDR_S]
+                cmp     [ADDR_S]
+                beq     HuntEnd                 ; Yes, keep looking
+
+                pla
+                sec                             ; Print end address
+                lda     ADDR_S+0
+                sbc     #1
+                pha
+                lda     ADDR_S+1
+                sbc     #0
+                pha
+                lda     ADDR_S+2
+                sbc     #0
+                jsr     TxHex2
+                lda     #':'
+                jsr     UartTx
+                pla
+                jsr     TxHex2
+                pla
+                jsr     TxHex2
+                bra     HuntStart
+
+HuntDone:
+                lda     #$ff                    ; Pring FF:FFFF
+                pha
+                pha
+                jsr     TxHex2
+                lda     #':'
+                jsr     UartTx
+                pla
+                jsr     TxHex2
+                pla
+                jsr     TxHex2
+                jmp     NewCommand
+NotHunt:
 
 ;===============================================================================
 ; M - Display Memory
@@ -495,6 +651,26 @@ CharLoop:       lda     [ADDR_S],Y
 NotMemoryDisplay:
 
 ;===============================================================================
+; R - Select ROM Bank
+;-------------------------------------------------------------------------------
+
+                cmp     #'R'                    ; ROM Bank?
+                bne     NotROMBank              ; No
+
+                jsr     SkipSpaces              ; Find first argument
+                bcc     $+5                     ; Success?
+BankFail:       jmp     ShowError               ; No
+
+                cmp     #'0'                    ; Check bank is 0..3
+                bcc     BankFail
+                cmp     #'3'+1
+                bcs     BankFail
+
+                jsr     RomSelect               ; Switch ROM banks
+                jmp     NewCommand              ; Done
+NotROMBank:
+
+;===============================================================================
 ; S - S19 Record
 ;-------------------------------------------------------------------------------
 
@@ -540,8 +716,13 @@ S19Load:
 
                 lda     ADDR_S+2                ; Writing to ROM?
                 bne     WriteS19                ; No
-                bit     ADDR_S+1
+                lda     ADDR_S+1
                 bpl     WriteS19                ; No
+
+                ifdef   W65C265SXB
+                cmp     #$df                    ; Register page?
+                beq     NoWrite
+                endif
 
                 lda     #$aa                    ; Yes, unlock flash
                 sta     $8000+$5555
@@ -553,6 +734,7 @@ WriteS19:
                 lda     TEMP                    ; Write the value
                 sta     [ADDR_S]
 
+NoWrite:
                 inc     ADDR_S+0                ; Bump address by one
                 bne     $+4
                 inc     ADDR_S+1
@@ -578,26 +760,6 @@ S19Fail:
                 longi   off
                 jmp     NewCommand              ; And start over
 NotS19:
-
-;===============================================================================
-; R - Select ROM Bank
-;-------------------------------------------------------------------------------
-
-                cmp     #'R'                    ; ROM Bank?
-                bne     NotROMBank              ; No
-
-                jsr     SkipSpaces              ; Find first argument
-                bcc     $+5                     ; Success?
-BankFail:       jmp     ShowError               ; No
-
-                cmp     #'0'                    ; Check bank is 0..3
-                bcc     BankFail
-                cmp     #'3'+1
-                bcs     BankFail
-
-                jsr     RomSelect               ; Switch ROM banks
-                jmp     NewCommand              ; Done
-NotROMBank:
 
 ;===============================================================================
 ; W - Write memory
@@ -730,8 +892,13 @@ TransferBlock:
 
                 lda     ADDR_S+2                ; Writing to ROM?
                 bne     WriteByte               ; No
-                bit     ADDR_S+1
+                lda     ADDR_S+1
                 bpl     WriteByte               ; No
+
+                ifdef   W65C265SXB
+                cmp     #$df                    ; Register page?
+                beq     WriteSkip
+                endif
 
                 lda     #$aa                    ; Yes, unlock flash
                 sta     $8000+$5555
@@ -747,6 +914,10 @@ WriteByte:
 WriteWait:
                 cmp     [ADDR_S],Y              ; Wait for write
                 bne     WriteWait
+                bra     $+3
+
+WriteSkip:
+                pla
 
                 clc                             ; Add to check sum
                 adc     SUM
@@ -1687,7 +1858,7 @@ TITLE           db      CR,LF
                 ifdef   W65C265SXB
                 db      "W65C265SXB"
                 endif
-                db      "-Hacker [15.12]",0
+                db      "-Hacker [16.01]",0
 
 ERROR           db      CR,LF,"Error - Type ? for help",0
 
@@ -1703,7 +1874,8 @@ HELP            db      CR,LF,"B bb           - Set memory bank"
                 db      CR,LF,"D ssss eeee    - Disassemble memory in current bank"
                 db      CR,LF,"E              - Erase ROM area"
                 ifdef   W65C265SXB
-                db      CR,LF,"F 0-1          - Enable/Disable WDC ROM"
+                db      CR,LF,"F 0-1          - Disable/Enable WDC ROM"
+                db      CR,LF,"H              - Hunt for RAM"
                 endif
                 db      CR,LF,"G [xxxx]       - Run from bb:xxxx or invoke reset vector"
                 db      CR,LF,"M ssss eeee    - Display memory in current bank"
