@@ -1,4 +1,4 @@
-  Mon Jun 18 2018 10:10                                                                                                    Page 1
+  Mon Jun 18 2018 21:48                                                                                                    Page 1
 
 
                                                ***************************************
@@ -16,7 +16,7 @@
      7                        ;
      8                        ; A program for Hacking your W65C265SXB or W65C816SXB
      9                        ;-------------------------------------------------------------------------------
-    10                        ; Copyright (C)2015 Andrew Jacobs
+    10                        ; Copyright (C),2015-2018 Andrew Jacobs
     11                        ; All rights reserved.
     12                        ;
     13                        ; This work is made available under the terms of the Creative Commons
@@ -59,7 +59,7 @@
     15                        ; following URL to see the details.
     16                        ;
     17                        ; http://creativecommons.org/licenses/by-nc-sa/4.0/
-  Mon Jun 18 2018 10:10                                                                                                    Page 2
+  Mon Jun 18 2018 21:48                                                                                                    Page 2
 
 
     18                        ;
@@ -120,7 +120,7 @@
     73                        ; Resets the X bit making the index registers 16-bits wide
     74                        
     75                        long_i          macro
-  Mon Jun 18 2018 10:10                                                                                                    Page 3
+  Mon Jun 18 2018 21:48                                                                                                    Page 3
 
 
     76                                        rep     #X_FLAG
@@ -181,7 +181,7 @@
     56             00000015   NAK             equ     $15
     57             00000018   CAN             equ     $18
     58             0000001B   ESC             equ     $1b
-  Mon Jun 18 2018 10:10                                                                                                    Page 4
+  Mon Jun 18 2018 21:48                                                                                                    Page 4
 
 
     59             0000007F   DEL             equ     $7f
@@ -242,7 +242,7 @@
    114             00000064   OP_PHX          equ     50<<1
    115             00000066   OP_PHY          equ     51<<1
    116             00000068   OP_PLA          equ     52<<1
-  Mon Jun 18 2018 10:10                                                                                                    Page 5
+  Mon Jun 18 2018 21:48                                                                                                    Page 5
 
 
    117             0000006A   OP_PLB          equ     53<<1
@@ -303,7 +303,7 @@
    172             0000001E   MD_DIX          equ     15<<1                   ; (d,x)
    173             00000020   MD_DIY          equ     16<<1                   ; (d),y
    174             00000022   MD_DLY          equ     17<<1                   ; [d],y
-  Mon Jun 18 2018 10:10                                                                                                    Page 6
+  Mon Jun 18 2018 21:48                                                                                                    Page 6
 
 
    175             00000024   MD_IMP          equ     18<<1                   ;
@@ -364,7 +364,7 @@
    226 00:000D: 64 22                        stz     BANK                    ; Reset default bank
    227                        
    228                        ;===============================================================================
-  Mon Jun 18 2018 10:10                                                                                                    Page 7
+  Mon Jun 18 2018 21:48                                                                                                    Page 7
 
 
    229                        ; Command Processor
@@ -425,7 +425,7 @@
    282 00:0060: A9 08                        lda     #BS
    283 00:0062: 20 xx xx                     jsr     UartTx
    284 00:0065: 80 C8                        bra     ReadCommand             ; And retry
-  Mon Jun 18 2018 10:10                                                                                                    Page 8
+  Mon Jun 18 2018 21:48                                                                                                    Page 8
 
 
    285                        
@@ -486,7 +486,7 @@
    340 00:00BA: 20 xx xx                     jsr     TxSymbolic              ; And instruction
    341                        
    342 00:00BD: A7 23                        lda     [ADDR_S]                ; Fetch opcode again
-  Mon Jun 18 2018 10:10                                                                                                    Page 9
+  Mon Jun 18 2018 21:48                                                                                                    Page 9
 
 
    343 00:00BF: 48                           pha
@@ -547,7 +547,7 @@
    398                                        lda     #$80                    ; Then ensure disabled
    399                                        tsb     BCR
    400                                        endif
-  Mon Jun 18 2018 10:10                                                                                                    Page 10
+  Mon Jun 18 2018 21:48                                                                                                    Page 10
 
 
    401                        
@@ -608,7 +608,7 @@
    454                                        jsr     SkipSpaces              ; Find first argument
    455                                        bcs     MaskFail                ; Success?
    456                        
-  Mon Jun 18 2018 10:10                                                                                                    Page 11
+  Mon Jun 18 2018 21:48                                                                                                    Page 11
 
 
    457                                        cmp     #'0'                    ; Check bank is 0..3
@@ -669,7 +669,7 @@
    512 00:0170: 18                           clc                             ; Try the next block
    513 00:0171: A5 24                        lda     ADDR_S+1
    514 00:0173: 69 10                        adc     #$10
-  Mon Jun 18 2018 10:10                                                                                                    Page 12
+  Mon Jun 18 2018 21:48                                                                                                    Page 12
 
 
    515 00:0175: 85 24                        sta     ADDR_S+1
@@ -730,7 +730,7 @@
    570 00:01D4: 20 xx xx                     jsr     TxHex2
    571 00:01D7: 80 8B                        bra     HuntStart
    572                        
-  Mon Jun 18 2018 10:10                                                                                                    Page 13
+  Mon Jun 18 2018 21:48                                                                                                    Page 13
 
 
    573                        HuntDone:
@@ -791,7 +791,7 @@
    628 00:023D: B0 02                        bcs     $+4
    629 00:023F: A9 2E                        lda     #'.'
    630 00:0241: 20 xx xx                     jsr     UartTx
-  Mon Jun 18 2018 10:10                                                                                                    Page 14
+  Mon Jun 18 2018 21:48                                                                                                    Page 14
 
 
    631 00:0244: C8                           iny
@@ -852,7 +852,7 @@
    686 00:028E: A2 26                        ldx     #ADDR_E                 ; Get byte count
    687 00:0290: 20 xx xx                     jsr     GetByte
    688 00:0293: B0 6A                        bcs     S19Fail
-  Mon Jun 18 2018 10:10                                                                                                    Page 15
+  Mon Jun 18 2018 21:48                                                                                                    Page 15
 
 
    689 00:0295: A5 26                        lda     ADDR_E                  ; Use as initial checksum
@@ -913,7 +913,7 @@
    744 00:02EB: D0 C8                        bne     S19Load
    745                        
    746 00:02ED: A2 2C                        ldx     #TEMP                   ; Yes, read it
-  Mon Jun 18 2018 10:10                                                                                                    Page 16
+  Mon Jun 18 2018 21:48                                                                                                    Page 16
 
 
    747 00:02EF: 20 xx xx                     jsr     GetByte
@@ -974,7 +974,7 @@
    800 00:0344: E6 23                        inc     ADDR_S+0                ; Bump address by one
    801 00:0346: D0 02                        bne     $+4
    802 00:0348: E6 24                        inc     ADDR_S+1
-  Mon Jun 18 2018 10:10                                                                                                    Page 17
+  Mon Jun 18 2018 21:48                                                                                                    Page 17
 
 
    803                        
@@ -1035,7 +1035,7 @@
    854 00:039E: B0 20                        bcs     TransferScan
    855 00:03A0: E6 2C                        inc     TEMP+0
    856 00:03A2: D0 F7                        bne     TransferPoll
-  Mon Jun 18 2018 10:10                                                                                                    Page 18
+  Mon Jun 18 2018 21:48                                                                                                    Page 18
 
 
    857 00:03A4: E6 2D                        inc     TEMP+1
@@ -1096,7 +1096,7 @@
    910                        WriteByte:
    911 00:03FA: 68                           pla
    912 00:03FB: 97 23                        sta     [ADDR_S],Y
-  Mon Jun 18 2018 10:10                                                                                                    Page 19
+  Mon Jun 18 2018 21:48                                                                                                    Page 19
 
 
    913                        
@@ -1157,7 +1157,7 @@
 +  967 00:0441: C2 10                        rep     #X_FLAG
 +  967                                        longi   on
    968 00:0443: A2 xx xx                     ldx     #HELP                   ; Output help string
-  Mon Jun 18 2018 10:10                                                                                                    Page 20
+  Mon Jun 18 2018 21:48                                                                                                    Page 20
 
 
    969 00:0446: 20 xx xx                     jsr     TxStr
@@ -1218,7 +1218,7 @@
   1020 00:0483: 90 03                        bcc     ByteDone
   1021 00:0485: 20 xx xx                     jsr     AddDigit
   1022 00:0488: 18           ByteDone:       clc
-  Mon Jun 18 2018 10:10                                                                                                    Page 21
+  Mon Jun 18 2018 21:48                                                                                                    Page 21
 
 
   1023 00:0489: 60                           rts
@@ -1279,7 +1279,7 @@
   1078 00:04EB: 1E 00 00                     asl     0,x
   1079 00:04EE: 3E 01 00                     rol     1,x
   1080                        
-  Mon Jun 18 2018 10:10                                                                                                    Page 22
+  Mon Jun 18 2018 21:48                                                                                                    Page 22
 
 
   1081 00:04F1: 1D 00 00                     ora     0,x                     ; Merge in new digit
@@ -1340,7 +1340,7 @@
   1136 00:0526: 20 xx xx                     jsr     HexToAscii              ; Convert to ASCII
   1137 00:0529: 4C xx xx                     jmp     BuildCommand            ; .. and add to command
   1138                        
-  Mon Jun 18 2018 10:10                                                                                                    Page 23
+  Mon Jun 18 2018 21:48                                                                                                    Page 23
 
 
   1139                        ;===============================================================================
@@ -1401,7 +1401,7 @@
   1194                        ;-------------------------------------------------------------------------------
   1195                        
   1196                        ; Display the value in MD_ACC as two hexadecimal digits.
-  Mon Jun 18 2018 10:10                                                                                                    Page 24
+  Mon Jun 18 2018 21:48                                                                                                    Page 24
 
 
   1197                        
@@ -1462,7 +1462,7 @@
   1252 00:0591: 4C xx xx                     jmp     UartTx
   1253                        
   1254                        ;===============================================================================
-  Mon Jun 18 2018 10:10                                                                                                    Page 25
+  Mon Jun 18 2018 21:48                                                                                                    Page 25
 
 
   1255                        ;-------------------------------------------------------------------------------
@@ -1523,7 +1523,7 @@
   1308 00:05D0: 4A                           lsr     a                       ; Shift second down
   1309 00:05D1: 4A                           lsr     a
   1310 00:05D2: 4A                           lsr     a
-  Mon Jun 18 2018 10:10                                                                                                    Page 26
+  Mon Jun 18 2018 21:48                                                                                                    Page 26
 
 
   1311 00:05D3: 4A                           lsr     a
@@ -1584,7 +1584,7 @@
   1366 00:0627: xx xx                        dw      TxMove                  ; xyc
   1367 00:0629: xx xx                        dw      TxImmediateM            ; # (A & M)
   1368 00:062B: xx xx                        dw      TxImmediateByte         ; # (BRK/COP/WDM)
-  Mon Jun 18 2018 10:10                                                                                                    Page 27
+  Mon Jun 18 2018 21:48                                                                                                    Page 27
 
 
   1369 00:062D: xx xx                        dw      TxImmediateX            ; # (X or Y)
@@ -1597,789 +1597,793 @@
   1376                        TxImmediateM:
   1377 00:0634: A9 20                        lda     #M_FLAG
   1378 00:0636: 24 20                        bit     FLAGS
-  1379 00:0638: F0 24                        beq     TxImmediateWord
-  1380 00:063A: 80 1B                        bra     TxImmediateByte
+  1379 00:0638: F0 2E                        beq     TxImmediateWord
+  1380 00:063A: 80 25                        bra     TxImmediateByte
   1381                        
   1382                        TxImmediateX:
   1383 00:063C: A9 10                        lda     #X_FLAG
   1384 00:063E: 24 20                        bit     FLAGS
-  1385 00:0640: F0 1C                        beq     TxImmediateWord
-  1386 00:0642: 80 13                        bra     TxImmediateByte
+  1385 00:0640: F0 26                        beq     TxImmediateWord
+  1386 00:0642: 80 1D                        bra     TxImmediateByte
   1387                        
   1388                        TxImplied:
   1389 00:0644: 60                           rts
   1390                        
   1391                        TxMove:
-  1392 00:0645: A0 01                        ldy     #1
-  1393 00:0647: B7 23                        lda     [ADDR_S],Y
-  1394 00:0649: 20 xx xx                     jsr     TxHex2
-  1395 00:064C: A9 2C                        lda     #','
-  1396 00:064E: 20 xx xx                     jsr     UartTx
-  1397 00:0651: C8                           iny
-  1398 00:0652: B7 23                        lda     [ADDR_S],Y
-  1399 00:0654: 4C xx xx                     jmp     TxHex2
-  1400                        
-  1401                        TxImmediateByte:
-  1402 00:0657: A9 23                        lda     #'#'
-  1403 00:0659: 20 xx xx                     jsr     UartTx
-  1404 00:065C: 80 14                        bra     TxDirect
-  1405                        
-  1406                        TxImmediateWord:
-  1407 00:065E: A9 23                        lda     #'#'
-  1408 00:0660: 20 xx xx                     jsr     UartTx
-  1409 00:0663: 80 33                        bra     TxAbsolute
-  1410                        
-  1411                        TxStack:
-  1412 00:0665: 20 xx xx                     jsr     TxDirect
-  1413 00:0668: A9 2C                        lda     #','
-  1414 00:066A: 20 xx xx                     jsr     UartTx
-  1415 00:066D: A9 53                        lda     #'S'
-  1416 00:066F: 4C xx xx                     jmp     UartTx
-  1417                        
-  1418                        TxDirect:
-  1419 00:0672: A9 24                        lda     #'$'
-  1420 00:0674: 20 xx xx                     jsr     UartTx
-  1421 00:0677: A0 01                        ldy     #1
-  1422 00:0679: B7 23                        lda     [ADDR_S],Y
-  1423 00:067B: 4C xx xx                     jmp     TxHex2
-  1424                        
-  1425                        TxDirectX:
-  1426 00:067E: 20 xx xx                     jsr     TxDirect
-  Mon Jun 18 2018 10:10                                                                                                    Page 28
+  1392 00:0645: A9 24                        lda     #'$'
+  1393 00:0647: 20 xx xx                     jsr     UartTx
+  1394 00:064A: A0 01                        ldy     #1
+  1395 00:064C: B7 23                        lda     [ADDR_S],Y
+  1396 00:064E: 20 xx xx                     jsr     TxHex2
+  1397 00:0651: A9 2C                        lda     #','
+  1398 00:0653: 20 xx xx                     jsr     UartTx
+  1399 00:0656: A9 24                        lda     #'$'
+  1400 00:0658: 20 xx xx                     jsr     UartTx
+  1401 00:065B: C8                           iny
+  1402 00:065C: B7 23                        lda     [ADDR_S],Y
+  1403 00:065E: 4C xx xx                     jmp     TxHex2
+  1404                        
+  1405                        TxImmediateByte:
+  1406 00:0661: A9 23                        lda     #'#'
+  1407 00:0663: 20 xx xx                     jsr     UartTx
+  1408 00:0666: 80 14                        bra     TxDirect
+  1409                        
+  1410                        TxImmediateWord:
+  1411 00:0668: A9 23                        lda     #'#'
+  1412 00:066A: 20 xx xx                     jsr     UartTx
+  1413 00:066D: 80 33                        bra     TxAbsolute
+  1414                        
+  1415                        TxStack:
+  1416 00:066F: 20 xx xx                     jsr     TxDirect
+  1417 00:0672: A9 2C                        lda     #','
+  1418 00:0674: 20 xx xx                     jsr     UartTx
+  1419 00:0677: A9 53                        lda     #'S'
+  1420 00:0679: 4C xx xx                     jmp     UartTx
+  1421                        
+  1422                        TxDirect:
+  1423 00:067C: A9 24                        lda     #'$'
+  1424 00:067E: 20 xx xx                     jsr     UartTx
+  1425 00:0681: A0 01                        ldy     #1
+  1426 00:0683: B7 23                        lda     [ADDR_S],Y
+  Mon Jun 18 2018 21:48                                                                                                    Page 28
 
 
-  1427 00:0681: A9 2C        TxX:            lda     #','
-  1428 00:0683: 20 xx xx                     jsr     UartTx
-  1429 00:0686: A9 58                        lda     #'X'
-  1430 00:0688: 4C xx xx                     jmp     UartTx
-  1431                        
-  1432                        TxDirectY:
-  1433 00:068B: 20 xx xx                     jsr     TxDirect
-  1434 00:068E: A9 2C        TxY:            lda     #','
-  1435 00:0690: 20 xx xx                     jsr     UartTx
-  1436 00:0693: A9 59                        lda     #'Y'
-  1437 00:0695: 4C xx xx                     jmp     UartTx
-  1438                        
-  1439                        TxAbsolute:
-  1440 00:0698: A9 24                        lda     #'$'
-  1441 00:069A: 20 xx xx                     jsr     UartTx
-  1442 00:069D: A0 02                        ldy     #2
-  1443 00:069F: B7 23                        lda     [ADDR_S],Y
-  1444 00:06A1: 20 xx xx                     jsr     TxHex2
-  1445 00:06A4: 88                           dey
-  1446 00:06A5: B7 23                        lda     [ADDR_S],Y
-  1447 00:06A7: 4C xx xx                     jmp     TxHex2
-  1448                        
-  1449                        TxAbsoluteX:
-  1450 00:06AA: 20 xx xx                     jsr     TxAbsolute
-  1451 00:06AD: 80 D2                        bra     TxX
+  1427 00:0685: 4C xx xx                     jmp     TxHex2
+  1428                        
+  1429                        TxDirectX:
+  1430 00:0688: 20 xx xx                     jsr     TxDirect
+  1431 00:068B: A9 2C        TxX:            lda     #','
+  1432 00:068D: 20 xx xx                     jsr     UartTx
+  1433 00:0690: A9 58                        lda     #'X'
+  1434 00:0692: 4C xx xx                     jmp     UartTx
+  1435                        
+  1436                        TxDirectY:
+  1437 00:0695: 20 xx xx                     jsr     TxDirect
+  1438 00:0698: A9 2C        TxY:            lda     #','
+  1439 00:069A: 20 xx xx                     jsr     UartTx
+  1440 00:069D: A9 59                        lda     #'Y'
+  1441 00:069F: 4C xx xx                     jmp     UartTx
+  1442                        
+  1443                        TxAbsolute:
+  1444 00:06A2: A9 24                        lda     #'$'
+  1445 00:06A4: 20 xx xx                     jsr     UartTx
+  1446 00:06A7: A0 02                        ldy     #2
+  1447 00:06A9: B7 23                        lda     [ADDR_S],Y
+  1448 00:06AB: 20 xx xx                     jsr     TxHex2
+  1449 00:06AE: 88                           dey
+  1450 00:06AF: B7 23                        lda     [ADDR_S],Y
+  1451 00:06B1: 4C xx xx                     jmp     TxHex2
   1452                        
-  1453                        TxAbsoluteY:
-  1454 00:06AF: 20 xx xx                     jsr     TxAbsolute
-  1455 00:06B2: 80 DA                        bra     TxY
+  1453                        TxAbsoluteX:
+  1454 00:06B4: 20 xx xx                     jsr     TxAbsolute
+  1455 00:06B7: 80 D2                        bra     TxX
   1456                        
-  1457                        TxLong:
-  1458 00:06B4: A9 24                        lda     #'$'
-  1459 00:06B6: 20 xx xx                     jsr     UartTx
-  1460 00:06B9: A0 03                        ldy     #3
-  1461 00:06BB: B7 23                        lda     [ADDR_S],Y
-  1462 00:06BD: 20 xx xx                     jsr     TxHex2
-  1463 00:06C0: A9 3A                        lda     #':'
-  1464 00:06C2: 20 xx xx                     jsr     UartTx
-  1465 00:06C5: 88                           dey
-  1466 00:06C6: B7 23                        lda     [ADDR_S],Y
-  1467 00:06C8: 20 xx xx                     jsr     TxHex2
-  1468 00:06CB: 88                           dey
-  1469 00:06CC: B7 23                        lda     [ADDR_S],Y
-  1470 00:06CE: 4C xx xx                     jmp     TxHex2
-  1471                        
-  1472                        TxLongX:
-  1473 00:06D1: 20 xx xx                     jsr     TxLong
-  1474 00:06D4: 80 AB                        bra     TxX
+  1457                        TxAbsoluteY:
+  1458 00:06B9: 20 xx xx                     jsr     TxAbsolute
+  1459 00:06BC: 80 DA                        bra     TxY
+  1460                        
+  1461                        TxLong:
+  1462 00:06BE: A9 24                        lda     #'$'
+  1463 00:06C0: 20 xx xx                     jsr     UartTx
+  1464 00:06C3: A0 03                        ldy     #3
+  1465 00:06C5: B7 23                        lda     [ADDR_S],Y
+  1466 00:06C7: 20 xx xx                     jsr     TxHex2
+  1467 00:06CA: A9 3A                        lda     #':'
+  1468 00:06CC: 20 xx xx                     jsr     UartTx
+  1469 00:06CF: 88                           dey
+  1470 00:06D0: B7 23                        lda     [ADDR_S],Y
+  1471 00:06D2: 20 xx xx                     jsr     TxHex2
+  1472 00:06D5: 88                           dey
+  1473 00:06D6: B7 23                        lda     [ADDR_S],Y
+  1474 00:06D8: 4C xx xx                     jmp     TxHex2
   1475                        
-  1476                        TxAbsoluteIndirect:
-  1477 00:06D6: A9 28                        lda     #'('
-  1478 00:06D8: 20 xx xx                     jsr     UartTx
-  1479 00:06DB: 20 xx xx                     jsr     TxAbsolute
-  1480 00:06DE: A9 29                        lda     #')'
-  1481 00:06E0: 4C xx xx                     jmp     UartTx
-  1482                        
-  1483                        TxAbsoluteXIndirect:
-  1484 00:06E3: A9 28                        lda     #'('
-  Mon Jun 18 2018 10:10                                                                                                    Page 29
+  1476                        TxLongX:
+  1477 00:06DB: 20 xx xx                     jsr     TxLong
+  1478 00:06DE: 80 AB                        bra     TxX
+  1479                        
+  1480                        TxAbsoluteIndirect:
+  1481 00:06E0: A9 28                        lda     #'('
+  1482 00:06E2: 20 xx xx                     jsr     UartTx
+  1483 00:06E5: 20 xx xx                     jsr     TxAbsolute
+  1484 00:06E8: A9 29                        lda     #')'
+  Mon Jun 18 2018 21:48                                                                                                    Page 29
 
 
-  1485 00:06E5: 20 xx xx                     jsr     UartTx
-  1486 00:06E8: 20 xx xx                     jsr     TxAbsoluteX
-  1487 00:06EB: A9 29                        lda     #')'
-  1488 00:06ED: 4C xx xx                     jmp     UartTx
-  1489                        
-  1490                        TxDirectIndirect:
-  1491 00:06F0: A9 28                        lda     #'('
-  1492 00:06F2: 20 xx xx                     jsr     UartTx
-  1493 00:06F5: 20 xx xx                     jsr     TxDirect
-  1494 00:06F8: A9 29                        lda     #')'
-  1495 00:06FA: 4C xx xx                     jmp     UartTx
-  1496                        
-  1497                        TxDirectXIndirect:
-  1498 00:06FD: A9 28                        lda     #'('
-  1499 00:06FF: 20 xx xx                     jsr     UartTx
-  1500 00:0702: 20 xx xx                     jsr     TxDirectX
-  1501 00:0705: A9 29                        lda     #')'
-  1502 00:0707: 4C xx xx                     jmp     UartTx
-  1503                        
-  1504                        TxDirectIndirectY:
-  1505 00:070A: A9 28                        lda     #'('
-  1506 00:070C: 20 xx xx                     jsr     UartTx
-  1507 00:070F: 20 xx xx                     jsr     TxDirect
-  1508 00:0712: A9 29                        lda     #')'
-  1509 00:0714: 20 xx xx                     jsr     UartTx
-  1510 00:0717: 4C xx xx                     jmp     TxY
-  1511                        
-  1512                        TxDirectIndirectLong:
-  1513 00:071A: A9 5B                        lda     #'['
-  1514 00:071C: 20 xx xx                     jsr     UartTx
-  1515 00:071F: 20 xx xx                     jsr     TxDirect
-  1516 00:0722: A9 5D                        lda     #']'
-  1517 00:0724: 4C xx xx                     jmp     UartTx
-  1518                        
-  1519                        TxDirectIndirectLongY:
-  1520 00:0727: 20 xx xx                     jsr     TxDirectIndirectLong
-  1521 00:072A: 4C xx xx                     jmp     TxY
+  1485 00:06EA: 4C xx xx                     jmp     UartTx
+  1486                        
+  1487                        TxAbsoluteXIndirect:
+  1488 00:06ED: A9 28                        lda     #'('
+  1489 00:06EF: 20 xx xx                     jsr     UartTx
+  1490 00:06F2: 20 xx xx                     jsr     TxAbsoluteX
+  1491 00:06F5: A9 29                        lda     #')'
+  1492 00:06F7: 4C xx xx                     jmp     UartTx
+  1493                        
+  1494                        TxDirectIndirect:
+  1495 00:06FA: A9 28                        lda     #'('
+  1496 00:06FC: 20 xx xx                     jsr     UartTx
+  1497 00:06FF: 20 xx xx                     jsr     TxDirect
+  1498 00:0702: A9 29                        lda     #')'
+  1499 00:0704: 4C xx xx                     jmp     UartTx
+  1500                        
+  1501                        TxDirectXIndirect:
+  1502 00:0707: A9 28                        lda     #'('
+  1503 00:0709: 20 xx xx                     jsr     UartTx
+  1504 00:070C: 20 xx xx                     jsr     TxDirectX
+  1505 00:070F: A9 29                        lda     #')'
+  1506 00:0711: 4C xx xx                     jmp     UartTx
+  1507                        
+  1508                        TxDirectIndirectY:
+  1509 00:0714: A9 28                        lda     #'('
+  1510 00:0716: 20 xx xx                     jsr     UartTx
+  1511 00:0719: 20 xx xx                     jsr     TxDirect
+  1512 00:071C: A9 29                        lda     #')'
+  1513 00:071E: 20 xx xx                     jsr     UartTx
+  1514 00:0721: 4C xx xx                     jmp     TxY
+  1515                        
+  1516                        TxDirectIndirectLong:
+  1517 00:0724: A9 5B                        lda     #'['
+  1518 00:0726: 20 xx xx                     jsr     UartTx
+  1519 00:0729: 20 xx xx                     jsr     TxDirect
+  1520 00:072C: A9 5D                        lda     #']'
+  1521 00:072E: 4C xx xx                     jmp     UartTx
   1522                        
-  1523                        TxStackIndirectY:
-  1524 00:072D: A9 28                        lda     #'('
-  1525 00:072F: 20 xx xx                     jsr     UartTx
-  1526 00:0732: 20 xx xx                     jsr     TxStack
-  1527 00:0735: A9 29                        lda     #')'
-  1528 00:0737: 20 xx xx                     jsr     UartTx
-  1529 00:073A: 4C xx xx                     jmp     TxY
-  1530                        
-  1531                        TxRelative:
-  1532 00:073D: A6 24                        ldx     ADDR_S+1                ; Work out next PC
-  1533 00:073F: A5 23                        lda     ADDR_S+0
-  1534 00:0741: 18                           clc
-  1535 00:0742: 69 02                        adc     #2
-  1536 00:0744: 90 01                        bcc     $+3
-  1537 00:0746: E8                           inx
-  1538                        
-  1539 00:0747: 48                           pha                             ; Add relative offset
-  1540 00:0748: A0 01                        ldy     #1
-  1541 00:074A: B7 23                        lda     [ADDR_S],y
-  1542 00:074C: 10 01                        bpl     $+3
-  Mon Jun 18 2018 10:10                                                                                                    Page 30
+  1523                        TxDirectIndirectLongY:
+  1524 00:0731: 20 xx xx                     jsr     TxDirectIndirectLong
+  1525 00:0734: 4C xx xx                     jmp     TxY
+  1526                        
+  1527                        TxStackIndirectY:
+  1528 00:0737: A9 28                        lda     #'('
+  1529 00:0739: 20 xx xx                     jsr     UartTx
+  1530 00:073C: 20 xx xx                     jsr     TxStack
+  1531 00:073F: A9 29                        lda     #')'
+  1532 00:0741: 20 xx xx                     jsr     UartTx
+  1533 00:0744: 4C xx xx                     jmp     TxY
+  1534                        
+  1535                        TxRelative:
+  1536 00:0747: A6 24                        ldx     ADDR_S+1                ; Work out next PC
+  1537 00:0749: A5 23                        lda     ADDR_S+0
+  1538 00:074B: 18                           clc
+  1539 00:074C: 69 02                        adc     #2
+  1540 00:074E: 90 01                        bcc     $+3
+  1541 00:0750: E8                           inx
+  1542                        
+  Mon Jun 18 2018 21:48                                                                                                    Page 30
 
 
-  1543 00:074E: CA                           dex
-  1544 00:074F: 18                           clc
-  1545 00:0750: 63 01                        adc     1,s
-  1546 00:0752: 83 01                        sta     1,s
-  1547 00:0754: 90 01                        bcc     $+3
-  1548 00:0756: E8                           inx
-  1549 00:0757: 80 15                        bra     TxAddr
-  1550                        
-  1551                        TxRelativeLong:
-  1552 00:0759: A6 24                        ldx     ADDR_S+1                ; Work out next PC
-  1553 00:075B: A5 23                        lda     ADDR_S+0
-  1554 00:075D: 18                           clc
-  1555 00:075E: 69 03                        adc     #3
-  1556 00:0760: 90 01                        bcc     $+3
-  1557 00:0762: E8                           inx
-  1558                        
-  1559 00:0763: 18                           clc                             ; Add relative offset
-  1560 00:0764: A0 01                        ldy     #1
-  1561 00:0766: 77 23                        adc     [ADDR_S],y
-  1562 00:0768: 48                           pha
-  1563 00:0769: C8                           iny
-  1564 00:076A: 8A                           txa
-  1565 00:076B: 77 23                        adc     [ADDR_S],Y
-  1566 00:076D: AA                           tax
-  1567                        
-  1568                        TxAddr:
-  1569 00:076E: A9 24                        lda     #'$'                    ; Print address
-  1570 00:0770: 20 xx xx                     jsr     UartTx
-  1571 00:0773: 8A                           txa
-  1572 00:0774: 20 xx xx                     jsr     TxHex2
-  1573 00:0777: 68                           pla
-  1574 00:0778: 4C xx xx                     jmp     TxHex2
-  1575                        
-  1576                        ;  Returns the size of the opcode in A given the current flag settings.
-  1577                        
-  1578                                        longa   off
-  1579                                        longi   off
-  1580                        OpcodeSize:
-  1581 00:077B: AA                           tax                             ; Work out addressing mode
-  1582 00:077C: BD xx xx                     lda     MODES,x
-  1583 00:077F: AA                           tax
-  1584 00:0780: 7C xx xx                     jmp     (MODE_SIZE,x)
-  1585                        
-  1586                        MODE_SIZE:
-  1587 00:0783: xx xx                        dw      Size3                   ; a
-  1588 00:0785: xx xx                        dw      Size1                   ; A
-  1589 00:0787: xx xx                        dw      Size3                   ; a,x
-  1590 00:0789: xx xx                        dw      Size3                   ; a,y
-  1591 00:078B: xx xx                        dw      Size4                   ; al
-  1592 00:078D: xx xx                        dw      Size4                   ; al,x
-  1593 00:078F: xx xx                        dw      Size3                   ; (a)
-  1594 00:0791: xx xx                        dw      Size3                   ; (a,x)
-  1595 00:0793: xx xx                        dw      Size2                   ; d
-  1596 00:0795: xx xx                        dw      Size2                   ; d,s
-  1597 00:0797: xx xx                        dw      Size2                   ; d,x
-  1598 00:0799: xx xx                        dw      Size2                   ; d,y
-  1599 00:079B: xx xx                        dw      Size2                   ; (d)
-  1600 00:079D: xx xx                        dw      Size2                   ; [d]
-  Mon Jun 18 2018 10:10                                                                                                    Page 31
+  1543 00:0751: 48                           pha                             ; Add relative offset
+  1544 00:0752: A0 01                        ldy     #1
+  1545 00:0754: B7 23                        lda     [ADDR_S],y
+  1546 00:0756: 10 01                        bpl     $+3
+  1547 00:0758: CA                           dex
+  1548 00:0759: 18                           clc
+  1549 00:075A: 63 01                        adc     1,s
+  1550 00:075C: 83 01                        sta     1,s
+  1551 00:075E: 90 01                        bcc     $+3
+  1552 00:0760: E8                           inx
+  1553 00:0761: 80 15                        bra     TxAddr
+  1554                        
+  1555                        TxRelativeLong:
+  1556 00:0763: A6 24                        ldx     ADDR_S+1                ; Work out next PC
+  1557 00:0765: A5 23                        lda     ADDR_S+0
+  1558 00:0767: 18                           clc
+  1559 00:0768: 69 03                        adc     #3
+  1560 00:076A: 90 01                        bcc     $+3
+  1561 00:076C: E8                           inx
+  1562                        
+  1563 00:076D: 18                           clc                             ; Add relative offset
+  1564 00:076E: A0 01                        ldy     #1
+  1565 00:0770: 77 23                        adc     [ADDR_S],y
+  1566 00:0772: 48                           pha
+  1567 00:0773: C8                           iny
+  1568 00:0774: 8A                           txa
+  1569 00:0775: 77 23                        adc     [ADDR_S],Y
+  1570 00:0777: AA                           tax
+  1571                        
+  1572                        TxAddr:
+  1573 00:0778: A9 24                        lda     #'$'                    ; Print address
+  1574 00:077A: 20 xx xx                     jsr     UartTx
+  1575 00:077D: 8A                           txa
+  1576 00:077E: 20 xx xx                     jsr     TxHex2
+  1577 00:0781: 68                           pla
+  1578 00:0782: 4C xx xx                     jmp     TxHex2
+  1579                        
+  1580                        ;  Returns the size of the opcode in A given the current flag settings.
+  1581                        
+  1582                                        longa   off
+  1583                                        longi   off
+  1584                        OpcodeSize:
+  1585 00:0785: AA                           tax                             ; Work out addressing mode
+  1586 00:0786: BD xx xx                     lda     MODES,x
+  1587 00:0789: AA                           tax
+  1588 00:078A: 7C xx xx                     jmp     (MODE_SIZE,x)
+  1589                        
+  1590                        MODE_SIZE:
+  1591 00:078D: xx xx                        dw      Size3                   ; a
+  1592 00:078F: xx xx                        dw      Size1                   ; A
+  1593 00:0791: xx xx                        dw      Size3                   ; a,x
+  1594 00:0793: xx xx                        dw      Size3                   ; a,y
+  1595 00:0795: xx xx                        dw      Size4                   ; al
+  1596 00:0797: xx xx                        dw      Size4                   ; al,x
+  1597 00:0799: xx xx                        dw      Size3                   ; (a)
+  1598 00:079B: xx xx                        dw      Size3                   ; (a,x)
+  1599 00:079D: xx xx                        dw      Size2                   ; d
+  1600 00:079F: xx xx                        dw      Size2                   ; d,s
+  Mon Jun 18 2018 21:48                                                                                                    Page 31
 
 
-  1601 00:079F: xx xx                        dw      Size2                   ; (d,s),y
-  1602 00:07A1: xx xx                        dw      Size2                   ; (d,x)
-  1603 00:07A3: xx xx                        dw      Size2                   ; (d),y
-  1604 00:07A5: xx xx                        dw      Size2                   ; [d],y
-  1605 00:07A7: xx xx                        dw      Size1                   ;
-  1606 00:07A9: xx xx                        dw      Size2                   ; r
-  1607 00:07AB: xx xx                        dw      Size3                   ; rl
-  1608 00:07AD: xx xx                        dw      Size3                   ; xyc
-  1609 00:07AF: xx xx                        dw      TestM                   ; # (A & M)
-  1610 00:07B1: xx xx                        dw      Size2                   ; # (BRK/COP/WDM)
-  1611 00:07B3: xx xx                        dw      TestX                   ; # (X or Y)
-  1612                        
-  1613                        TestM
-  1614 00:07B5: A9 20                        lda     #M_FLAG                 ; Is M bit set?
-  1615 00:07B7: 25 20                        and     FLAGS
-  1616 00:07B9: F0 10                        beq     Size3                   ; No, word
-  1617 00:07BB: 80 0B                        bra     Size2                   ; else byte
-  1618                        
-  1619                        TestX
-  1620 00:07BD: A9 10                        lda     #X_FLAG                 ; Is X bit set?
-  1621 00:07BF: 25 20                        and     FLAGS
-  1622 00:07C1: F0 08                        beq     Size3                   ; No, word
-  1623 00:07C3: 80 03                        bra     Size2                   ; else byte
-  1624                        
-  1625 00:07C5: A9 01        Size1:          lda     #1
-  1626 00:07C7: 60                           rts
-  1627 00:07C8: A9 02        Size2:          lda     #2
-  1628 00:07CA: 60                           rts
-  1629 00:07CB: A9 03        Size3           lda     #3
-  1630 00:07CD: 60                           rts
-  1631 00:07CE: A9 04        Size4:          lda     #4
-  1632 00:07D0: 60                           rts
-  1633                        
-  1634                        OPCODES:
-  1635 00:07D1: 16 52 28 52                  db      OP_BRK,OP_ORA,OP_COP,OP_ORA     ; 00
-  1636 00:07D5: A0 52 04 52                  db      OP_TSB,OP_ORA,OP_ASL,OP_ORA
-  1637 00:07D9: 62 52 04 5E                  db      OP_PHP,OP_ORA,OP_ASL,OP_PHD
-  1638 00:07DD: A0 52 04 52                  db      OP_TSB,OP_ORA,OP_ASL,OP_ORA
-  1639 00:07E1: 12 52 52 52                  db      OP_BPL,OP_ORA,OP_ORA,OP_ORA     ; 10
-  1640 00:07E5: 9E 52 04 52                  db      OP_TRB,OP_ORA,OP_ASL,OP_ORA
-  1641 00:07E9: 1E 52 36 9A                  db      OP_CLC,OP_ORA,OP_INC,OP_TCS
-  1642 00:07ED: 9E 52 04 52                  db      OP_TRB,OP_ORA,OP_ASL,OP_ORA
-  1643 00:07F1: 42 02 40 02                  db      OP_JSR,OP_AND,OP_JSL,OP_AND     ; 20
-  1644 00:07F5: 0C 02 76 02                  db      OP_BIT,OP_AND,OP_ROL,OP_AND
-  1645 00:07F9: 6E 02 76 6C                  db      OP_PLP,OP_AND,OP_ROL,OP_PLD
-  1646 00:07FD: 0C 02 76 02                  db      OP_BIT,OP_AND,OP_ROL,OP_AND
-  1647 00:0801: 0E 02 02 02                  db      OP_BMI,OP_AND,OP_AND,OP_AND     ; 30
-  1648 00:0805: 0C 02 76 02                  db      OP_BIT,OP_AND,OP_ROL,OP_AND
-  1649 00:0809: 82 02 2E A2                  db      OP_SEC,OP_AND,OP_DEC,OP_TSC
-  1650 00:080D: 0C 02 76 02                  db      OP_BIT,OP_AND,OP_ROL,OP_AND
-  1651 00:0811: 7A 34 B2 34                  db      OP_RTI,OP_EOR,OP_WDM,OP_EOR     ; 40
-  1652 00:0815: 4E 34 4A 34                  db      OP_MVP,OP_EOR,OP_LSR,OP_EOR
-  1653 00:0819: 5A 34 4A 60                  db      OP_PHA,OP_EOR,OP_LSR,OP_PHK
-  1654 00:081D: 3E 34 4A 34                  db      OP_JMP,OP_EOR,OP_LSR,OP_EOR
-  1655 00:0821: 1A 34 34 34                  db      OP_BVC,OP_EOR,OP_EOR,OP_EOR     ; 50
-  1656 00:0825: 4C 34 4A 34                  db      OP_MVN,OP_EOR,OP_LSR,OP_EOR
-  1657 00:0829: 22 34 66 98                  db      OP_CLI,OP_EOR,OP_PHY,OP_TCD
-  1658 00:082D: 3E 34 4A 34                  db      OP_JMP,OP_EOR,OP_LSR,OP_EOR
-  Mon Jun 18 2018 10:10                                                                                                    Page 32
+  1601 00:07A1: xx xx                        dw      Size2                   ; d,x
+  1602 00:07A3: xx xx                        dw      Size2                   ; d,y
+  1603 00:07A5: xx xx                        dw      Size2                   ; (d)
+  1604 00:07A7: xx xx                        dw      Size2                   ; [d]
+  1605 00:07A9: xx xx                        dw      Size2                   ; (d,s),y
+  1606 00:07AB: xx xx                        dw      Size2                   ; (d,x)
+  1607 00:07AD: xx xx                        dw      Size2                   ; (d),y
+  1608 00:07AF: xx xx                        dw      Size2                   ; [d],y
+  1609 00:07B1: xx xx                        dw      Size1                   ;
+  1610 00:07B3: xx xx                        dw      Size2                   ; r
+  1611 00:07B5: xx xx                        dw      Size3                   ; rl
+  1612 00:07B7: xx xx                        dw      Size3                   ; xyc
+  1613 00:07B9: xx xx                        dw      TestM                   ; # (A & M)
+  1614 00:07BB: xx xx                        dw      Size2                   ; # (BRK/COP/WDM)
+  1615 00:07BD: xx xx                        dw      TestX                   ; # (X or Y)
+  1616                        
+  1617                        TestM
+  1618 00:07BF: A9 20                        lda     #M_FLAG                 ; Is M bit set?
+  1619 00:07C1: 25 20                        and     FLAGS
+  1620 00:07C3: F0 10                        beq     Size3                   ; No, word
+  1621 00:07C5: 80 0B                        bra     Size2                   ; else byte
+  1622                        
+  1623                        TestX
+  1624 00:07C7: A9 10                        lda     #X_FLAG                 ; Is X bit set?
+  1625 00:07C9: 25 20                        and     FLAGS
+  1626 00:07CB: F0 08                        beq     Size3                   ; No, word
+  1627 00:07CD: 80 03                        bra     Size2                   ; else byte
+  1628                        
+  1629 00:07CF: A9 01        Size1:          lda     #1
+  1630 00:07D1: 60                           rts
+  1631 00:07D2: A9 02        Size2:          lda     #2
+  1632 00:07D4: 60                           rts
+  1633 00:07D5: A9 03        Size3           lda     #3
+  1634 00:07D7: 60                           rts
+  1635 00:07D8: A9 04        Size4:          lda     #4
+  1636 00:07DA: 60                           rts
+  1637                        
+  1638                        OPCODES:
+  1639 00:07DB: 16 52 28 52                  db      OP_BRK,OP_ORA,OP_COP,OP_ORA     ; 00
+  1640 00:07DF: A0 52 04 52                  db      OP_TSB,OP_ORA,OP_ASL,OP_ORA
+  1641 00:07E3: 62 52 04 5E                  db      OP_PHP,OP_ORA,OP_ASL,OP_PHD
+  1642 00:07E7: A0 52 04 52                  db      OP_TSB,OP_ORA,OP_ASL,OP_ORA
+  1643 00:07EB: 12 52 52 52                  db      OP_BPL,OP_ORA,OP_ORA,OP_ORA     ; 10
+  1644 00:07EF: 9E 52 04 52                  db      OP_TRB,OP_ORA,OP_ASL,OP_ORA
+  1645 00:07F3: 1E 52 36 9A                  db      OP_CLC,OP_ORA,OP_INC,OP_TCS
+  1646 00:07F7: 9E 52 04 52                  db      OP_TRB,OP_ORA,OP_ASL,OP_ORA
+  1647 00:07FB: 42 02 40 02                  db      OP_JSR,OP_AND,OP_JSL,OP_AND     ; 20
+  1648 00:07FF: 0C 02 76 02                  db      OP_BIT,OP_AND,OP_ROL,OP_AND
+  1649 00:0803: 6E 02 76 6C                  db      OP_PLP,OP_AND,OP_ROL,OP_PLD
+  1650 00:0807: 0C 02 76 02                  db      OP_BIT,OP_AND,OP_ROL,OP_AND
+  1651 00:080B: 0E 02 02 02                  db      OP_BMI,OP_AND,OP_AND,OP_AND     ; 30
+  1652 00:080F: 0C 02 76 02                  db      OP_BIT,OP_AND,OP_ROL,OP_AND
+  1653 00:0813: 82 02 2E A2                  db      OP_SEC,OP_AND,OP_DEC,OP_TSC
+  1654 00:0817: 0C 02 76 02                  db      OP_BIT,OP_AND,OP_ROL,OP_AND
+  1655 00:081B: 7A 34 B2 34                  db      OP_RTI,OP_EOR,OP_WDM,OP_EOR     ; 40
+  1656 00:081F: 4E 34 4A 34                  db      OP_MVP,OP_EOR,OP_LSR,OP_EOR
+  1657 00:0823: 5A 34 4A 60                  db      OP_PHA,OP_EOR,OP_LSR,OP_PHK
+  1658 00:0827: 3E 34 4A 34                  db      OP_JMP,OP_EOR,OP_LSR,OP_EOR
+  Mon Jun 18 2018 21:48                                                                                                    Page 32
 
 
-  1659 00:0831: 7E 00 58 00                  db      OP_RTS,OP_ADC,OP_PER,OP_ADC     ; 60
-  1660 00:0835: 92 00 78 00                  db      OP_STZ,OP_ADC,OP_ROR,OP_ADC
-  1661 00:0839: 68 00 78 7C                  db      OP_PLA,OP_ADC,OP_ROR,OP_RTL
-  1662 00:083D: 3E 00 78 00                  db      OP_JMP,OP_ADC,OP_ROR,OP_ADC
-  1663 00:0841: 1C 00 00 00                  db      OP_BVS,OP_ADC,OP_ADC,OP_ADC     ; 70
-  1664 00:0845: 92 00 78 00                  db      OP_STZ,OP_ADC,OP_ROR,OP_ADC
-  1665 00:0849: 86 00 72 9C                  db      OP_SEI,OP_ADC,OP_PLY,OP_TDC
-  1666 00:084D: 3E 00 78 00                  db      OP_JMP,OP_ADC,OP_ROR,OP_ADC
-  1667 00:0851: 14 8A 18 8A                  db      OP_BRA,OP_STA,OP_BRL,OP_STA     ; 80
-  1668 00:0855: 90 8A 8E 8A                  db      OP_STY,OP_STA,OP_STX,OP_STA
-  1669 00:0859: 32 0C A6 5C                  db      OP_DEY,OP_BIT,OP_TXA,OP_PHB
-  1670 00:085D: 90 8A 8E 8A                  db      OP_STY,OP_STA,OP_STX,OP_STA
-  1671 00:0861: 06 8A 8A 8A                  db      OP_BCC,OP_STA,OP_STA,OP_STA     ; 90
-  1672 00:0865: 90 8A 8E 8A                  db      OP_STY,OP_STA,OP_STX,OP_STA
-  1673 00:0869: AC 8A A8 AA                  db      OP_TYA,OP_STA,OP_TXS,OP_TXY
-  1674 00:086D: 92 8A 92 8A                  db      OP_STZ,OP_STA,OP_STZ,OP_STA
-  1675 00:0871: 48 44 46 44                  db      OP_LDY,OP_LDA,OP_LDX,OP_LDA     ; A0
-  1676 00:0875: 48 44 46 44                  db      OP_LDY,OP_LDA,OP_LDX,OP_LDA
-  1677 00:0879: 96 44 94 6A                  db      OP_TAY,OP_LDA,OP_TAX,OP_PLB
-  1678 00:087D: 48 44 46 44                  db      OP_LDY,OP_LDA,OP_LDX,OP_LDA
-  1679 00:0881: 08 44 44 44                  db      OP_BCS,OP_LDA,OP_LDA,OP_LDA     ; B0
-  1680 00:0885: 44 48 46 44                  db      OP_LDA,OP_LDY,OP_LDX,OP_LDA
-  1681 00:0889: 24 44 A4 AE                  db      OP_CLV,OP_LDA,OP_TSX,OP_TYX
-  1682 00:088D: 48 44 46 44                  db      OP_LDY,OP_LDA,OP_LDX,OP_LDA
-  1683 00:0891: 2C 26 74 26                  db      OP_CPY,OP_CMP,OP_REP,OP_CMP     ; C0
-  1684 00:0895: 2C 26 2E 26                  db      OP_CPY,OP_CMP,OP_DEC,OP_CMP
-  1685 00:0899: 3A 26 30 B0                  db      OP_INY,OP_CMP,OP_DEX,OP_WAI
-  1686 00:089D: 2C 26 2E 26                  db      OP_CPY,OP_CMP,OP_DEC,OP_CMP
-  1687 00:08A1: 10 26 26 26                  db      OP_BNE,OP_CMP,OP_CMP,OP_CMP     ; D0
-  1688 00:08A5: 56 26 2E 26                  db      OP_PEI,OP_CMP,OP_DEC,OP_CMP
-  1689 00:08A9: 20 26 64 8C                  db      OP_CLD,OP_CMP,OP_PHX,OP_STP
-  1690 00:08AD: 3C 26 2E 26                  db      OP_JML,OP_CMP,OP_DEC,OP_CMP
-  1691 00:08B1: 2A 80 88 80                  db      OP_CPX,OP_SBC,OP_SEP,OP_SBC     ; E0
-  1692 00:08B5: 2A 80 36 80                  db      OP_CPX,OP_SBC,OP_INC,OP_SBC
-  1693 00:08B9: 38 80 50 B4                  db      OP_INX,OP_SBC,OP_NOP,OP_XBA
-  1694 00:08BD: 2A 80 36 80                  db      OP_CPX,OP_SBC,OP_INC,OP_SBC
-  1695 00:08C1: 0A 80 80 80                  db      OP_BEQ,OP_SBC,OP_SBC,OP_SBC     ; F0
-  1696 00:08C5: 54 80 36 80                  db      OP_PEA,OP_SBC,OP_INC,OP_SBC
-  1697 00:08C9: 84 80 70 B6                  db      OP_SED,OP_SBC,OP_PLX,OP_XCE
-  1698 00:08CD: 42 80 36 80                  db      OP_JSR,OP_SBC,OP_INC,OP_SBC
-  1699                        
-  1700                        MODES:
-  1701 00:08D1: 2E 1E 2E 12                  db      MD_INT,MD_DIX,MD_INT,MD_STK     ; 00
-  1702 00:08D5: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
-  1703 00:08D9: 24 2C 02 24                  db      MD_IMP,MD_IMM,MD_ACC,MD_IMP
-  1704 00:08DD: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
-  1705 00:08E1: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; 10
-  1706 00:08E5: 10 14 14 22                  db      MD_DPG,MD_DPX,MD_DPX,MD_DLY
-  1707 00:08E9: 24 06 02 24                  db      MD_IMP,MD_ABY,MD_ACC,MD_IMP
-  1708 00:08ED: 00 04 04 0A                  db      MD_ABS,MD_ABX,MD_ABX,MD_ALX
-  1709 00:08F1: 00 1E 08 12                  db      MD_ABS,MD_DIX,MD_ALG,MD_STK     ; 20
-  1710 00:08F5: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
-  1711 00:08F9: 24 2C 02 24                  db      MD_IMP,MD_IMM,MD_ACC,MD_IMP
-  1712 00:08FD: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
-  1713 00:0901: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; 30
-  1714 00:0905: 14 14 14 22                  db      MD_DPX,MD_DPX,MD_DPX,MD_DLY
-  1715 00:0909: 24 06 02 24                  db      MD_IMP,MD_ABY,MD_ACC,MD_IMP
-  1716 00:090D: 04 04 04 0A                  db      MD_ABX,MD_ABX,MD_ABX,MD_ALX
-  Mon Jun 18 2018 10:10                                                                                                    Page 33
+  1659 00:082B: 1A 34 34 34                  db      OP_BVC,OP_EOR,OP_EOR,OP_EOR     ; 50
+  1660 00:082F: 4C 34 4A 34                  db      OP_MVN,OP_EOR,OP_LSR,OP_EOR
+  1661 00:0833: 22 34 66 98                  db      OP_CLI,OP_EOR,OP_PHY,OP_TCD
+  1662 00:0837: 3E 34 4A 34                  db      OP_JMP,OP_EOR,OP_LSR,OP_EOR
+  1663 00:083B: 7E 00 58 00                  db      OP_RTS,OP_ADC,OP_PER,OP_ADC     ; 60
+  1664 00:083F: 92 00 78 00                  db      OP_STZ,OP_ADC,OP_ROR,OP_ADC
+  1665 00:0843: 68 00 78 7C                  db      OP_PLA,OP_ADC,OP_ROR,OP_RTL
+  1666 00:0847: 3E 00 78 00                  db      OP_JMP,OP_ADC,OP_ROR,OP_ADC
+  1667 00:084B: 1C 00 00 00                  db      OP_BVS,OP_ADC,OP_ADC,OP_ADC     ; 70
+  1668 00:084F: 92 00 78 00                  db      OP_STZ,OP_ADC,OP_ROR,OP_ADC
+  1669 00:0853: 86 00 72 9C                  db      OP_SEI,OP_ADC,OP_PLY,OP_TDC
+  1670 00:0857: 3E 00 78 00                  db      OP_JMP,OP_ADC,OP_ROR,OP_ADC
+  1671 00:085B: 14 8A 18 8A                  db      OP_BRA,OP_STA,OP_BRL,OP_STA     ; 80
+  1672 00:085F: 90 8A 8E 8A                  db      OP_STY,OP_STA,OP_STX,OP_STA
+  1673 00:0863: 32 0C A6 5C                  db      OP_DEY,OP_BIT,OP_TXA,OP_PHB
+  1674 00:0867: 90 8A 8E 8A                  db      OP_STY,OP_STA,OP_STX,OP_STA
+  1675 00:086B: 06 8A 8A 8A                  db      OP_BCC,OP_STA,OP_STA,OP_STA     ; 90
+  1676 00:086F: 90 8A 8E 8A                  db      OP_STY,OP_STA,OP_STX,OP_STA
+  1677 00:0873: AC 8A A8 AA                  db      OP_TYA,OP_STA,OP_TXS,OP_TXY
+  1678 00:0877: 92 8A 92 8A                  db      OP_STZ,OP_STA,OP_STZ,OP_STA
+  1679 00:087B: 48 44 46 44                  db      OP_LDY,OP_LDA,OP_LDX,OP_LDA     ; A0
+  1680 00:087F: 48 44 46 44                  db      OP_LDY,OP_LDA,OP_LDX,OP_LDA
+  1681 00:0883: 96 44 94 6A                  db      OP_TAY,OP_LDA,OP_TAX,OP_PLB
+  1682 00:0887: 48 44 46 44                  db      OP_LDY,OP_LDA,OP_LDX,OP_LDA
+  1683 00:088B: 08 44 44 44                  db      OP_BCS,OP_LDA,OP_LDA,OP_LDA     ; B0
+  1684 00:088F: 44 48 46 44                  db      OP_LDA,OP_LDY,OP_LDX,OP_LDA
+  1685 00:0893: 24 44 A4 AE                  db      OP_CLV,OP_LDA,OP_TSX,OP_TYX
+  1686 00:0897: 48 44 46 44                  db      OP_LDY,OP_LDA,OP_LDX,OP_LDA
+  1687 00:089B: 2C 26 74 26                  db      OP_CPY,OP_CMP,OP_REP,OP_CMP     ; C0
+  1688 00:089F: 2C 26 2E 26                  db      OP_CPY,OP_CMP,OP_DEC,OP_CMP
+  1689 00:08A3: 3A 26 30 B0                  db      OP_INY,OP_CMP,OP_DEX,OP_WAI
+  1690 00:08A7: 2C 26 2E 26                  db      OP_CPY,OP_CMP,OP_DEC,OP_CMP
+  1691 00:08AB: 10 26 26 26                  db      OP_BNE,OP_CMP,OP_CMP,OP_CMP     ; D0
+  1692 00:08AF: 56 26 2E 26                  db      OP_PEI,OP_CMP,OP_DEC,OP_CMP
+  1693 00:08B3: 20 26 64 8C                  db      OP_CLD,OP_CMP,OP_PHX,OP_STP
+  1694 00:08B7: 3C 26 2E 26                  db      OP_JML,OP_CMP,OP_DEC,OP_CMP
+  1695 00:08BB: 2A 80 88 80                  db      OP_CPX,OP_SBC,OP_SEP,OP_SBC     ; E0
+  1696 00:08BF: 2A 80 36 80                  db      OP_CPX,OP_SBC,OP_INC,OP_SBC
+  1697 00:08C3: 38 80 50 B4                  db      OP_INX,OP_SBC,OP_NOP,OP_XBA
+  1698 00:08C7: 2A 80 36 80                  db      OP_CPX,OP_SBC,OP_INC,OP_SBC
+  1699 00:08CB: 0A 80 80 80                  db      OP_BEQ,OP_SBC,OP_SBC,OP_SBC     ; F0
+  1700 00:08CF: 54 80 36 80                  db      OP_PEA,OP_SBC,OP_INC,OP_SBC
+  1701 00:08D3: 84 80 70 B6                  db      OP_SED,OP_SBC,OP_PLX,OP_XCE
+  1702 00:08D7: 42 80 36 80                  db      OP_JSR,OP_SBC,OP_INC,OP_SBC
+  1703                        
+  1704                        MODES:
+  1705 00:08DB: 2E 1E 2E 12                  db      MD_INT,MD_DIX,MD_INT,MD_STK     ; 00
+  1706 00:08DF: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
+  1707 00:08E3: 24 2C 02 24                  db      MD_IMP,MD_IMM,MD_ACC,MD_IMP
+  1708 00:08E7: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
+  1709 00:08EB: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; 10
+  1710 00:08EF: 10 14 14 22                  db      MD_DPG,MD_DPX,MD_DPX,MD_DLY
+  1711 00:08F3: 24 06 02 24                  db      MD_IMP,MD_ABY,MD_ACC,MD_IMP
+  1712 00:08F7: 00 04 04 0A                  db      MD_ABS,MD_ABX,MD_ABX,MD_ALX
+  1713 00:08FB: 00 1E 08 12                  db      MD_ABS,MD_DIX,MD_ALG,MD_STK     ; 20
+  1714 00:08FF: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
+  1715 00:0903: 24 2C 02 24                  db      MD_IMP,MD_IMM,MD_ACC,MD_IMP
+  1716 00:0907: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
+  Mon Jun 18 2018 21:48                                                                                                    Page 33
 
 
-  1717 00:0911: 24 1E 2E 12                  db      MD_IMP,MD_DIX,MD_INT,MD_STK     ; 40
-  1718 00:0915: 2A 10 10 1A                  db      MD_MOV,MD_DPG,MD_DPG,MD_DLI
-  1719 00:0919: 24 2C 02 24                  db      MD_IMP,MD_IMM,MD_ACC,MD_IMP
-  1720 00:091D: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
-  1721 00:0921: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; 50
-  1722 00:0925: 2A 14 14 22                  db      MD_MOV,MD_DPX,MD_DPX,MD_DLY
-  1723 00:0929: 24 06 24 24                  db      MD_IMP,MD_ABY,MD_IMP,MD_IMP
-  1724 00:092D: 08 04 04 0A                  db      MD_ALG,MD_ABX,MD_ABX,MD_ALX
-  1725 00:0931: 24 1E 24 12                  db      MD_IMP,MD_DIX,MD_IMP,MD_STK     ; 60
-  1726 00:0935: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
-  1727 00:0939: 24 2C 02 24                  db      MD_IMP,MD_IMM,MD_ACC,MD_IMP
-  1728 00:093D: 0C 00 00 08                  db      MD_AIN,MD_ABS,MD_ABS,MD_ALG
-  1729 00:0941: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; 70
-  1730 00:0945: 14 14 14 22                  db      MD_DPX,MD_DPX,MD_DPX,MD_DLY
-  1731 00:0949: 24 06 24 24                  db      MD_IMP,MD_ABY,MD_IMP,MD_IMP
-  1732 00:094D: 0E 04 04 0A                  db      MD_AIX,MD_ABX,MD_ABX,MD_ALX
-  1733 00:0951: 26 1E 28 12                  db      MD_REL,MD_DIX,MD_RLG,MD_STK     ; 80
-  1734 00:0955: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
-  1735 00:0959: 24 2C 24 24                  db      MD_IMP,MD_IMM,MD_IMP,MD_IMP
-  1736 00:095D: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
-  1737 00:0961: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; 90
-  1738 00:0965: 14 14 16 22                  db      MD_DPX,MD_DPX,MD_DPY,MD_DLY
-  1739 00:0969: 24 06 24 24                  db      MD_IMP,MD_ABY,MD_IMP,MD_IMP
-  1740 00:096D: 00 04 04 0A                  db      MD_ABS,MD_ABX,MD_ABX,MD_ALX
-  1741 00:0971: 30 1E 30 12                  db      MD_IMX,MD_DIX,MD_IMX,MD_STK     ; A0
-  1742 00:0975: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
-  1743 00:0979: 24 2C 24 24                  db      MD_IMP,MD_IMM,MD_IMP,MD_IMP
-  1744 00:097D: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
-  1745 00:0981: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; B0
-  1746 00:0985: 14 14 16 22                  db      MD_DPX,MD_DPX,MD_DPY,MD_DLY
-  1747 00:0989: 24 06 24 24                  db      MD_IMP,MD_ABY,MD_IMP,MD_IMP
-  1748 00:098D: 04 04 06 0A                  db      MD_ABX,MD_ABX,MD_ABY,MD_ALX
-  1749 00:0991: 30 1E 2E 12                  db      MD_IMX,MD_DIX,MD_INT,MD_STK     ; C0
-  1750 00:0995: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
-  1751 00:0999: 24 2C 24 24                  db      MD_IMP,MD_IMM,MD_IMP,MD_IMP
-  1752 00:099D: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
-  1753 00:09A1: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; D0
-  1754 00:09A5: 24 14 14 22                  db      MD_IMP,MD_DPX,MD_DPX,MD_DLY
-  1755 00:09A9: 24 06 24 24                  db      MD_IMP,MD_ABY,MD_IMP,MD_IMP
-  1756 00:09AD: 0C 04 04 0A                  db      MD_AIN,MD_ABX,MD_ABX,MD_ALX
-  1757 00:09B1: 30 1E 2E 12                  db      MD_IMX,MD_DIX,MD_INT,MD_STK     ; E0
-  1758 00:09B5: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
-  1759 00:09B9: 24 2C 24 24                  db      MD_IMP,MD_IMM,MD_IMP,MD_IMP
-  1760 00:09BD: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
-  1761 00:09C1: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; F0
-  1762 00:09C5: 24 14 14 22                  db      MD_IMP,MD_DPX,MD_DPX,MD_DLY
-  1763 00:09C9: 24 06 24 24                  db      MD_IMP,MD_ABY,MD_IMP,MD_IMP
-  1764 00:09CD: 0E 04 04 0A                  db      MD_AIX,MD_ABX,MD_ABX,MD_ALX
-  1765                        
-  1766                        MNEMONICS:
-  1767                                        MNEM    'A','D','C'
-+ 1767 00:09D1: 83 04                        dw      (((('A'-'@')<<5)|('D'-'@'))<<5)|('C'-'@')
-  1768                                        MNEM    'A','N','D'
-+ 1768 00:09D3: C4 05                        dw      (((('A'-'@')<<5)|('N'-'@'))<<5)|('D'-'@')
-  1769                                        MNEM    'A','S','L'
-+ 1769 00:09D5: 6C 06                        dw      (((('A'-'@')<<5)|('S'-'@'))<<5)|('L'-'@')
-  1770                                        MNEM    'B','C','C'
-+ 1770 00:09D7: 63 08                        dw      (((('B'-'@')<<5)|('C'-'@'))<<5)|('C'-'@')
-  Mon Jun 18 2018 10:10                                                                                                    Page 34
+  1717 00:090B: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; 30
+  1718 00:090F: 14 14 14 22                  db      MD_DPX,MD_DPX,MD_DPX,MD_DLY
+  1719 00:0913: 24 06 02 24                  db      MD_IMP,MD_ABY,MD_ACC,MD_IMP
+  1720 00:0917: 04 04 04 0A                  db      MD_ABX,MD_ABX,MD_ABX,MD_ALX
+  1721 00:091B: 24 1E 2E 12                  db      MD_IMP,MD_DIX,MD_INT,MD_STK     ; 40
+  1722 00:091F: 2A 10 10 1A                  db      MD_MOV,MD_DPG,MD_DPG,MD_DLI
+  1723 00:0923: 24 2C 02 24                  db      MD_IMP,MD_IMM,MD_ACC,MD_IMP
+  1724 00:0927: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
+  1725 00:092B: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; 50
+  1726 00:092F: 2A 14 14 22                  db      MD_MOV,MD_DPX,MD_DPX,MD_DLY
+  1727 00:0933: 24 06 24 24                  db      MD_IMP,MD_ABY,MD_IMP,MD_IMP
+  1728 00:0937: 08 04 04 0A                  db      MD_ALG,MD_ABX,MD_ABX,MD_ALX
+  1729 00:093B: 24 1E 24 12                  db      MD_IMP,MD_DIX,MD_IMP,MD_STK     ; 60
+  1730 00:093F: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
+  1731 00:0943: 24 2C 02 24                  db      MD_IMP,MD_IMM,MD_ACC,MD_IMP
+  1732 00:0947: 0C 00 00 08                  db      MD_AIN,MD_ABS,MD_ABS,MD_ALG
+  1733 00:094B: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; 70
+  1734 00:094F: 14 14 14 22                  db      MD_DPX,MD_DPX,MD_DPX,MD_DLY
+  1735 00:0953: 24 06 24 24                  db      MD_IMP,MD_ABY,MD_IMP,MD_IMP
+  1736 00:0957: 0E 04 04 0A                  db      MD_AIX,MD_ABX,MD_ABX,MD_ALX
+  1737 00:095B: 26 1E 28 12                  db      MD_REL,MD_DIX,MD_RLG,MD_STK     ; 80
+  1738 00:095F: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
+  1739 00:0963: 24 2C 24 24                  db      MD_IMP,MD_IMM,MD_IMP,MD_IMP
+  1740 00:0967: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
+  1741 00:096B: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; 90
+  1742 00:096F: 14 14 16 22                  db      MD_DPX,MD_DPX,MD_DPY,MD_DLY
+  1743 00:0973: 24 06 24 24                  db      MD_IMP,MD_ABY,MD_IMP,MD_IMP
+  1744 00:0977: 00 04 04 0A                  db      MD_ABS,MD_ABX,MD_ABX,MD_ALX
+  1745 00:097B: 30 1E 30 12                  db      MD_IMX,MD_DIX,MD_IMX,MD_STK     ; A0
+  1746 00:097F: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
+  1747 00:0983: 24 2C 24 24                  db      MD_IMP,MD_IMM,MD_IMP,MD_IMP
+  1748 00:0987: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
+  1749 00:098B: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; B0
+  1750 00:098F: 14 14 16 22                  db      MD_DPX,MD_DPX,MD_DPY,MD_DLY
+  1751 00:0993: 24 06 24 24                  db      MD_IMP,MD_ABY,MD_IMP,MD_IMP
+  1752 00:0997: 04 04 06 0A                  db      MD_ABX,MD_ABX,MD_ABY,MD_ALX
+  1753 00:099B: 30 1E 2E 12                  db      MD_IMX,MD_DIX,MD_INT,MD_STK     ; C0
+  1754 00:099F: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
+  1755 00:09A3: 24 2C 24 24                  db      MD_IMP,MD_IMM,MD_IMP,MD_IMP
+  1756 00:09A7: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
+  1757 00:09AB: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; D0
+  1758 00:09AF: 24 14 14 22                  db      MD_IMP,MD_DPX,MD_DPX,MD_DLY
+  1759 00:09B3: 24 06 24 24                  db      MD_IMP,MD_ABY,MD_IMP,MD_IMP
+  1760 00:09B7: 0C 04 04 0A                  db      MD_AIN,MD_ABX,MD_ABX,MD_ALX
+  1761 00:09BB: 30 1E 2E 12                  db      MD_IMX,MD_DIX,MD_INT,MD_STK     ; E0
+  1762 00:09BF: 10 10 10 1A                  db      MD_DPG,MD_DPG,MD_DPG,MD_DLI
+  1763 00:09C3: 24 2C 24 24                  db      MD_IMP,MD_IMM,MD_IMP,MD_IMP
+  1764 00:09C7: 00 00 00 08                  db      MD_ABS,MD_ABS,MD_ABS,MD_ALG
+  1765 00:09CB: 26 20 18 1C                  db      MD_REL,MD_DIY,MD_DIN,MD_SKY     ; F0
+  1766 00:09CF: 24 14 14 22                  db      MD_IMP,MD_DPX,MD_DPX,MD_DLY
+  1767 00:09D3: 24 06 24 24                  db      MD_IMP,MD_ABY,MD_IMP,MD_IMP
+  1768 00:09D7: 0E 04 04 0A                  db      MD_AIX,MD_ABX,MD_ABX,MD_ALX
+  1769                        
+  1770                        MNEMONICS:
+  1771                                        MNEM    'A','D','C'
++ 1771 00:09DB: 83 04                        dw      (((('A'-'@')<<5)|('D'-'@'))<<5)|('C'-'@')
+  1772                                        MNEM    'A','N','D'
++ 1772 00:09DD: C4 05                        dw      (((('A'-'@')<<5)|('N'-'@'))<<5)|('D'-'@')
+  Mon Jun 18 2018 21:48                                                                                                    Page 34
 
 
-  1771                                        MNEM    'B','C','S'
-+ 1771 00:09D9: 73 08                        dw      (((('B'-'@')<<5)|('C'-'@'))<<5)|('S'-'@')
-  1772                                        MNEM    'B','E','Q'
-+ 1772 00:09DB: B1 08                        dw      (((('B'-'@')<<5)|('E'-'@'))<<5)|('Q'-'@')
-  1773                                        MNEM    'B','I','T'
-+ 1773 00:09DD: 34 09                        dw      (((('B'-'@')<<5)|('I'-'@'))<<5)|('T'-'@')
-  1774                                        MNEM    'B','M','I'
-+ 1774 00:09DF: A9 09                        dw      (((('B'-'@')<<5)|('M'-'@'))<<5)|('I'-'@')
-  1775                                        MNEM    'B','N','E'
-+ 1775 00:09E1: C5 09                        dw      (((('B'-'@')<<5)|('N'-'@'))<<5)|('E'-'@')
-  1776                                        MNEM    'B','P','L'
-+ 1776 00:09E3: 0C 0A                        dw      (((('B'-'@')<<5)|('P'-'@'))<<5)|('L'-'@')
-  1777                                        MNEM    'B','R','A'
-+ 1777 00:09E5: 41 0A                        dw      (((('B'-'@')<<5)|('R'-'@'))<<5)|('A'-'@')
-  1778                                        MNEM    'B','R','K'
-+ 1778 00:09E7: 4B 0A                        dw      (((('B'-'@')<<5)|('R'-'@'))<<5)|('K'-'@')
-  1779                                        MNEM    'B','R','L'
-+ 1779 00:09E9: 4C 0A                        dw      (((('B'-'@')<<5)|('R'-'@'))<<5)|('L'-'@')
-  1780                                        MNEM    'B','V','C'
-+ 1780 00:09EB: C3 0A                        dw      (((('B'-'@')<<5)|('V'-'@'))<<5)|('C'-'@')
-  1781                                        MNEM    'B','V','S'
-+ 1781 00:09ED: D3 0A                        dw      (((('B'-'@')<<5)|('V'-'@'))<<5)|('S'-'@')
-  1782                                        MNEM    'C','L','C'
-+ 1782 00:09EF: 83 0D                        dw      (((('C'-'@')<<5)|('L'-'@'))<<5)|('C'-'@')
-  1783                                        MNEM    'C','L','D'
-+ 1783 00:09F1: 84 0D                        dw      (((('C'-'@')<<5)|('L'-'@'))<<5)|('D'-'@')
-  1784                                        MNEM    'C','L','I'
-+ 1784 00:09F3: 89 0D                        dw      (((('C'-'@')<<5)|('L'-'@'))<<5)|('I'-'@')
-  1785                                        MNEM    'C','L','V'
-+ 1785 00:09F5: 96 0D                        dw      (((('C'-'@')<<5)|('L'-'@'))<<5)|('V'-'@')
-  1786                                        MNEM    'C','M','P'
-+ 1786 00:09F7: B0 0D                        dw      (((('C'-'@')<<5)|('M'-'@'))<<5)|('P'-'@')
-  1787                                        MNEM    'C','O','P'
-+ 1787 00:09F9: F0 0D                        dw      (((('C'-'@')<<5)|('O'-'@'))<<5)|('P'-'@')
-  1788                                        MNEM    'C','P','X'
-+ 1788 00:09FB: 18 0E                        dw      (((('C'-'@')<<5)|('P'-'@'))<<5)|('X'-'@')
-  1789                                        MNEM    'C','P','Y'
-+ 1789 00:09FD: 19 0E                        dw      (((('C'-'@')<<5)|('P'-'@'))<<5)|('Y'-'@')
-  1790                                        MNEM    'D','E','C'
-+ 1790 00:09FF: A3 10                        dw      (((('D'-'@')<<5)|('E'-'@'))<<5)|('C'-'@')
-  1791                                        MNEM    'D','E','X'
-+ 1791 00:0A01: B8 10                        dw      (((('D'-'@')<<5)|('E'-'@'))<<5)|('X'-'@')
-  1792                                        MNEM    'D','E','Y'
-+ 1792 00:0A03: B9 10                        dw      (((('D'-'@')<<5)|('E'-'@'))<<5)|('Y'-'@')
-  1793                                        MNEM    'E','O','R'
-+ 1793 00:0A05: F2 15                        dw      (((('E'-'@')<<5)|('O'-'@'))<<5)|('R'-'@')
-  1794                                        MNEM    'I','N','C'
-+ 1794 00:0A07: C3 25                        dw      (((('I'-'@')<<5)|('N'-'@'))<<5)|('C'-'@')
-  1795                                        MNEM    'I','N','X'
-+ 1795 00:0A09: D8 25                        dw      (((('I'-'@')<<5)|('N'-'@'))<<5)|('X'-'@')
-  1796                                        MNEM    'I','N','Y'
-+ 1796 00:0A0B: D9 25                        dw      (((('I'-'@')<<5)|('N'-'@'))<<5)|('Y'-'@')
-  1797                                        MNEM    'J','M','L'
-+ 1797 00:0A0D: AC 29                        dw      (((('J'-'@')<<5)|('M'-'@'))<<5)|('L'-'@')
-  1798                                        MNEM    'J','M','P'
-+ 1798 00:0A0F: B0 29                        dw      (((('J'-'@')<<5)|('M'-'@'))<<5)|('P'-'@')
-  1799                                        MNEM    'J','S','L'
-+ 1799 00:0A11: 6C 2A                        dw      (((('J'-'@')<<5)|('S'-'@'))<<5)|('L'-'@')
-  Mon Jun 18 2018 10:10                                                                                                    Page 35
+  1773                                        MNEM    'A','S','L'
++ 1773 00:09DF: 6C 06                        dw      (((('A'-'@')<<5)|('S'-'@'))<<5)|('L'-'@')
+  1774                                        MNEM    'B','C','C'
++ 1774 00:09E1: 63 08                        dw      (((('B'-'@')<<5)|('C'-'@'))<<5)|('C'-'@')
+  1775                                        MNEM    'B','C','S'
++ 1775 00:09E3: 73 08                        dw      (((('B'-'@')<<5)|('C'-'@'))<<5)|('S'-'@')
+  1776                                        MNEM    'B','E','Q'
++ 1776 00:09E5: B1 08                        dw      (((('B'-'@')<<5)|('E'-'@'))<<5)|('Q'-'@')
+  1777                                        MNEM    'B','I','T'
++ 1777 00:09E7: 34 09                        dw      (((('B'-'@')<<5)|('I'-'@'))<<5)|('T'-'@')
+  1778                                        MNEM    'B','M','I'
++ 1778 00:09E9: A9 09                        dw      (((('B'-'@')<<5)|('M'-'@'))<<5)|('I'-'@')
+  1779                                        MNEM    'B','N','E'
++ 1779 00:09EB: C5 09                        dw      (((('B'-'@')<<5)|('N'-'@'))<<5)|('E'-'@')
+  1780                                        MNEM    'B','P','L'
++ 1780 00:09ED: 0C 0A                        dw      (((('B'-'@')<<5)|('P'-'@'))<<5)|('L'-'@')
+  1781                                        MNEM    'B','R','A'
++ 1781 00:09EF: 41 0A                        dw      (((('B'-'@')<<5)|('R'-'@'))<<5)|('A'-'@')
+  1782                                        MNEM    'B','R','K'
++ 1782 00:09F1: 4B 0A                        dw      (((('B'-'@')<<5)|('R'-'@'))<<5)|('K'-'@')
+  1783                                        MNEM    'B','R','L'
++ 1783 00:09F3: 4C 0A                        dw      (((('B'-'@')<<5)|('R'-'@'))<<5)|('L'-'@')
+  1784                                        MNEM    'B','V','C'
++ 1784 00:09F5: C3 0A                        dw      (((('B'-'@')<<5)|('V'-'@'))<<5)|('C'-'@')
+  1785                                        MNEM    'B','V','S'
++ 1785 00:09F7: D3 0A                        dw      (((('B'-'@')<<5)|('V'-'@'))<<5)|('S'-'@')
+  1786                                        MNEM    'C','L','C'
++ 1786 00:09F9: 83 0D                        dw      (((('C'-'@')<<5)|('L'-'@'))<<5)|('C'-'@')
+  1787                                        MNEM    'C','L','D'
++ 1787 00:09FB: 84 0D                        dw      (((('C'-'@')<<5)|('L'-'@'))<<5)|('D'-'@')
+  1788                                        MNEM    'C','L','I'
++ 1788 00:09FD: 89 0D                        dw      (((('C'-'@')<<5)|('L'-'@'))<<5)|('I'-'@')
+  1789                                        MNEM    'C','L','V'
++ 1789 00:09FF: 96 0D                        dw      (((('C'-'@')<<5)|('L'-'@'))<<5)|('V'-'@')
+  1790                                        MNEM    'C','M','P'
++ 1790 00:0A01: B0 0D                        dw      (((('C'-'@')<<5)|('M'-'@'))<<5)|('P'-'@')
+  1791                                        MNEM    'C','O','P'
++ 1791 00:0A03: F0 0D                        dw      (((('C'-'@')<<5)|('O'-'@'))<<5)|('P'-'@')
+  1792                                        MNEM    'C','P','X'
++ 1792 00:0A05: 18 0E                        dw      (((('C'-'@')<<5)|('P'-'@'))<<5)|('X'-'@')
+  1793                                        MNEM    'C','P','Y'
++ 1793 00:0A07: 19 0E                        dw      (((('C'-'@')<<5)|('P'-'@'))<<5)|('Y'-'@')
+  1794                                        MNEM    'D','E','C'
++ 1794 00:0A09: A3 10                        dw      (((('D'-'@')<<5)|('E'-'@'))<<5)|('C'-'@')
+  1795                                        MNEM    'D','E','X'
++ 1795 00:0A0B: B8 10                        dw      (((('D'-'@')<<5)|('E'-'@'))<<5)|('X'-'@')
+  1796                                        MNEM    'D','E','Y'
++ 1796 00:0A0D: B9 10                        dw      (((('D'-'@')<<5)|('E'-'@'))<<5)|('Y'-'@')
+  1797                                        MNEM    'E','O','R'
++ 1797 00:0A0F: F2 15                        dw      (((('E'-'@')<<5)|('O'-'@'))<<5)|('R'-'@')
+  1798                                        MNEM    'I','N','C'
++ 1798 00:0A11: C3 25                        dw      (((('I'-'@')<<5)|('N'-'@'))<<5)|('C'-'@')
+  1799                                        MNEM    'I','N','X'
++ 1799 00:0A13: D8 25                        dw      (((('I'-'@')<<5)|('N'-'@'))<<5)|('X'-'@')
+  1800                                        MNEM    'I','N','Y'
++ 1800 00:0A15: D9 25                        dw      (((('I'-'@')<<5)|('N'-'@'))<<5)|('Y'-'@')
+  1801                                        MNEM    'J','M','L'
++ 1801 00:0A17: AC 29                        dw      (((('J'-'@')<<5)|('M'-'@'))<<5)|('L'-'@')
+  Mon Jun 18 2018 21:48                                                                                                    Page 35
 
 
-  1800                                        MNEM    'J','S','R'
-+ 1800 00:0A13: 72 2A                        dw      (((('J'-'@')<<5)|('S'-'@'))<<5)|('R'-'@')
-  1801                                        MNEM    'L','D','A'
-+ 1801 00:0A15: 81 30                        dw      (((('L'-'@')<<5)|('D'-'@'))<<5)|('A'-'@')
-  1802                                        MNEM    'L','D','X'
-+ 1802 00:0A17: 98 30                        dw      (((('L'-'@')<<5)|('D'-'@'))<<5)|('X'-'@')
-  1803                                        MNEM    'L','D','Y'
-+ 1803 00:0A19: 99 30                        dw      (((('L'-'@')<<5)|('D'-'@'))<<5)|('Y'-'@')
-  1804                                        MNEM    'L','S','R'
-+ 1804 00:0A1B: 72 32                        dw      (((('L'-'@')<<5)|('S'-'@'))<<5)|('R'-'@')
-  1805                                        MNEM    'M','V','N'
-+ 1805 00:0A1D: CE 36                        dw      (((('M'-'@')<<5)|('V'-'@'))<<5)|('N'-'@')
-  1806                                        MNEM    'M','V','P'
-+ 1806 00:0A1F: D0 36                        dw      (((('M'-'@')<<5)|('V'-'@'))<<5)|('P'-'@')
-  1807                                        MNEM    'N','O','P'
-+ 1807 00:0A21: F0 39                        dw      (((('N'-'@')<<5)|('O'-'@'))<<5)|('P'-'@')
-  1808                                        MNEM    'O','R','A'
-+ 1808 00:0A23: 41 3E                        dw      (((('O'-'@')<<5)|('R'-'@'))<<5)|('A'-'@')
-  1809                                        MNEM    'P','E','A'
-+ 1809 00:0A25: A1 40                        dw      (((('P'-'@')<<5)|('E'-'@'))<<5)|('A'-'@')
-  1810                                        MNEM    'P','E','I'
-+ 1810 00:0A27: A9 40                        dw      (((('P'-'@')<<5)|('E'-'@'))<<5)|('I'-'@')
-  1811                                        MNEM    'P','E','R'
-+ 1811 00:0A29: B2 40                        dw      (((('P'-'@')<<5)|('E'-'@'))<<5)|('R'-'@')
-  1812                                        MNEM    'P','H','A'
-+ 1812 00:0A2B: 01 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('A'-'@')
-  1813                                        MNEM    'P','H','B'
-+ 1813 00:0A2D: 02 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('B'-'@')
-  1814                                        MNEM    'P','H','D'
-+ 1814 00:0A2F: 04 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('D'-'@')
-  1815                                        MNEM    'P','H','K'
-+ 1815 00:0A31: 0B 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('K'-'@')
-  1816                                        MNEM    'P','H','P'
-+ 1816 00:0A33: 10 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('P'-'@')
-  1817                                        MNEM    'P','H','X'
-+ 1817 00:0A35: 18 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('X'-'@')
-  1818                                        MNEM    'P','H','Y'
-+ 1818 00:0A37: 19 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('Y'-'@')
-  1819                                        MNEM    'P','L','A'
-+ 1819 00:0A39: 81 41                        dw      (((('P'-'@')<<5)|('L'-'@'))<<5)|('A'-'@')
-  1820                                        MNEM    'P','L','B'
-+ 1820 00:0A3B: 82 41                        dw      (((('P'-'@')<<5)|('L'-'@'))<<5)|('B'-'@')
-  1821                                        MNEM    'P','L','D'
-+ 1821 00:0A3D: 84 41                        dw      (((('P'-'@')<<5)|('L'-'@'))<<5)|('D'-'@')
-  1822                                        MNEM    'P','L','P'
-+ 1822 00:0A3F: 90 41                        dw      (((('P'-'@')<<5)|('L'-'@'))<<5)|('P'-'@')
-  1823                                        MNEM    'P','L','X'
-+ 1823 00:0A41: 98 41                        dw      (((('P'-'@')<<5)|('L'-'@'))<<5)|('X'-'@')
-  1824                                        MNEM    'P','L','Y'
-+ 1824 00:0A43: 99 41                        dw      (((('P'-'@')<<5)|('L'-'@'))<<5)|('Y'-'@')
-  1825                                        MNEM    'R','E','P'
-+ 1825 00:0A45: B0 48                        dw      (((('R'-'@')<<5)|('E'-'@'))<<5)|('P'-'@')
-  1826                                        MNEM    'R','O','L'
-+ 1826 00:0A47: EC 49                        dw      (((('R'-'@')<<5)|('O'-'@'))<<5)|('L'-'@')
-  1827                                        MNEM    'R','O','R'
-+ 1827 00:0A49: F2 49                        dw      (((('R'-'@')<<5)|('O'-'@'))<<5)|('R'-'@')
-  1828                                        MNEM    'R','T','I'
-+ 1828 00:0A4B: 89 4A                        dw      (((('R'-'@')<<5)|('T'-'@'))<<5)|('I'-'@')
-  Mon Jun 18 2018 10:10                                                                                                    Page 36
+  1802                                        MNEM    'J','M','P'
++ 1802 00:0A19: B0 29                        dw      (((('J'-'@')<<5)|('M'-'@'))<<5)|('P'-'@')
+  1803                                        MNEM    'J','S','L'
++ 1803 00:0A1B: 6C 2A                        dw      (((('J'-'@')<<5)|('S'-'@'))<<5)|('L'-'@')
+  1804                                        MNEM    'J','S','R'
++ 1804 00:0A1D: 72 2A                        dw      (((('J'-'@')<<5)|('S'-'@'))<<5)|('R'-'@')
+  1805                                        MNEM    'L','D','A'
++ 1805 00:0A1F: 81 30                        dw      (((('L'-'@')<<5)|('D'-'@'))<<5)|('A'-'@')
+  1806                                        MNEM    'L','D','X'
++ 1806 00:0A21: 98 30                        dw      (((('L'-'@')<<5)|('D'-'@'))<<5)|('X'-'@')
+  1807                                        MNEM    'L','D','Y'
++ 1807 00:0A23: 99 30                        dw      (((('L'-'@')<<5)|('D'-'@'))<<5)|('Y'-'@')
+  1808                                        MNEM    'L','S','R'
++ 1808 00:0A25: 72 32                        dw      (((('L'-'@')<<5)|('S'-'@'))<<5)|('R'-'@')
+  1809                                        MNEM    'M','V','N'
++ 1809 00:0A27: CE 36                        dw      (((('M'-'@')<<5)|('V'-'@'))<<5)|('N'-'@')
+  1810                                        MNEM    'M','V','P'
++ 1810 00:0A29: D0 36                        dw      (((('M'-'@')<<5)|('V'-'@'))<<5)|('P'-'@')
+  1811                                        MNEM    'N','O','P'
++ 1811 00:0A2B: F0 39                        dw      (((('N'-'@')<<5)|('O'-'@'))<<5)|('P'-'@')
+  1812                                        MNEM    'O','R','A'
++ 1812 00:0A2D: 41 3E                        dw      (((('O'-'@')<<5)|('R'-'@'))<<5)|('A'-'@')
+  1813                                        MNEM    'P','E','A'
++ 1813 00:0A2F: A1 40                        dw      (((('P'-'@')<<5)|('E'-'@'))<<5)|('A'-'@')
+  1814                                        MNEM    'P','E','I'
++ 1814 00:0A31: A9 40                        dw      (((('P'-'@')<<5)|('E'-'@'))<<5)|('I'-'@')
+  1815                                        MNEM    'P','E','R'
++ 1815 00:0A33: B2 40                        dw      (((('P'-'@')<<5)|('E'-'@'))<<5)|('R'-'@')
+  1816                                        MNEM    'P','H','A'
++ 1816 00:0A35: 01 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('A'-'@')
+  1817                                        MNEM    'P','H','B'
++ 1817 00:0A37: 02 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('B'-'@')
+  1818                                        MNEM    'P','H','D'
++ 1818 00:0A39: 04 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('D'-'@')
+  1819                                        MNEM    'P','H','K'
++ 1819 00:0A3B: 0B 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('K'-'@')
+  1820                                        MNEM    'P','H','P'
++ 1820 00:0A3D: 10 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('P'-'@')
+  1821                                        MNEM    'P','H','X'
++ 1821 00:0A3F: 18 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('X'-'@')
+  1822                                        MNEM    'P','H','Y'
++ 1822 00:0A41: 19 41                        dw      (((('P'-'@')<<5)|('H'-'@'))<<5)|('Y'-'@')
+  1823                                        MNEM    'P','L','A'
++ 1823 00:0A43: 81 41                        dw      (((('P'-'@')<<5)|('L'-'@'))<<5)|('A'-'@')
+  1824                                        MNEM    'P','L','B'
++ 1824 00:0A45: 82 41                        dw      (((('P'-'@')<<5)|('L'-'@'))<<5)|('B'-'@')
+  1825                                        MNEM    'P','L','D'
++ 1825 00:0A47: 84 41                        dw      (((('P'-'@')<<5)|('L'-'@'))<<5)|('D'-'@')
+  1826                                        MNEM    'P','L','P'
++ 1826 00:0A49: 90 41                        dw      (((('P'-'@')<<5)|('L'-'@'))<<5)|('P'-'@')
+  1827                                        MNEM    'P','L','X'
++ 1827 00:0A4B: 98 41                        dw      (((('P'-'@')<<5)|('L'-'@'))<<5)|('X'-'@')
+  1828                                        MNEM    'P','L','Y'
++ 1828 00:0A4D: 99 41                        dw      (((('P'-'@')<<5)|('L'-'@'))<<5)|('Y'-'@')
+  1829                                        MNEM    'R','E','P'
++ 1829 00:0A4F: B0 48                        dw      (((('R'-'@')<<5)|('E'-'@'))<<5)|('P'-'@')
+  1830                                        MNEM    'R','O','L'
++ 1830 00:0A51: EC 49                        dw      (((('R'-'@')<<5)|('O'-'@'))<<5)|('L'-'@')
+  Mon Jun 18 2018 21:48                                                                                                    Page 36
 
 
-  1829                                        MNEM    'R','T','L'
-+ 1829 00:0A4D: 8C 4A                        dw      (((('R'-'@')<<5)|('T'-'@'))<<5)|('L'-'@')
-  1830                                        MNEM    'R','T','S'
-+ 1830 00:0A4F: 93 4A                        dw      (((('R'-'@')<<5)|('T'-'@'))<<5)|('S'-'@')
-  1831                                        MNEM    'S','B','C'
-+ 1831 00:0A51: 43 4C                        dw      (((('S'-'@')<<5)|('B'-'@'))<<5)|('C'-'@')
-  1832                                        MNEM    'S','E','C'
-+ 1832 00:0A53: A3 4C                        dw      (((('S'-'@')<<5)|('E'-'@'))<<5)|('C'-'@')
-  1833                                        MNEM    'S','E','D'
-+ 1833 00:0A55: A4 4C                        dw      (((('S'-'@')<<5)|('E'-'@'))<<5)|('D'-'@')
-  1834                                        MNEM    'S','E','I'
-+ 1834 00:0A57: A9 4C                        dw      (((('S'-'@')<<5)|('E'-'@'))<<5)|('I'-'@')
-  1835                                        MNEM    'S','E','P'
-+ 1835 00:0A59: B0 4C                        dw      (((('S'-'@')<<5)|('E'-'@'))<<5)|('P'-'@')
-  1836                                        MNEM    'S','T','A'
-+ 1836 00:0A5B: 81 4E                        dw      (((('S'-'@')<<5)|('T'-'@'))<<5)|('A'-'@')
-  1837                                        MNEM    'S','T','P'
-+ 1837 00:0A5D: 90 4E                        dw      (((('S'-'@')<<5)|('T'-'@'))<<5)|('P'-'@')
-  1838                                        MNEM    'S','T','X'
-+ 1838 00:0A5F: 98 4E                        dw      (((('S'-'@')<<5)|('T'-'@'))<<5)|('X'-'@')
-  1839                                        MNEM    'S','T','Y'
-+ 1839 00:0A61: 99 4E                        dw      (((('S'-'@')<<5)|('T'-'@'))<<5)|('Y'-'@')
-  1840                                        MNEM    'S','T','Z'
-+ 1840 00:0A63: 9A 4E                        dw      (((('S'-'@')<<5)|('T'-'@'))<<5)|('Z'-'@')
-  1841                                        MNEM    'T','A','X'
-+ 1841 00:0A65: 38 50                        dw      (((('T'-'@')<<5)|('A'-'@'))<<5)|('X'-'@')
-  1842                                        MNEM    'T','A','Y'
-+ 1842 00:0A67: 39 50                        dw      (((('T'-'@')<<5)|('A'-'@'))<<5)|('Y'-'@')
-  1843                                        MNEM    'T','C','D'
-+ 1843 00:0A69: 64 50                        dw      (((('T'-'@')<<5)|('C'-'@'))<<5)|('D'-'@')
-  1844                                        MNEM    'T','C','S'
-+ 1844 00:0A6B: 73 50                        dw      (((('T'-'@')<<5)|('C'-'@'))<<5)|('S'-'@')
-  1845                                        MNEM    'T','D','C'
-+ 1845 00:0A6D: 83 50                        dw      (((('T'-'@')<<5)|('D'-'@'))<<5)|('C'-'@')
-  1846                                        MNEM    'T','R','B'
-+ 1846 00:0A6F: 42 52                        dw      (((('T'-'@')<<5)|('R'-'@'))<<5)|('B'-'@')
-  1847                                        MNEM    'T','S','B'
-+ 1847 00:0A71: 62 52                        dw      (((('T'-'@')<<5)|('S'-'@'))<<5)|('B'-'@')
-  1848                                        MNEM    'T','S','C'
-+ 1848 00:0A73: 63 52                        dw      (((('T'-'@')<<5)|('S'-'@'))<<5)|('C'-'@')
-  1849                                        MNEM    'T','S','X'
-+ 1849 00:0A75: 78 52                        dw      (((('T'-'@')<<5)|('S'-'@'))<<5)|('X'-'@')
-  1850                                        MNEM    'T','X','A'
-+ 1850 00:0A77: 01 53                        dw      (((('T'-'@')<<5)|('X'-'@'))<<5)|('A'-'@')
-  1851                                        MNEM    'T','X','S'
-+ 1851 00:0A79: 13 53                        dw      (((('T'-'@')<<5)|('X'-'@'))<<5)|('S'-'@')
-  1852                                        MNEM    'T','X','Y'
-+ 1852 00:0A7B: 19 53                        dw      (((('T'-'@')<<5)|('X'-'@'))<<5)|('Y'-'@')
-  1853                                        MNEM    'T','Y','A'
-+ 1853 00:0A7D: 21 53                        dw      (((('T'-'@')<<5)|('Y'-'@'))<<5)|('A'-'@')
-  1854                                        MNEM    'T','Y','X'
-+ 1854 00:0A7F: 38 53                        dw      (((('T'-'@')<<5)|('Y'-'@'))<<5)|('X'-'@')
-  1855                                        MNEM    'W','A','I'
-+ 1855 00:0A81: 29 5C                        dw      (((('W'-'@')<<5)|('A'-'@'))<<5)|('I'-'@')
-  1856                                        MNEM    'W','D','M'
-+ 1856 00:0A83: 8D 5C                        dw      (((('W'-'@')<<5)|('D'-'@'))<<5)|('M'-'@')
-  1857                                        MNEM    'X','B','A'
-+ 1857 00:0A85: 41 60                        dw      (((('X'-'@')<<5)|('B'-'@'))<<5)|('A'-'@')
-  Mon Jun 18 2018 10:10                                                                                                    Page 37
+  1831                                        MNEM    'R','O','R'
++ 1831 00:0A53: F2 49                        dw      (((('R'-'@')<<5)|('O'-'@'))<<5)|('R'-'@')
+  1832                                        MNEM    'R','T','I'
++ 1832 00:0A55: 89 4A                        dw      (((('R'-'@')<<5)|('T'-'@'))<<5)|('I'-'@')
+  1833                                        MNEM    'R','T','L'
++ 1833 00:0A57: 8C 4A                        dw      (((('R'-'@')<<5)|('T'-'@'))<<5)|('L'-'@')
+  1834                                        MNEM    'R','T','S'
++ 1834 00:0A59: 93 4A                        dw      (((('R'-'@')<<5)|('T'-'@'))<<5)|('S'-'@')
+  1835                                        MNEM    'S','B','C'
++ 1835 00:0A5B: 43 4C                        dw      (((('S'-'@')<<5)|('B'-'@'))<<5)|('C'-'@')
+  1836                                        MNEM    'S','E','C'
++ 1836 00:0A5D: A3 4C                        dw      (((('S'-'@')<<5)|('E'-'@'))<<5)|('C'-'@')
+  1837                                        MNEM    'S','E','D'
++ 1837 00:0A5F: A4 4C                        dw      (((('S'-'@')<<5)|('E'-'@'))<<5)|('D'-'@')
+  1838                                        MNEM    'S','E','I'
++ 1838 00:0A61: A9 4C                        dw      (((('S'-'@')<<5)|('E'-'@'))<<5)|('I'-'@')
+  1839                                        MNEM    'S','E','P'
++ 1839 00:0A63: B0 4C                        dw      (((('S'-'@')<<5)|('E'-'@'))<<5)|('P'-'@')
+  1840                                        MNEM    'S','T','A'
++ 1840 00:0A65: 81 4E                        dw      (((('S'-'@')<<5)|('T'-'@'))<<5)|('A'-'@')
+  1841                                        MNEM    'S','T','P'
++ 1841 00:0A67: 90 4E                        dw      (((('S'-'@')<<5)|('T'-'@'))<<5)|('P'-'@')
+  1842                                        MNEM    'S','T','X'
++ 1842 00:0A69: 98 4E                        dw      (((('S'-'@')<<5)|('T'-'@'))<<5)|('X'-'@')
+  1843                                        MNEM    'S','T','Y'
++ 1843 00:0A6B: 99 4E                        dw      (((('S'-'@')<<5)|('T'-'@'))<<5)|('Y'-'@')
+  1844                                        MNEM    'S','T','Z'
++ 1844 00:0A6D: 9A 4E                        dw      (((('S'-'@')<<5)|('T'-'@'))<<5)|('Z'-'@')
+  1845                                        MNEM    'T','A','X'
++ 1845 00:0A6F: 38 50                        dw      (((('T'-'@')<<5)|('A'-'@'))<<5)|('X'-'@')
+  1846                                        MNEM    'T','A','Y'
++ 1846 00:0A71: 39 50                        dw      (((('T'-'@')<<5)|('A'-'@'))<<5)|('Y'-'@')
+  1847                                        MNEM    'T','C','D'
++ 1847 00:0A73: 64 50                        dw      (((('T'-'@')<<5)|('C'-'@'))<<5)|('D'-'@')
+  1848                                        MNEM    'T','C','S'
++ 1848 00:0A75: 73 50                        dw      (((('T'-'@')<<5)|('C'-'@'))<<5)|('S'-'@')
+  1849                                        MNEM    'T','D','C'
++ 1849 00:0A77: 83 50                        dw      (((('T'-'@')<<5)|('D'-'@'))<<5)|('C'-'@')
+  1850                                        MNEM    'T','R','B'
++ 1850 00:0A79: 42 52                        dw      (((('T'-'@')<<5)|('R'-'@'))<<5)|('B'-'@')
+  1851                                        MNEM    'T','S','B'
++ 1851 00:0A7B: 62 52                        dw      (((('T'-'@')<<5)|('S'-'@'))<<5)|('B'-'@')
+  1852                                        MNEM    'T','S','C'
++ 1852 00:0A7D: 63 52                        dw      (((('T'-'@')<<5)|('S'-'@'))<<5)|('C'-'@')
+  1853                                        MNEM    'T','S','X'
++ 1853 00:0A7F: 78 52                        dw      (((('T'-'@')<<5)|('S'-'@'))<<5)|('X'-'@')
+  1854                                        MNEM    'T','X','A'
++ 1854 00:0A81: 01 53                        dw      (((('T'-'@')<<5)|('X'-'@'))<<5)|('A'-'@')
+  1855                                        MNEM    'T','X','S'
++ 1855 00:0A83: 13 53                        dw      (((('T'-'@')<<5)|('X'-'@'))<<5)|('S'-'@')
+  1856                                        MNEM    'T','X','Y'
++ 1856 00:0A85: 19 53                        dw      (((('T'-'@')<<5)|('X'-'@'))<<5)|('Y'-'@')
+  1857                                        MNEM    'T','Y','A'
++ 1857 00:0A87: 21 53                        dw      (((('T'-'@')<<5)|('Y'-'@'))<<5)|('A'-'@')
+  1858                                        MNEM    'T','Y','X'
++ 1858 00:0A89: 38 53                        dw      (((('T'-'@')<<5)|('Y'-'@'))<<5)|('X'-'@')
+  1859                                        MNEM    'W','A','I'
++ 1859 00:0A8B: 29 5C                        dw      (((('W'-'@')<<5)|('A'-'@'))<<5)|('I'-'@')
+  Mon Jun 18 2018 21:48                                                                                                    Page 37
 
 
-  1858                                        MNEM    'X','C','E'
-+ 1858 00:0A87: 65 60                        dw      (((('X'-'@')<<5)|('C'-'@'))<<5)|('E'-'@')
-  1859                        
-  1860                        ;===============================================================================
-  1861                        ; String Literals
-  1862                        ;-------------------------------------------------------------------------------
+  1860                                        MNEM    'W','D','M'
++ 1860 00:0A8D: 8D 5C                        dw      (((('W'-'@')<<5)|('D'-'@'))<<5)|('M'-'@')
+  1861                                        MNEM    'X','B','A'
++ 1861 00:0A8F: 41 60                        dw      (((('X'-'@')<<5)|('B'-'@'))<<5)|('A'-'@')
+  1862                                        MNEM    'X','C','E'
++ 1862 00:0A91: 65 60                        dw      (((('X'-'@')<<5)|('C'-'@'))<<5)|('E'-'@')
   1863                        
-  1864 00:0A89: 0D 0A        TITLE           db      CR,LF
-  1865                                        ifdef   W65C816SXB
-  1866 00:0A8B: 57 36 35 43                  db      "W65C816SXB"
-       00:0A8F: 38 31 36 53 
-       00:0A93: 58 42 
-  1867                                        endif
-  1868                                        ifdef   W65C265SXB
-  1869                                        db      "W65C265SXB"
-  1870                                        endif
-  1871 00:0A95: 2D 48 61 63                  db      "-Hacker [16.01]",0
-       00:0A99: 6B 65 72 20 
-       00:0A9D: 5B 31 36 2E 
-       00:0AA1: 30 31 5D 00 
-  1872                        
-  1873 00:0AA5: 0D 0A 45 72  ERROR           db      CR,LF,"Error - Type ? for help",0
-       00:0AA9: 72 6F 72 20 
-       00:0AAD: 2D 20 54 79 
-       00:0AB1: 70 65 20 3F 
-       00:0AB5: 20 66 6F 72 
-       00:0AB9: 20 68 65 6C 
-       00:0ABD: 70 00 
-  1874                        
-  1875 00:0ABF: 0D 0A 45 72  ERASE_FAILED    db      CR,LF,"Erase failed",0
-       00:0AC3: 61 73 65 20 
-       00:0AC7: 66 61 69 6C 
-       00:0ACB: 65 64 00 
-  1876 00:0ACE: 0D 0A 57 72  WRITE_FAILED    db      CR,LF,"Write failed",0
-       00:0AD2: 69 74 65 20 
-       00:0AD6: 66 61 69 6C 
-       00:0ADA: 65 64 00 
-  1877 00:0ADD: 0D 0A 57 44  NOT_SAFE        db      CR,LF,"WDC ROM Bank Selected",0
-       00:0AE1: 43 20 52 4F 
-       00:0AE5: 4D 20 42 61 
-       00:0AE9: 6E 6B 20 53 
-       00:0AED: 65 6C 65 63 
-       00:0AF1: 74 65 64 00 
-  1878 00:0AF5: 0D 0A 49 6E  INVALID_S19     db      CR,LF,"Invalid S19 record",0
-       00:0AF9: 76 61 6C 69 
-       00:0AFD: 64 20 53 31 
-       00:0B01: 39 20 72 65 
-       00:0B05: 63 6F 72 64 
-       00:0B09: 00 
-  1879                        
-  1880 00:0B0A: 0D 0A 57 61  WAITING         db      CR,LF,"Waiting for XMODEM transfer to start",0
-       00:0B0E: 69 74 69 6E 
-       00:0B12: 67 20 66 6F 
-       00:0B16: 72 20 58 4D 
-       00:0B1A: 4F 44 45 4D 
-       00:0B1E: 20 74 72 61 
-       00:0B22: 6E 73 66 65 
-       00:0B26: 72 20 74 6F 
-  Mon Jun 18 2018 10:10                                                                                                    Page 38
+  1864                        ;===============================================================================
+  1865                        ; String Literals
+  1866                        ;-------------------------------------------------------------------------------
+  1867                        
+  1868 00:0A93: 0D 0A        TITLE           db      CR,LF
+  1869                                        ifdef   W65C816SXB
+  1870 00:0A95: 57 36 35 43                  db      "W65C816SXB"
+       00:0A99: 38 31 36 53 
+       00:0A9D: 58 42 
+  1871                                        endif
+  1872                                        ifdef   W65C265SXB
+  1873                                        db      "W65C265SXB"
+  1874                                        endif
+  1875 00:0A9F: 2D 48 61 63                  db      "-Hacker [18.06]",0
+       00:0AA3: 6B 65 72 20 
+       00:0AA7: 5B 31 38 2E 
+       00:0AAB: 30 36 5D 00 
+  1876                        
+  1877 00:0AAF: 0D 0A 45 72  ERROR           db      CR,LF,"Error - Type ? for help",0
+       00:0AB3: 72 6F 72 20 
+       00:0AB7: 2D 20 54 79 
+       00:0ABB: 70 65 20 3F 
+       00:0ABF: 20 66 6F 72 
+       00:0AC3: 20 68 65 6C 
+       00:0AC7: 70 00 
+  1878                        
+  1879 00:0AC9: 0D 0A 45 72  ERASE_FAILED    db      CR,LF,"Erase failed",0
+       00:0ACD: 61 73 65 20 
+       00:0AD1: 66 61 69 6C 
+       00:0AD5: 65 64 00 
+  1880 00:0AD8: 0D 0A 57 72  WRITE_FAILED    db      CR,LF,"Write failed",0
+       00:0ADC: 69 74 65 20 
+       00:0AE0: 66 61 69 6C 
+       00:0AE4: 65 64 00 
+  1881 00:0AE7: 0D 0A 57 44  NOT_SAFE        db      CR,LF,"WDC ROM Bank Selected",0
+       00:0AEB: 43 20 52 4F 
+       00:0AEF: 4D 20 42 61 
+       00:0AF3: 6E 6B 20 53 
+       00:0AF7: 65 6C 65 63 
+       00:0AFB: 74 65 64 00 
+  1882 00:0AFF: 0D 0A 49 6E  INVALID_S19     db      CR,LF,"Invalid S19 record",0
+       00:0B03: 76 61 6C 69 
+       00:0B07: 64 20 53 31 
+       00:0B0B: 39 20 72 65 
+       00:0B0F: 63 6F 72 64 
+       00:0B13: 00 
+  1883                        
+  1884 00:0B14: 0D 0A 57 61  WAITING         db      CR,LF,"Waiting for XMODEM transfer to start",0
+       00:0B18: 69 74 69 6E 
+       00:0B1C: 67 20 66 6F 
+       00:0B20: 72 20 58 4D 
+  Mon Jun 18 2018 21:48                                                                                                    Page 38
 
 
-       00:0B2A: 20 73 74 61 
-       00:0B2E: 72 74 00 
-  1881 00:0B31: 0D 0A 54 69  TIMEOUT         db      CR,LF,"Timeout",0
-       00:0B35: 6D 65 6F 75 
-       00:0B39: 74 00 
-  1882                        
-  1883 00:0B3B: 0D 0A 42 20  HELP            db      CR,LF,"B bb           - Set memory bank"
-       00:0B3F: 62 62 20 20 
-       00:0B43: 20 20 20 20 
-       00:0B47: 20 20 20 20 
-       00:0B4B: 20 2D 20 53 
-       00:0B4F: 65 74 20 6D 
-       00:0B53: 65 6D 6F 72 
-       00:0B57: 79 20 62 61 
-       00:0B5B: 6E 6B 
-  1884 00:0B5D: 0D 0A 44 20                  db      CR,LF,"D ssss eeee    - Disassemble memory in current bank"
-       00:0B61: 73 73 73 73 
-       00:0B65: 20 65 65 65 
-       00:0B69: 65 20 20 20 
-       00:0B6D: 20 2D 20 44 
-       00:0B71: 69 73 61 73 
-       00:0B75: 73 65 6D 62 
-       00:0B79: 6C 65 20 6D 
-       00:0B7D: 65 6D 6F 72 
-       00:0B81: 79 20 69 6E 
-       00:0B85: 20 63 75 72 
-       00:0B89: 72 65 6E 74 
-       00:0B8D: 20 62 61 6E 
-       00:0B91: 6B 
-  1885 00:0B92: 0D 0A 45 20                  db      CR,LF,"E              - Erase ROM area"
-       00:0B96: 20 20 20 20 
-       00:0B9A: 20 20 20 20 
-       00:0B9E: 20 20 20 20 
-       00:0BA2: 20 2D 20 45 
-       00:0BA6: 72 61 73 65 
-       00:0BAA: 20 52 4F 4D 
-       00:0BAE: 20 61 72 65 
-       00:0BB2: 61 
-  1886                                        ifdef   W65C265SXB
-  1887                                        db      CR,LF,"F 0-1          - Disable/Enable WDC ROM"
-  1888                                        db      CR,LF,"H              - Hunt for RAM"
-  1889                                        endif
-  1890 00:0BB3: 0D 0A 47 20                  db      CR,LF,"G [xxxx]       - Run from bb:xxxx or invoke reset vector"
-       00:0BB7: 5B 78 78 78 
-       00:0BBB: 78 5D 20 20 
-       00:0BBF: 20 20 20 20 
-       00:0BC3: 20 2D 20 52 
-       00:0BC7: 75 6E 20 66 
-       00:0BCB: 72 6F 6D 20 
-       00:0BCF: 62 62 3A 78 
-       00:0BD3: 78 78 78 20 
-       00:0BD7: 6F 72 20 69 
-       00:0BDB: 6E 76 6F 6B 
-       00:0BDF: 65 20 72 65 
-       00:0BE3: 73 65 74 20 
-       00:0BE7: 76 65 63 74 
-       00:0BEB: 6F 72 
-  1891 00:0BED: 0D 0A 4D 20                  db      CR,LF,"M ssss eeee    - Display memory in current bank"
-  Mon Jun 18 2018 10:10                                                                                                    Page 39
+       00:0B24: 4F 44 45 4D 
+       00:0B28: 20 74 72 61 
+       00:0B2C: 6E 73 66 65 
+       00:0B30: 72 20 74 6F 
+       00:0B34: 20 73 74 61 
+       00:0B38: 72 74 00 
+  1885 00:0B3B: 0D 0A 54 69  TIMEOUT         db      CR,LF,"Timeout",0
+       00:0B3F: 6D 65 6F 75 
+       00:0B43: 74 00 
+  1886                        
+  1887 00:0B45: 0D 0A 42 20  HELP            db      CR,LF,"B bb           - Set memory bank"
+       00:0B49: 62 62 20 20 
+       00:0B4D: 20 20 20 20 
+       00:0B51: 20 20 20 20 
+       00:0B55: 20 2D 20 53 
+       00:0B59: 65 74 20 6D 
+       00:0B5D: 65 6D 6F 72 
+       00:0B61: 79 20 62 61 
+       00:0B65: 6E 6B 
+  1888 00:0B67: 0D 0A 44 20                  db      CR,LF,"D ssss eeee    - Disassemble memory in current bank"
+       00:0B6B: 73 73 73 73 
+       00:0B6F: 20 65 65 65 
+       00:0B73: 65 20 20 20 
+       00:0B77: 20 2D 20 44 
+       00:0B7B: 69 73 61 73 
+       00:0B7F: 73 65 6D 62 
+       00:0B83: 6C 65 20 6D 
+       00:0B87: 65 6D 6F 72 
+       00:0B8B: 79 20 69 6E 
+       00:0B8F: 20 63 75 72 
+       00:0B93: 72 65 6E 74 
+       00:0B97: 20 62 61 6E 
+       00:0B9B: 6B 
+  1889 00:0B9C: 0D 0A 45 20                  db      CR,LF,"E              - Erase ROM area"
+       00:0BA0: 20 20 20 20 
+       00:0BA4: 20 20 20 20 
+       00:0BA8: 20 20 20 20 
+       00:0BAC: 20 2D 20 45 
+       00:0BB0: 72 61 73 65 
+       00:0BB4: 20 52 4F 4D 
+       00:0BB8: 20 61 72 65 
+       00:0BBC: 61 
+  1890                                        ifdef   W65C265SXB
+  1891                                        db      CR,LF,"F 0-1          - Disable/Enable WDC ROM"
+  1892                                        db      CR,LF,"H              - Hunt for RAM"
+  1893                                        endif
+  1894 00:0BBD: 0D 0A 47 20                  db      CR,LF,"G [xxxx]       - Run from bb:xxxx or invoke reset vector"
+       00:0BC1: 5B 78 78 78 
+       00:0BC5: 78 5D 20 20 
+       00:0BC9: 20 20 20 20 
+       00:0BCD: 20 2D 20 52 
+       00:0BD1: 75 6E 20 66 
+       00:0BD5: 72 6F 6D 20 
+       00:0BD9: 62 62 3A 78 
+       00:0BDD: 78 78 78 20 
+       00:0BE1: 6F 72 20 69 
+       00:0BE5: 6E 76 6F 6B 
+       00:0BE9: 65 20 72 65 
+  Mon Jun 18 2018 21:48                                                                                                    Page 39
 
 
-       00:0BF1: 73 73 73 73 
-       00:0BF5: 20 65 65 65 
-       00:0BF9: 65 20 20 20 
-       00:0BFD: 20 2D 20 44 
-       00:0C01: 69 73 70 6C 
-       00:0C05: 61 79 20 6D 
-       00:0C09: 65 6D 6F 72 
-       00:0C0D: 79 20 69 6E 
-       00:0C11: 20 63 75 72 
-       00:0C15: 72 65 6E 74 
-       00:0C19: 20 62 61 6E 
-       00:0C1D: 6B 
-  1892 00:0C1E: 0D 0A 52 20                  db      CR,LF,"R 0-3          - Select ROM bank 0-3"
-       00:0C22: 30 2D 33 20 
-       00:0C26: 20 20 20 20 
-       00:0C2A: 20 20 20 20 
-       00:0C2E: 20 2D 20 53 
-       00:0C32: 65 6C 65 63 
-       00:0C36: 74 20 52 4F 
-       00:0C3A: 4D 20 62 61 
-       00:0C3E: 6E 6B 20 30 
-       00:0C42: 2D 33 
-  1893 00:0C44: 0D 0A 53 2E                  db      CR,LF,"S...           - Process S19 record"
-       00:0C48: 2E 2E 20 20 
-       00:0C4C: 20 20 20 20 
-       00:0C50: 20 20 20 20 
-       00:0C54: 20 2D 20 50 
-       00:0C58: 72 6F 63 65 
-       00:0C5C: 73 73 20 53 
-       00:0C60: 31 39 20 72 
-       00:0C64: 65 63 6F 72 
-       00:0C68: 64 
-  1894 00:0C69: 0D 0A 57 20                  db      CR,LF,"W xxxx yy      - Set memory at xxxx to yy"
-       00:0C6D: 78 78 78 78 
-       00:0C71: 20 79 79 20 
-       00:0C75: 20 20 20 20 
-       00:0C79: 20 2D 20 53 
-       00:0C7D: 65 74 20 6D 
-       00:0C81: 65 6D 6F 72 
-       00:0C85: 79 20 61 74 
-       00:0C89: 20 78 78 78 
-       00:0C8D: 78 20 74 6F 
-       00:0C91: 20 79 79 
-  1895 00:0C94: 0D 0A 58 20                  db      CR,LF,"X xxxx         - XMODEM receive to bb:xxxx"
-       00:0C98: 78 78 78 78 
-       00:0C9C: 20 20 20 20 
-       00:0CA0: 20 20 20 20 
-       00:0CA4: 20 2D 20 58 
-       00:0CA8: 4D 4F 44 45 
-       00:0CAC: 4D 20 72 65 
-       00:0CB0: 63 65 69 76 
-       00:0CB4: 65 20 74 6F 
-       00:0CB8: 20 62 62 3A 
-       00:0CBC: 78 78 78 78 
-  1896 00:0CC0: 00                           db      0
-  1897                        
-  1898                                        end
+       00:0BED: 73 65 74 20 
+       00:0BF1: 76 65 63 74 
+       00:0BF5: 6F 72 
+  1895 00:0BF7: 0D 0A 4D 20                  db      CR,LF,"M ssss eeee    - Display memory in current bank"
+       00:0BFB: 73 73 73 73 
+       00:0BFF: 20 65 65 65 
+       00:0C03: 65 20 20 20 
+       00:0C07: 20 2D 20 44 
+       00:0C0B: 69 73 70 6C 
+       00:0C0F: 61 79 20 6D 
+       00:0C13: 65 6D 6F 72 
+       00:0C17: 79 20 69 6E 
+       00:0C1B: 20 63 75 72 
+       00:0C1F: 72 65 6E 74 
+       00:0C23: 20 62 61 6E 
+       00:0C27: 6B 
+  1896 00:0C28: 0D 0A 52 20                  db      CR,LF,"R 0-3          - Select ROM bank 0-3"
+       00:0C2C: 30 2D 33 20 
+       00:0C30: 20 20 20 20 
+       00:0C34: 20 20 20 20 
+       00:0C38: 20 2D 20 53 
+       00:0C3C: 65 6C 65 63 
+       00:0C40: 74 20 52 4F 
+       00:0C44: 4D 20 62 61 
+       00:0C48: 6E 6B 20 30 
+       00:0C4C: 2D 33 
+  1897 00:0C4E: 0D 0A 53 2E                  db      CR,LF,"S...           - Process S19 record"
+       00:0C52: 2E 2E 20 20 
+       00:0C56: 20 20 20 20 
+       00:0C5A: 20 20 20 20 
+       00:0C5E: 20 2D 20 50 
+       00:0C62: 72 6F 63 65 
+       00:0C66: 73 73 20 53 
+       00:0C6A: 31 39 20 72 
+       00:0C6E: 65 63 6F 72 
+       00:0C72: 64 
+  1898 00:0C73: 0D 0A 57 20                  db      CR,LF,"W xxxx yy      - Set memory at xxxx to yy"
+       00:0C77: 78 78 78 78 
+       00:0C7B: 20 79 79 20 
+       00:0C7F: 20 20 20 20 
+       00:0C83: 20 2D 20 53 
+       00:0C87: 65 74 20 6D 
+       00:0C8B: 65 6D 6F 72 
+       00:0C8F: 79 20 61 74 
+       00:0C93: 20 78 78 78 
+       00:0C97: 78 20 74 6F 
+       00:0C9B: 20 79 79 
+  1899 00:0C9E: 0D 0A 58 20                  db      CR,LF,"X xxxx         - XMODEM receive to bb:xxxx"
+       00:0CA2: 78 78 78 78 
+       00:0CA6: 20 20 20 20 
+       00:0CAA: 20 20 20 20 
+       00:0CAE: 20 2D 20 58 
+       00:0CB2: 4D 4F 44 45 
+       00:0CB6: 4D 20 72 65 
+       00:0CBA: 63 65 69 76 
+       00:0CBE: 65 20 74 6F 
+       00:0CC2: 20 62 62 3A 
+       00:0CC6: 78 78 78 78 
+  Mon Jun 18 2018 21:48                                                                                                    Page 40
 
-  Mon Jun 18 2018 10:10                                                                                                    Page 40
+
+  1900 00:0CCA: 00                           db      0
+  1901                        
+  1902                                        end
 
 
-
-      Lines assembled: 2124
+      Lines assembled: 2128
       Errors: 0

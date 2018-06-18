@@ -1389,10 +1389,14 @@ TxImplied:
                 rts
 
 TxMove:
+                lda     #'$'
+                jsr     UartTx
                 ldy     #1
                 lda     [ADDR_S],Y
                 jsr     TxHex2
                 lda     #','
+                jsr     UartTx
+                lda     #'$'
                 jsr     UartTx
                 iny
                 lda     [ADDR_S],Y
@@ -1868,7 +1872,7 @@ TITLE           db      CR,LF
                 ifdef   W65C265SXB
                 db      "W65C265SXB"
                 endif
-                db      "-Hacker [16.01]",0
+                db      "-Hacker [18.06]",0
 
 ERROR           db      CR,LF,"Error - Type ? for help",0
 
