@@ -1,4 +1,4 @@
-  Wed Feb  3 2016 20:35                                                                                                    Page 1
+  Mon Jun 18 2018 10:10                                                                                                    Page 1
 
 
                                                ***************************************
@@ -59,7 +59,7 @@
     18                        ;
     19                        ;===============================================================================
     20                        ; Notes:
-  Wed Feb  3 2016 20:35                                                                                                    Page 2
+  Mon Jun 18 2018 10:10                                                                                                    Page 2
 
 
     21                        ;
@@ -120,7 +120,7 @@
     76                                        rep     #X_FLAG
     77                                        longi   on
     78                                        endm
-  Wed Feb  3 2016 20:35                                                                                                    Page 3
+  Mon Jun 18 2018 10:10                                                                                                    Page 3
 
 
     79                        
@@ -181,7 +181,7 @@
     23                        ; 'Transmit Data Register Empty' (TDRE) bit in the status register to be stuck
     24                        ; high making it impossible to tell when the transmitter is ready for the next
     25                        ; data byte.
-  Wed Feb  3 2016 20:35                                                                                                    Page 4
+  Mon Jun 18 2018 10:10                                                                                                    Page 4
 
 
     26                        ;
@@ -242,7 +242,7 @@
     81             00007FE1   VIA2_IRA        equ     $7fe1
     82             00007FE2   VIA2_DDRB       equ     $7fe2
     83             00007FE3   VIA2_DDRA       equ     $7fe3
-  Wed Feb  3 2016 20:35                                                                                                    Page 5
+  Mon Jun 18 2018 10:10                                                                                                    Page 5
 
 
     84             00007FE4   VIA2_T1CL       equ     $7fe4
@@ -303,7 +303,7 @@
     76 00:0013: 9C 83 7F                     stz     ACIA_CTL
     77 00:0016: 9C 81 7F                     stz     ACIA_SR
     78                        
-  Wed Feb  3 2016 20:35                                                                                                    Page 6
+  Mon Jun 18 2018 10:10                                                                                                    Page 6
 
 
     79 00:0019: A9 1F                        lda     #%00011111              ; 8 bits, 1 stop bit, 19200 baud
@@ -364,7 +364,7 @@
    132 00:003F: 80 FE                        bra     $                       ; Loop forever
    133                        
    134                        ;===============================================================================
-  Wed Feb  3 2016 20:35                                                                                                    Page 7
+  Mon Jun 18 2018 10:10                                                                                                    Page 7
 
 
    135                        ; USB FIFO Interface
@@ -425,7 +425,7 @@
    190                                        nop
    191                                        nop
    192                                        nop
-  Wed Feb  3 2016 20:35                                                                                                    Page 8
+  Mon Jun 18 2018 10:10                                                                                                    Page 8
 
 
    193                                        lda     VIA2_IRA                ; Read it
@@ -486,7 +486,7 @@
    246                        ; Fetch the next character from the receive buffer waiting for some to arrive
    247                        ; if the buffer is empty.
    248                        
-  Wed Feb  3 2016 20:35                                                                                                    Page 9
+  Mon Jun 18 2018 10:10                                                                                                    Page 9
 
 
    249                                        public  UartRx
@@ -547,7 +547,7 @@
    298 00:008C: B0 02        		bcs	$+4
    299 00:008E: 09 0C        		ora	#%00001100
    300 00:0090: 8D EC 7F     		sta	VIA2_PCR		; And set
-  Wed Feb  3 2016 20:35                                                                                                    Page 10
+  Mon Jun 18 2018 10:10                                                                                                    Page 10
 
 
    301 00:0093: 28           		plp		
@@ -608,7 +608,7 @@
    356                        
    357 01:0000:                              ends
    358                        
-  Wed Feb  3 2016 20:35                                                                                                    Page 11
+  Mon Jun 18 2018 10:10                                                                                                    Page 11
 
 
    359                                        end
