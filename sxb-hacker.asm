@@ -688,7 +688,7 @@ NotROMBank:
                 bcs     S19Fail
                 lda     ADDR_E                  ; Use as initial checksum
                 sta     SUM
-                dec     ADDR_E
+                ; Byte count not included in the S19 byte count field
                 beq     S19Fail
 
                 ldx     #ADDR_S                 ; Get address
