@@ -199,7 +199,7 @@ RxWait:         bit     VIA2_IRB
 ; Check if the receive buffer in the FIFO contains any data and return C=1 if
 ; there is some.
 
-                public  UartRxText
+                public  UartRxTest
 UartRxTest:
                 pha                             ; Save callers A
                 php                             ; Save register sizes
