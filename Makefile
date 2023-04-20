@@ -35,6 +35,8 @@ clean:
 		$(RM) $(OBJS)
 		$(RM) *.bin
 		$(RM) *.lst
+		$(RM) *.map
+		$(RM) *.sym
 
 debug:
 		$(DEBUG)
