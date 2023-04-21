@@ -54,9 +54,25 @@ Using the 'R' command you can pick another ROM memory bank, like 0
 00:FFE0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF |................|
 00:FFF0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF |................|
 ```
-The 'E' command will erase a ROM bank from 8000 to FFFF ready for a new
-image to be loaded. After erasing the entire region should be set to FF
-values.
+The 'E' command erases ROM sectors. Each sector is 4 KB and may be erased individually.
+If no starting address is specified, the start of ROM is assumed (8000). If no ending address
+is specified, the end of ROM is assumed (FFFF).
+
+Erase the currently-selected ROM bank
+```
+.E
+```
+Erase the first two sectors of the currently-selected ROM bank
+```
+.E 8000 9FFF
+```
+All flash sectors containing an address in the specified range (inclusive) will be erased.
+This command erases two flash sectors, spanning addresses 8000 through 9FFF.
+```
+.E 8FFF 9000
+```
+
+Once a region is erased, it is set to FF values, ready for a new image to be loaded.
 
 The 'X' command starts an XMODEM download to the specified address. You can
 download into any memory area including the ROM as long as the WDC firmware
