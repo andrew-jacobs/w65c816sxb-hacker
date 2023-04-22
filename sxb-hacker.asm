@@ -399,11 +399,42 @@ NotDisassemble:
                 tsb     BCR
                 endif
 
-                lda     #$00                    ; Set start address
+                ldx     #ADDR_S                 ; Parse optional start address
+                jsr     GetAddr
+                bcc     SkipStartAddrInit
+
+                lda     #$00                    ; Set default start address
                 sta     ADDR_S+0
                 lda     #$80
                 sta     ADDR_S+1
+
+SkipStartAddrInit:
+
+                ldx     #ADDR_E                 ; Parse optional end address
+                jsr     GetAddr
+                bcc     SkipEndAddrInit
+
+                lda     #$FF                    ; Set default end address
+                sta     ADDR_E+0
+                lda     #$FF
+                sta     ADDR_E+1
+
+SkipEndAddrInit:
+
+                lda     ADDR_S+1                ; Ensure start is within ROM
+                bmi     $+5
+                jmp     ShowError
+
+                lda     ADDR_E+1                ; Ensure end  is within ROM
+                bmi     $+5
+                jmp     ShowError
+
+                lda     ADDR_S+1                ; Clip the starting address
+                and     #$F0
+                sta     ADDR_S+1
+
 EraseLoop:
+
                 lda     #$aa                    ; Unlock flash
                 sta     $8000+$5555
                 lda     #$55
@@ -426,7 +457,11 @@ EraseWait:
                 lda     ADDR_S+1
                 adc     #$10
                 sta     ADDR_S+1
-                bcc     EraseLoop               ; Repeat until end of memory
+
+                clc                             ; Clear C to include the end
+                sbc     ADDR_E+1                ; addr in the range to erase.
+
+                bmi     EraseLoop               ; Repeat until complete
 
                 ifdef   W65C265SXB
                 pla                             ; Restore mask ROM state
@@ -1872,7 +1907,7 @@ TITLE           db      CR,LF
                 ifdef   W65C265SXB
                 db      "W65C265SXB"
                 endif
-                db      "-Hacker [18.06]",0
+                db      "-Hacker (Enhanced) [19.00]",0
 
 ERROR           db      CR,LF,"Error - Type ? for help",0
 
@@ -1884,19 +1919,19 @@ INVALID_S19     db      CR,LF,"Invalid S19 record",0
 WAITING         db      CR,LF,"Waiting for XMODEM transfer to start",0
 TIMEOUT         db      CR,LF,"Timeout",0
 
-HELP            db      CR,LF,"B bb           - Set memory bank"
-                db      CR,LF,"D ssss eeee    - Disassemble memory in current bank"
-                db      CR,LF,"E              - Erase ROM area"
+HELP            db      CR,LF,"B bb            - Set memory bank"
+                db      CR,LF,"D ssss eeee     - Disassemble memory in current bank"
+                db      CR,LF,"E [ssss] [eeee] - Erase ROM area"
                 ifdef   W65C265SXB
-                db      CR,LF,"F 0-1          - Disable/Enable WDC ROM"
-                db      CR,LF,"H              - Hunt for RAM"
+                db      CR,LF,"F 0-1           - Disable/Enable WDC ROM"
+                db      CR,LF,"H               - Hunt for RAM"
                 endif
-                db      CR,LF,"G [xxxx]       - Run from bb:xxxx or invoke reset vector"
-                db      CR,LF,"M ssss eeee    - Display memory in current bank"
-                db      CR,LF,"R 0-3          - Select ROM bank 0-3"
-                db      CR,LF,"S...           - Process S19 record"
-                db      CR,LF,"W xxxx yy      - Set memory at xxxx to yy"
-                db      CR,LF,"X xxxx         - XMODEM receive to bb:xxxx"
+                db      CR,LF,"G [xxxx]        - Run from bb:xxxx or invoke reset vector"
+                db      CR,LF,"M ssss eeee     - Display memory in current bank"
+                db      CR,LF,"R 0-3           - Select ROM bank 0-3"
+                db      CR,LF,"S...            - Process S19 record"
+                db      CR,LF,"W xxxx yy       - Set memory at xxxx to yy"
+                db      CR,LF,"X xxxx          - XMODEM receive to bb:xxxx"
                 db      0
 
                 end
